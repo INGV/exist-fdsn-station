@@ -1,0 +1,219 @@
+xquery version "3.1";
+
+module namespace stationutil="http://exist-db.org/apps/fdsn-station/modules/stationutil";
+
+declare default element namespace "http://www.fdsn.org/xml/station/1" ;
+declare namespace ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd";
+(:declare namespace functx = "http://www.functx.com";:)
+(:declare namespace stationutil="http://exist-db.org/apps/fdsn-station/modules";:)
+(:import module namespace stationutil="http://exist-db.org/apps/fdsn-station/modules/stationutil"  at "util.xql";:)
+
+declare namespace request="http://exist-db.org/xquery/request";
+declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
+declare option output:method "xml";
+declare option output:media-type "text/xml";
+
+
+(: Functions declarations  :)
+
+declare function stationutil:stationcount($netcode as xs:string) as item()
+{
+    for $item in collection("/db/apps/fdsn-station/Station/")
+        let $network:= $item//Network[@code=$netcode]
+        let $station:= $network/Station
+        where $network/@code=$netcode
+        group by $netcode
+    return count($station)
+};
+
+
+declare function stationutil:sanitize ($input as xs:string) as xs:string
+{
+  let $output:=translate( $input, "|", "-")    
+  return $output  
+};
+
+declare function stationutil:network_pattern_translate ($input as xs:string) as xs:string
+{
+   
+   let $tokens := tokenize(stationutil:sanitize($input), "[,\s]+")
+(: split input by commas in tokens, check lenght of every token two chars, chars can be alphanum and ? or * :)
+(:  return a pattern for regex, for exact match include the pattern as in ^pattern$ :)
+
+   return "("||string-join( 
+   for $token in $tokens
+   return 
+        if (string-length($token)=2) 
+        then
+            let $pattern:= translate( $token, "*", ".*")
+            let $pattern:= translate( $pattern, "?", ".")
+                (: * -> 0 or more characters, ? exactly one character :)
+                return "^"||$pattern||"$"
+        else if (string-length($token)=1) then
+                let $pattern:= translate( $token, "*", ".*")
+            return $pattern
+        else if (string-length($token)=0) then
+                let $pattern:= ""
+            return $pattern
+        else 
+            let $pattern:="NEVERMATCH"
+            return $pattern
+            
+    , "|") || ")"       
+};
+
+declare function stationutil:station_pattern_translate ($input as xs:string) as xs:string
+{
+(:   let $tokens := tokenize(stationutil:sanitize($input), "[,\s]+"):)
+(: split input by commas in tokens, check lenght of every token 3-5 chars, chars can be alphanum and ? or * :)
+    let $input_string:= string-join($input,",")
+    let $tokens := tokenize($input_string,",")
+ 
+   return "("||string-join( 
+   for $token in $tokens
+   return 
+        if (string-length($token)<6 ) 
+        then
+            let $pattern:= translate( $token, "*", ".*")
+            let $pattern:= translate( $pattern, "?", ".")
+            (: * -> 0 or more characters, ? exactly one character :)                
+(:                return:)
+(:                $pattern    :)
+             return "^"||$pattern
+        else
+            let $pattern:="NEVERMATCH"
+            return $pattern
+    , "|") || ")"        
+};
+
+declare function stationutil:channel_pattern_translate($input as item()*) as xs:string
+{
+(:   let $tokens := tokenize(functx:sanitize($input), ","):)
+
+    let $input_string:= string-join($input,",")
+    let $tokens := tokenize($input_string,",")
+
+(: split input by commas in tokens, check lenght of every token 3-5 chars, chars can be alphanum and ? or * :)
+   return 
+    "("||string-join( 
+   for $token in $tokens
+   return 
+        if (string-length($token)<4 ) 
+        then
+            let $pattern:= translate( $token, "*", ".*")
+            let $pattern:= translate( $pattern, "?", ".")
+                (: every character will remain the same, only * and ? become . ():)
+            return
+                     $pattern
+        else
+            let $pattern:="NEVERMATCH"
+            return $pattern
+    , "|") || ")"    
+};
+
+declare function stationutil:location_pattern_translate($input as item()*) as xs:string
+{
+
+    let $input_string:= string-join($input,",")
+    let $tokens := tokenize($input_string,",")
+
+(: split input by commas in tokens, check lenght of every token 3-5 chars, chars can be alphanum and ? or * :)
+   return 
+    "("||string-join( 
+   for $token in $tokens
+   return 
+(:       ".*":)
+        if (string-length($token)<3) 
+        then
+            let $pattern:= replace( $token, "\*", ".*")
+            let $pattern:= translate( $pattern, "?", ".")
+            let $pattern:= if ($pattern="") then "^$" else $pattern
+            let $pattern:= if ($pattern="--") then "^$" else $pattern
+(:                (: every character will remain the same, only * and ? become . ():):)
+            return
+                     $pattern
+        else
+            let $pattern:="NEVERMATCH"
+            return $pattern
+
+    , "|") || ")"    
+};
+
+
+declare function stationutil:channel_exists() as xs:boolean
+{
+    
+let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0"))
+let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90.0"))
+let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180.0"))
+let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180.0"))   
+let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
+let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
+let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
+let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))
+let $network_param := request:get-parameter("network", "*")
+let $station_param := request:get-parameter("station", "*")
+let $channel_param := request:get-parameter("channel", "*")
+let $location_param := request:get-parameter("location", "*")
+
+return 
+
+not(empty(
+for $item in collection("/db/apps/fdsn-station/Station/")
+
+    let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
+    let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
+    let $CreationDate:= $item/FDSNStationXML/Network/Station/CreationDate
+    let $TerminationDate:= $item/FDSNStationXML/Network/Station/TerminationDate 
+    let $pattern:=stationutil:channel_pattern_translate($channel_param)
+    let $locationpattern:=stationutil:location_pattern_translate($location_param)
+where 
+    $Latitude  > $minlatitude 
+    and $Latitude  < $maxlatitude 
+    and $Longitude > $minlongitude 
+    and $Longitude < $maxlongitude 
+    and $CreationDate < $startbefore
+    and $CreationDate > $startafter  
+    for $network in $item//Network  
+        let $networkcode := $network/@code
+        let $station :=$network/Station
+        let $stationcode:=$station/@code
+        let $selchannelcode:=$station/Channel/@code
+        let $selchannellocationcode:=$station/Channel/@locationCode
+    where
+        matches($networkcode, stationutil:network_pattern_translate($network_param) ) 
+        and matches($stationcode, stationutil:station_pattern_translate($station_param) )
+        and matches ($selchannelcode, $pattern)        
+        and matches ($selchannellocationcode,$locationpattern)
+        return $selchannelcode 
+    ))
+};
+
+declare function stationutil:check_parameters_limits() as xs:boolean? 
+{
+
+let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0"))
+let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90"))
+let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180"))
+let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180"))   
+let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
+let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
+let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
+let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))
+let $network_param := request:get-parameter("network", "*")
+let $station_param := request:get-parameter("station", "*")
+let $station_param := request:get-parameter("channel", "*")
+let $outputlevel := request:get-parameter("level", "network")
+
+return if (
+           ($minlatitude>90.0 or $maxlatitude > 90.0 or $minlatitude<-90.0 or $maxlatitude <-90.0
+           or $minlatitude > $maxlatitude 
+           or $minlongitude>180.0 or $maxlongitude > 180.0 or $minlongitude<-180.0 or $maxlongitude <-180.0
+           or $minlongitude > $maxlongitude 
+           or $startbefore < $startafter
+           or $endbefore < $endafter
+           or not(matches($outputlevel,"network|station|channel|response"))
+           )) then false() else true()
+} ;
+
+(:locationCode:)
