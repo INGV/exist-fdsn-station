@@ -77,8 +77,6 @@ declare function stationutil:station_pattern_translate ($input as xs:string) as 
             let $pattern:= translate( $token, "*", ".*")
             let $pattern:= translate( $pattern, "?", ".")
             (: * -> 0 or more characters, ? exactly one character :)                
-(:                return:)
-(:                $pattern    :)
              return "^"||$pattern
         else
             let $pattern:="NEVERMATCH"
@@ -139,7 +137,7 @@ declare function stationutil:location_pattern_translate($input as item()*) as xs
     , "|") || ")"    
 };
 
-
+(:TODO fixme termination date:)
 declare function stationutil:channel_exists() as xs:boolean
 {
     
@@ -163,8 +161,10 @@ for $item in collection("/db/apps/fdsn-station/Station/")
 
     let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
     let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
-    let $CreationDate:= $item/FDSNStationXML/Network/Station/CreationDate
-    let $TerminationDate:= $item/FDSNStationXML/Network/Station/TerminationDate 
+(:TODO move check on channes epochs    :)
+    let $CreationDate:= $item/FDSNStationXML/Network/Station/Channel/@startDate
+    let $TerminationDate:= $item/FDSNStationXML/Network/Station/Channel/@endDate
+(:TODO move check on channes epochs    :)    
     let $pattern:=stationutil:channel_pattern_translate($channel_param)
     let $locationpattern:=stationutil:location_pattern_translate($location_param)
 where 
@@ -173,7 +173,9 @@ where
     and $Longitude > $minlongitude 
     and $Longitude < $maxlongitude 
     and $CreationDate < $startbefore
-    and $CreationDate > $startafter  
+    and $CreationDate > $startafter 
+    and $TerminationDate < $endbefore
+    and $TerminationDate > $endafter 
     for $network in $item//Network  
         let $networkcode := $network/@code
         let $station :=$network/Station
