@@ -42,7 +42,7 @@ if (stationutil:check_parameters_limits() and stationutil:channel_exists()) then
   <ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
   <Created>{current-dateTime()}</Created>
 {
-(:  any level file must match the default level :    :)
+(:  any level file must match the default level :)
 let $outputlevel := request:get-parameter("level", "channel")
 
 let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0"))
