@@ -54,15 +54,17 @@ for $item in collection("/db/apps/fdsn-station/Station/")
 
 let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
 let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
-let $CreationDate:= $item/FDSNStationXML/Network/Station/CreationDate
-let $TerminationDate:= $item/FDSNStationXML/Network/Station/TerminationDate 
+let $CreationDate:= $item/FDSNStationXML/Network/Station/Channel/@startDate
+let $TerminationDate:= $item/FDSNStationXML/Network/Station/Channel/@endDate
 
 where $Latitude  > $minlatitude and  
       $Latitude  < $maxlatitude and 
       $Longitude > $minlongitude and 
       $Longitude < $maxlongitude and 
       $CreationDate < $startbefore and 
-      $CreationDate > $startafter  
+      $CreationDate > $startafter  and
+      $TerminationDate < $endbefore and 
+      $TerminationDate > $endafter  
     
 for $network in $item//Network  
     let $networkcode := $network/@code
