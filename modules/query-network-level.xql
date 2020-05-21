@@ -63,8 +63,8 @@ where $Latitude  > $minlatitude and
       $Longitude < $maxlongitude and 
       $CreationDate < $startbefore and 
       $CreationDate > $startafter  and
-      $TerminationDate < $endbefore and 
-      $TerminationDate > $endafter  
+      (empty($TerminationDate) or ($TerminationDate < $endbefore)) and 
+      (empty($TerminationDate) or ($TerminationDate > $endafter))  
     
 for $network in $item//Network  
     let $networkcode := $network/@code
