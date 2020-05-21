@@ -129,8 +129,8 @@ for $network in $item//Network
             $Longitude < $maxlongitude and 
             $CreationDate < $startbefore and 
             $CreationDate > $startafter  and
-            $TerminationDate < $endbefore and 
-            $TerminationDate > $endafter  and
+            (empty($TerminationDate) or ($TerminationDate < $endbefore)) and 
+            (empty($TerminationDate) or ($TerminationDate > $endafter))  and
             matches ($channelcode,  $pattern) and
             matches ($channellocationcode,  $location_pattern)
             order by $station/@code
