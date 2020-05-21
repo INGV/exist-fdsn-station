@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta xmlns="http://exist-db.org/xquery/repo">
+    <description>fdsn station implementation</description>
+    <author>Stefano Pintore</author>
+    <website/>
+    <status>alpha</status>
+    <license>GNU-LGPL</license>
+    <copyright>true</copyright>
+    <type>application</type>
+    <target>fdsn-station</target>
+    <prepare>pre-install.xql</prepare>
+    <finish/>
+<deployed>2020-05-01T15:31:10.342+02:00</deployed>
+</meta>
