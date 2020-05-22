@@ -85,10 +85,10 @@ for $network in $item//Network
     let $ingv_identifier := $network/ingv:Identifier
     let $defaultdate:=xs:dateTime("6000-01-01T01:01:01")
     where
-        (($missing_startbefore) or ($CreationDate < $startbefore)) and 
-        (($missing_startafter) or($CreationDate > $startafter))  and
-        (($missing_endbefore) or  (not(empty($TerminationDate)) and (($TerminationDate < $endbefore))) )and
-        (($missing_endafter) or  (empty($TerminationDate)) or ($TerminationDate > $endafter)) and
+        stationutil:parameter_constraint(
+            $missing_startbefore, $missing_startafter, $missing_endbefore, $missing_endafter,
+            $startbefore, $startafter, $endbefore, $endafter, 
+            $CreationDate, $TerminationDate ) and
         matches($networkcode,  $network_pattern ) 
         and matches($stationcode,  $station_pattern )
         and matches ($channelcode,  $channel_pattern) 

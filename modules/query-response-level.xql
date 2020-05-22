@@ -60,7 +60,7 @@ where $Latitude  > $minlatitude and
       $Longitude < $maxlongitude and 
       $CreationDate < $startbefore and 
       $CreationDate > $startafter and
-      (empty($TerminationDate) or ($TerminationDate < $endbefore)) and 
+      (not(empty($TerminationDate)) or ($TerminationDate < $endbefore)) and 
       (empty($TerminationDate) or ($TerminationDate > $endafter))       
     
 for $network in $item//Network  
@@ -117,7 +117,7 @@ for $network in $item//Network
             $Longitude < $maxlongitude and 
             $CreationDate < $startbefore and 
             $CreationDate > $startafter  and
-            (empty($TerminationDate) or ($TerminationDate < $endbefore))  and 
+            (not(empty($TerminationDate)) or ($TerminationDate < $endbefore))  and 
             (empty($TerminationDate) or ($TerminationDate > $endafter))    and            
             matches ($channelcode,  $pattern ) and
             matches ($channellocationcode,  $location_pattern)
@@ -143,7 +143,13 @@ for $network in $item//Network
                 let $channellocationcode:=$channel/@locationCode
                 let $pattern:=stationutil:channel_pattern_translate($channel_param)
                 let $location_pattern:=stationutil:location_pattern_translate($location_param)
+                let $CreationDate:= $channel/@startDate
+                let $TerminationDate:= $channel/@endDate                
                 where 
+                    $CreationDate < $startbefore
+                    and $CreationDate > $startafter  and
+                    (not(empty($TerminationDate)) or ($TerminationDate < $endbefore)) and 
+                    (empty($TerminationDate) or ($TerminationDate > $endafter))  and                
                     matches ($selchannelcode,  $pattern ) and
                     matches ($channellocationcode,  $location_pattern)
                 return $selchannelcode)
@@ -154,8 +160,14 @@ for $network in $item//Network
                 let $selchannelcode:=$channel/@code
                 let $channellocationcode:=$channel/@locationCode
                 let $pattern:=stationutil:channel_pattern_translate($channel_param)
-                let $location_pattern:=stationutil:location_pattern_translate($location_param)                
+                let $location_pattern:=stationutil:location_pattern_translate($location_param)
+                let $CreationDate:= $channel/@startDate
+                let $TerminationDate:= $channel/@endDate                
                 where 
+                    $CreationDate < $startbefore
+                    and $CreationDate > $startafter  and
+                    (not(empty($TerminationDate)) or ($TerminationDate < $endbefore)) and 
+                    (empty($TerminationDate) or ($TerminationDate > $endafter))  and                
                     matches ($selchannelcode,  $pattern )and
                     matches ($channellocationcode,  $location_pattern)
                 return $channel

@@ -137,6 +137,71 @@ declare function stationutil:location_pattern_translate($input as item()*) as xs
     , "|") || ")"    
 };
 
+
+declare function stationutil:parameter_constraint_onchannel(
+    $missing_startbefore as xs:boolean*, 
+    $missing_startafter as xs:boolean*,
+    $missing_endbefore as xs:boolean*,
+    $missing_endafter as xs:boolean*,
+    $startbefore as xs:dateTime*,  
+    $startafter as xs:dateTime*, 
+    $endbefore as xs:dateTime*, 
+    $endafter as xs:dateTime*, 
+    $CreationDate as xs:dateTime*, 
+    $TerminationDate as xs:dateTime* ) as xs:boolean 
+    {
+        (($missing_startbefore) or ($CreationDate < $startbefore)) and 
+        (($missing_startafter) or($CreationDate > $startafter))  and
+        (($missing_endbefore) or  (not(empty($TerminationDate)) and (($TerminationDate < $endbefore))) )and
+        (($missing_endafter) or  (empty($TerminationDate)) or ($TerminationDate > $endafter))     
+};
+
+declare function stationutil:channel_match( $channels as item()* )  as xs:boolean *
+{
+ 
+(:I valori di default non hanno senso, se non sono passati i parametri bisogna saltare il check :)
+(:FUNZIONE DA CANCELLARE:)
+    for $channel in $channels
+    
+        let $missing_startbefore := request:get-parameter("startbefore", true())
+        let $missing_endbefore := request:get-parameter("endbefore", true())
+        let $missing_startafter := request:get-parameter("startafter", true())
+        let $missing_endafter := request:get-parameter("endafter", true())
+        let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
+        let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
+        let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
+        let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))
+        let $network_param := request:get-parameter("network", "*")
+        let $station_param := request:get-parameter("station", "*")
+        let $channel_param := request:get-parameter("channel", "*")
+        let $location_param := request:get-parameter("location", "*")
+        let $CreationDate:= $channel/@startDate
+        let $TerminationDate:= $channel/@endDate
+        let $Latitude:= $channel/Latitude
+        let $Longitude:=  $channel//Longitude    
+        let $pattern:=stationutil:channel_pattern_translate($channel_param)
+        let $locationpattern:=stationutil:location_pattern_translate($location_param)
+        let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0"))
+        let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90.0"))
+        let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180.0"))
+        let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180.0"))          
+       return 
+(:        concat(   :)
+(:            $channelcode=$channel/@Code and:)
+            $Latitude  > $minlatitude 
+            and $Latitude  < $maxlatitude 
+            and $Longitude > $minlongitude 
+            and $Longitude < $maxlongitude and
+           (($missing_startbefore) or ($CreationDate < $startbefore)) and 
+            (($missing_startafter) or($CreationDate > $startafter))  and
+            (($missing_endbefore) or  (not(empty($TerminationDate)) and ($TerminationDate < $endbefore))) and
+            (($missing_endafter) or  (empty($TerminationDate)) or ($TerminationDate > $endafter))
+(:            , ","    :)
+(:        ):)
+        
+
+};
+
 (:TODO fixme termination date:)
 declare function stationutil:channel_exists() as xs:boolean
 {
@@ -145,6 +210,11 @@ let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0"))
 let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90.0"))
 let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180.0"))
 let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180.0"))   
+(:I valori di default non hanno senso, se non sono passati i parametri bisogna saltare il check :)
+let $missing_startbefore := request:get-parameter("startbefore", true())
+let $missing_endbefore := request:get-parameter("endbefore", true())
+let $missing_startafter := request:get-parameter("startafter", true())
+let $missing_endafter := request:get-parameter("endafter", true())
 let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
 let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
 let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
@@ -156,14 +226,14 @@ let $location_param := request:get-parameter("location", "*")
 
 return 
 
-not(empty(
+if (not(empty(
 for $item in collection("/db/apps/fdsn-station/Station/")
 
     let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
     let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
-(:TODO move check on channes epochs    :)
-    let $CreationDate:= $item/FDSNStationXML/Network/Station/Channel/@startDate
-    let $TerminationDate:= $item/FDSNStationXML/Network/Station/Channel/@endDate
+(:TODO move check on channels epochs    :)
+(:    let $CreationDate:= $item/FDSNStationXML/Network/Station/Channel/@startDate:)
+(:    let $TerminationDate:= $item/FDSNStationXML/Network/Station/Channel/@endDate:)
 (:TODO move check on channes epochs    :)    
     let $pattern:=stationutil:channel_pattern_translate($channel_param)
     let $locationpattern:=stationutil:location_pattern_translate($location_param)
@@ -172,27 +242,38 @@ where
     and $Latitude  < $maxlatitude 
     and $Longitude > $minlongitude 
     and $Longitude < $maxlongitude 
-    and $CreationDate < $startbefore
-    and $CreationDate > $startafter  and
-    (empty($TerminationDate) or ($TerminationDate < $endbefore)) and 
-    (empty($TerminationDate) or ($TerminationDate > $endafter))  
-
+(:    and $CreationDate < $startbefore:)
+(:    and $CreationDate > $startafter  :)
+(:    and:)
+(:    (not(empty($TerminationDate)) or ($TerminationDate < $endbefore)) and :)
+(:    (empty($TerminationDate) or ($TerminationDate > $endafter))  :)
     for $network in $item//Network  
         let $networkcode := $network/@code
         let $station :=$network/Station
         let $stationcode:=$station/@code
-        let $selchannelcode:=$station/Channel/@code
-        let $selchannellocationcode:=$station/Channel/@locationCode
+        let $channel:=$station/Channel
+        let $CreationDate:= $channel/@startDate
+        let $TerminationDate:= $channel/@endDate
+        let $selchannelcode:=$channel/@code
+        let $selchannellocationcode:=$channel/@locationCode
+        let $CreationDate:= $channel/@startDate
+        let $TerminationDate:= $channel/@endDate     
     where
+        (($missing_startbefore) or ($CreationDate < $startbefore)) and 
+        (($missing_startafter) or($CreationDate > $startafter))  and
+        (($missing_endbefore) or  (not(empty($TerminationDate)) and ($TerminationDate < $endbefore))) and
+        (($missing_endafter) or  (empty($TerminationDate)) or ($TerminationDate > $endafter)) and        
         matches($networkcode, stationutil:network_pattern_translate($network_param) ) 
         and matches($stationcode, stationutil:station_pattern_translate($station_param) )
         and matches ($selchannelcode, $pattern)        
         and matches ($selchannellocationcode,$locationpattern)
         return $selchannelcode 
-    ))
+    )))
+    then true()
+    else false()
 };
 
-declare function stationutil:check_parameters_limits() as xs:boolean? 
+declare function stationutil:check_parameters_limits() as xs:boolean 
 {
 
 let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0"))
@@ -218,5 +299,7 @@ return if (
            or not(matches($outputlevel,"network|station|channel|response"))
            )) then false() else true()
 } ;
+
+
 
 (:locationCode:)
