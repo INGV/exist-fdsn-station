@@ -72,6 +72,18 @@ else if (contains($exist:path, "/$shared/")) then
 (:		</dispatch>:)
 (:		:)
 (: Old code works without pipeline :)
+  else if ( 
+            contains($exist:path, "/query/") 
+            and matches(request:get-parameter("station","12345"),"12345")
+            and matches(request:get-parameter("level","network"),"response")
+            and not(matches(string-join(request:get-parameter-names()) ,"minlatitude|maxlatitude|minlongitude|maxlongitudestarttime|endtime|startbefore|endbefore" ))
+        ) then 
+        
+    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
+        <forward url="{$exist:controller}/modules/query-network-shortcut.xql">
+            <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>
+        </forward>
+    </dispatch>
   else if (contains($exist:path, "/query/") and matches(request:get-parameter("level", "network"),"network")) then
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
         <forward url="{$exist:controller}/modules/query-network-level.xql">
@@ -96,7 +108,6 @@ else if (contains($exist:path, "/$shared/")) then
             <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>
         </forward>
     </dispatch>  
-		
 else if (ends-with($exist:path, "application.wadl")) then		
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
         <forward url="{$exist:controller}/Static/ingv-application.wadl">
