@@ -10,7 +10,7 @@ declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 declare option output:method "xml";
 declare option output:media-type "text/xml";
 (:TODO uncomment after debug:)
-declare option output:indent "yes";
+declare option output:indent "no";
 
 
 if (stationutil:check_parameters_limits() and stationutil:channel_exists()) then 
@@ -38,10 +38,10 @@ let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90.0"))
 let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180.0"))
 let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180.0"))   
 (:I valori di default non hanno senso, se non sono passati i parametri bisogna saltare il check :)
-let $missing_startbefore := request:get-parameter("startbefore", true())
-let $missing_endbefore := request:get-parameter("endbefore", true())
-let $missing_startafter := request:get-parameter("startafter", true())
-let $missing_endafter := request:get-parameter("endafter", true())
+(:let $missing_startbefore := request:get-parameter("startbefore", true()):)
+(:let $missing_endbefore := request:get-parameter("endbefore", true()):)
+(:let $missing_startafter := request:get-parameter("startafter", true()):)
+(:let $missing_endafter := request:get-parameter("endafter", true()):)
 let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
 let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
 let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))
@@ -83,7 +83,14 @@ for $network in $item//Network
     let $restrictedStatus:=$network/@restrictedStatus
     let $Description := $network/Description
     let $ingv_identifier := $network/ingv:Identifier
-    let $defaultdate:=xs:dateTime("6000-01-01T01:01:01")
+    let $missing_startbefore := request:get-parameter("startbefore", "yes")
+    let $missing_startafter := request:get-parameter("startafter", "yes")
+    let $missing_endbefore := request:get-parameter("endbefore", "yes")
+    let $missing_endafter := request:get-parameter("endafter", "yes")
+    let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
+    let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
+    let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))
+    let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))    
     where
         stationutil:parameter_constraint_onchannel(
             $missing_startbefore, $missing_startafter, $missing_endbefore, $missing_endafter,
