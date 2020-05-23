@@ -139,10 +139,10 @@ declare function stationutil:location_pattern_translate($input as item()*) as xs
 
 
 declare function stationutil:parameter_constraint_onchannel(
-    $missing_startbefore as xs:boolean*, 
-    $missing_startafter as xs:boolean*,
-    $missing_endbefore as xs:boolean*,
-    $missing_endafter as xs:boolean*,
+    $missing_startbefore as xs:string*, 
+    $missing_startafter as xs:string*,
+    $missing_endbefore as xs:string*,
+    $missing_endafter as xs:string*,
     $startbefore as xs:dateTime*,  
     $startafter as xs:dateTime*, 
     $endbefore as xs:dateTime*, 
@@ -150,10 +150,10 @@ declare function stationutil:parameter_constraint_onchannel(
     $CreationDate as xs:dateTime*, 
     $TerminationDate as xs:dateTime* ) as xs:boolean 
     {
-        (($missing_startbefore) or ($CreationDate < $startbefore)) and 
-        (($missing_startafter) or($CreationDate > $startafter))  and
-        (($missing_endbefore) or  (not(empty($TerminationDate)) and (($TerminationDate < $endbefore))) )and
-        (($missing_endafter) or  (empty($TerminationDate)) or ($TerminationDate > $endafter))     
+        (($missing_startbefore="yes") or ($CreationDate < $startbefore)) and 
+        (($missing_startafter="yes") or($CreationDate > $startafter))  and
+        (($missing_endbefore="yes") or  (not(empty($TerminationDate)) and (($TerminationDate < $endbefore))) )and
+        (($missing_endafter="yes") or  (empty($TerminationDate)) or ($TerminationDate > $endafter))     
 };
 
 declare function stationutil:channel_match( $channels as item()* )  as xs:boolean *
@@ -300,6 +300,15 @@ return if (
            )) then false() else true()
 } ;
 
-
+declare function stationutil:remove-elements($input as element(), $remove-names as xs:string*) as element() {
+   element {node-name($input) }
+      {$input/@*,
+       for $child in $input/node()[not(name(.)=$remove-names)]
+          return
+             if ($child instance of element())
+                then stationutil:remove-elements($child, $remove-names)
+                else $child
+      }
+};
 
 (:locationCode:)
