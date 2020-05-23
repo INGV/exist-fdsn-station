@@ -21,176 +21,44 @@ if (true()) then
   <ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
   <Created>{current-dateTime()}</Created>
 {
-(:  any level file must match the default level :    :)
-(:let $outputlevel := request:get-parameter("level", "response"):)
-(::)
-(:let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0")):)
-(:let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90.0")):)
-(:let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180.0")):)
-(:let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180.0"))   :)
-(:let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01")):)
-(:let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01")):)
-(:let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   :)
-(:let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01")):)
-(:let $network_param := request:get-parameter("network", "*"):)
-(:let $station_param := request:get-parameter("station", "*"):)
-(:let $channel_param := request:get-parameter("channel", "*"):)
-(:let $location_param := request:get-parameter("location", "*") :)
-(:let $network_pattern:=stationutil:network_pattern_translate($network_param):)
-(:let $station_pattern:=stationutil:station_pattern_translate($station_param):)
-(:let $channel_pattern:=stationutil:channel_pattern_translate($channel_param)    :)
-(:let $location_pattern:=stationutil:location_pattern_translate($location_param):)
-(:    :)
+
 for $item in collection("/db/apps/fdsn-station/Station/")
-(::)
-(:let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude:)
-(:let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude:)
-(:let $CreationDate:= $item/FDSNStationXML/Network/Station/Channel/@startDate:)
-(:let $TerminationDate:= $item/FDSNStationXML/Network/Station/Channel/@endDate:)
-(:let $missing_startbefore := request:get-parameter("startbefore", true()):)
-(:let $missing_endbefore := request:get-parameter("endbefore", true()):)
-(:let $missing_startafter := request:get-parameter("startafter", true()):)
-(:let $missing_endafter := request:get-parameter("endafter", true()):)
-(::)
-(:where :)
-(:    $Latitude  > $minlatitude and  :)
-(:    $Latitude  < $maxlatitude and :)
-(:    $Longitude > $minlongitude and :)
-(:    $Longitude < $maxlongitude :)
-(: Optimization  attempt :)    
-(: and   stationutil:parameter_constraint_onchannel( :)
-(:        $missing_startbefore, $missing_startafter, $missing_endbefore, $missing_endafter,:)
-(:        $startbefore, $startafter, $endbefore, $endafter, :)
-(:        $CreationDate, $TerminationDate )             :)
 
 for $network in $item//Network  
 
     let $network_param := request:get-parameter("network", "*")
     let $networkcode := $network/@code
+    let $startDate := $network/@startDate
+    let $endDate := $network/@endDate
+    let $restrictedStatus:=$network/@restrictedStatus
+    let $Description := $network/Description
+    let $ingv_identifier := $network/ingv:Identifier
     let $network_pattern:=stationutil:network_pattern_translate($network_param)
-
-(:    let $stationcode:=$network/Station/@code:)
-(:    let $station:=$network/Station:)
-(:    let $channel:=$station/Channel:)
-(:    let $channelcode:=$channel/@code:)
-(:    let $channellocationcode:=$channel/@locationCode:)
-(:    let $startDate := $network/@startDate:)
-(:    let $endDate := $network/@endDate:)
-(:    let $restrictedStatus:=$network/@restrictedStatus:)
-(:    let $Description := $network/Description:)
-(:    let $ingv_identifier := $network/ingv:Identifier:)
-(::)
     where
         matches($networkcode,  $network_pattern ) 
-    return $network
-(:        and matches($stationcode,  $station_pattern ):)
-(:        and matches ($channelcode,  $channel_pattern):)
-(:        and matches ($channellocationcode, $location_pattern)        :)
-(:        group by $networkcode, $startDate, $endDate, $restrictedStatus, $Description, $ingv_identifier:)
-(:        order by $networkcode:)
-(:    return:)
-(:        <Network>:)
-(:        {$networkcode}  :)
-(:        {$startDate}  :)
-(:        {$endDate}:)
-(:        {$restrictedStatus}:)
-(:        {$Description}    :)
-(:        {$ingv_identifier}:)
-(:        <TotalNumberStations> {stationutil:stationcount($networkcode)} </TotalNumberStations>:)
-(:        <SelectedNumberStations> {count($network/Station)} </SelectedNumberStations>:)
-(:        {:)
-(:        for $station in $network/Station:)
-(:            let $stationcode:=$station/@code:)
-(:            let $stationstartDate := $station/@startDate:)
-(:            let $stationendDate := $station/@endDate:)
-(:            let $stationrestrictedStatus := $station/@restrictedStatus:)
-(:            let $channel:=$station/Channel:)
-(:            let $channelcode:=$channel/@code:)
-(:            let $channellocationcode := $channel/@locationCode          :)
-(:            let $Latitude:=  xs:decimal($station/Latitude):)
-(:            let $Longitude:= xs:decimal($station/Longitude) :)
-(:            let $CreationDate:= $channel/@startDate:)
-(:            let $TerminationDate:= $channel/@endDate :)
-(:            let $networkcode:=$network/@code:)
-(:            let $pattern:=stationutil:channel_pattern_translate($channel_param):)
-(:            let $location_pattern:=stationutil:location_pattern_translate($location_param):)
-(:            let $missing_startbefore := request:get-parameter("startbefore", true()):)
-(:            let $missing_endbefore := request:get-parameter("endbefore", true()):)
-(:            let $missing_startafter := request:get-parameter("startafter", true()):)
-(:            let $missing_endafter := request:get-parameter("endafter", true()):)
-(:        where :)
-(:            $Latitude  > $minlatitude and  :)
-(:            $Latitude  < $maxlatitude and :)
-(:            $Longitude > $minlongitude and :)
-(:            $Longitude < $maxlongitude and:)
-(:            stationutil:parameter_constraint_onchannel( :)
-(:                $missing_startbefore, $missing_startafter, $missing_endbefore, $missing_endafter,:)
-(:                $startbefore, $startafter, $endbefore, $endafter, :)
-(:                $CreationDate, $TerminationDate ) and            :)
-(:            matches ($channelcode,  $pattern ) and:)
-(:            matches ($channellocationcode,  $location_pattern):)
-(:            :)
-(:            order by $station/@code:)
-(:        return:)
-(:            <Station>:)
-(:            {$stationcode}  :)
-(:            {$stationstartDate}  :)
-(:            {$stationendDate}   :)
-(:            {$stationrestrictedStatus}:)
-(:            {$station/ingv:Identifier}:)
-(:            {$station/Latitude}:)
-(:            {$station/Longitude}:)
-(:            {$station/Elevation}:)
-(:            {$station/Site}:)
-(:            {$station/CreationDate}:)
-(:            <TotalNumberChannels>{count($station/Channel)}</TotalNumberChannels>:)
-(:            <SelectedNumberChannels>:)
-(:            {:)
-(:                count (for $channel in $station/Channel:)
-(:                let $selchannelcode:=$channel/@code:)
-(:                let $channellocationcode:=$channel/@locationCode:)
-(:                let $pattern:=stationutil:channel_pattern_translate($channel_param):)
-(:                let $location_pattern:=stationutil:location_pattern_translate($location_param):)
-(:                let $CreationDate:= $channel/@startDate:)
-(:                let $TerminationDate:= $channel/@endDate                :)
-(:                let $missing_startbefore := request:get-parameter("startbefore", true()):)
-(:                let $missing_endbefore := request:get-parameter("endbefore", true()):)
-(:                let $missing_startafter := request:get-parameter("startafter", true()):)
-(:                let $missing_endafter := request:get-parameter("endafter", true())            :)
-(:                where :)
-(:                    stationutil:parameter_constraint_onchannel( :)
-(:                        $missing_startbefore, $missing_startafter, $missing_endbefore, $missing_endafter,:)
-(:                        $startbefore, $startafter, $endbefore, $endafter, :)
-(:                        $CreationDate, $TerminationDate ) and:)
-(:                    matches ($selchannelcode,  $pattern ) and:)
-(:                    matches ($channellocationcode,  $location_pattern):)
-(:                return $selchannelcode):)
-(:            }:)
-(:            </SelectedNumberChannels>:)
-(:            {:)
-(:                for $channel in $station/Channel:)
-(:                let $selchannelcode:=$channel/@code:)
-(:                let $channellocationcode:=$channel/@locationCode:)
-(:                let $pattern:=stationutil:channel_pattern_translate($channel_param):)
-(:                let $location_pattern:=stationutil:location_pattern_translate($location_param):)
-(:                let $CreationDate:= $channel/@startDate:)
-(:                let $TerminationDate:= $channel/@endDate  :)
-(:                let $missing_startbefore := request:get-parameter("startbefore", true()):)
-(:                let $missing_endbefore := request:get-parameter("endbefore", true()):)
-(:                let $missing_startafter := request:get-parameter("startafter", true()):)
-(:                let $missing_endafter := request:get-parameter("endafter", true())                            :)
-(:                where :)
-(:                    stationutil:parameter_constraint_onchannel( :)
-(:                        $missing_startbefore, $missing_startafter, $missing_endbefore, $missing_endafter,:)
-(:                        $startbefore, $startafter, $endbefore, $endafter, :)
-(:                        $CreationDate, $TerminationDate ) and                    :)
-(:                    matches ($selchannelcode,  $pattern )and:)
-(:                    matches ($channellocationcode,  $location_pattern):)
-(:                return $channel:)
-(:            }:)
-(:            </Station>:)
-(:}:)
-(:</Network>:)
+        group by $networkcode, $startDate, $endDate, $restrictedStatus, $Description, $ingv_identifier
+        order by $networkcode
+    return 
+        <Network>
+        {$networkcode}  
+        {$startDate}  
+        {$endDate}
+        {$restrictedStatus}
+        {$Description}    
+        {$ingv_identifier}
+        <TotalNumberStations> {stationutil:stationcount($networkcode)} </TotalNumberStations>
+        <SelectedNumberStations> {count($network/Station)} </SelectedNumberStations>
+        {
+        for $station in $network/Station
+        order by $station
+        return
+        if ( matches(request:get-parameter("level", "response"),"channel")) 
+            then stationutil:remove-elements($station,"Stage")
+            else $station
+}
+</Network>        
+        
+
 }   
 </FDSNStationXML>
 else
