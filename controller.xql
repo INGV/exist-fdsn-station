@@ -74,9 +74,9 @@ else if (contains($exist:path, "/$shared/")) then
 (: Old code works without pipeline :)
   else if ( 
             contains($exist:path, "/query/") 
-            and matches(request:get-parameter("station","12345"),"12345")
-            and matches(request:get-parameter("level","network"),"response")
-            and not(matches(string-join(request:get-parameter-names()) ,"minlatitude|maxlatitude|minlongitude|maxlongitudestarttime|endtime|startbefore|endbefore" ))
+
+            and (matches(request:get-parameter("level","network"),"response") or matches(request:get-parameter("level","network"),"channel"))
+            and not(matches(string-join(request:get-parameter-names()) ,"minlatitude|maxlatitude|minlongitude|maxlongitude|starttime|endtime|startbefore|endbefore|startafter|endafter" ))
         ) then 
         
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
