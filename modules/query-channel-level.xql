@@ -9,7 +9,7 @@ declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 declare option output:method "xml";
 declare option output:media-type "text/xml";
 (:TODO uncomment after debug:)
-declare option output:indent "yes";
+declare option output:indent "no";
 
 (:    TODO: selected number channels in AIO va preso non il totale ma il totale per la network in cui si sta scrivendo :)
 
@@ -50,10 +50,10 @@ let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90.0"))
 let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180.0"))
 let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180.0"))   
 (:I valori di default non hanno senso, se non sono passati i parametri bisogna saltare il check :)
-let $missing_startbefore := request:get-parameter("startbefore", true())
-let $missing_endbefore := request:get-parameter("endbefore", true())
-let $missing_startafter := request:get-parameter("startafter", true())
-let $missing_endafter := request:get-parameter("endafter", true())
+let $missing_startbefore := request:get-parameter("startbefore", "yes")
+let $missing_startafter := request:get-parameter("startafter", "yes")
+let $missing_endbefore := request:get-parameter("endbefore", "yes")
+let $missing_endafter := request:get-parameter("endafter", "yes")  
 let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
 let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
 let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
@@ -132,10 +132,10 @@ for $network in $item//Network
             let $networkcode:=$network/@code
             let $pattern:=stationutil:channel_pattern_translate($channel_param)
             let $location_pattern:=stationutil:location_pattern_translate($location_param)
-            let $missing_startbefore := request:get-parameter("startbefore", true())
-            let $missing_endbefore := request:get-parameter("endbefore", true())
-            let $missing_startafter := request:get-parameter("startafter", true())
-            let $missing_endafter := request:get-parameter("endafter", true())            
+            let $missing_startbefore := request:get-parameter("startbefore", "yes")
+            let $missing_startafter := request:get-parameter("startafter", "yes")
+            let $missing_endbefore := request:get-parameter("endbefore", "yes")
+            let $missing_endafter := request:get-parameter("endafter", "yes")  
         where 
             $Latitude  > $minlatitude and  
             $Latitude  < $maxlatitude and 
