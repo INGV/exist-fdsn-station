@@ -71,7 +71,7 @@ else if (contains($exist:path, "/$shared/")) then
 (:			</view>:)
 (:		</dispatch>:)
 (:		:)
-(: Old code works without pipeline :)
+(: Old code works without pipeline TODO filter for json, txt, error cleaning output :)
   else if ( 
             contains($exist:path, "/query/") 
 
@@ -117,8 +117,17 @@ else if (ends-with($exist:path, "application.wadl")) then
     
 else if (ends-with($exist:path, "version")) then		
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-        <forward url="{$exist:controller}/Static/version"/>
+        <forward url="{$exist:controller}/Static/version.xql"/>
+        <set-header Content-Type="text/plain; charset=UTF-8" />
     </dispatch>
+else if (contains($exist:path, "/query/") and matches(request:get-parameter("level", "test"),"test")) then		
+    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
+        <forward url="{$exist:controller}/modules/test.xql">
+            <set-header Content-Type="text/plain; charset=UTF-8" name="Cache-Control" value="max-age=3600, must-revalidate"/>
+            <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>
+        </forward>
+    </dispatch>
+    
     
     
 (:else if (ends-with($exist:resource, "query.xql")) then:)
