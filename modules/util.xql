@@ -311,4 +311,18 @@ declare function stationutil:remove-elements($input as element(), $remove-names 
       }
 };
 
+
+declare function stationutil:nodata_error() {
+    if (matches(request:get-parameter("nodata", "204"),"404")) 
+    then
+        (
+           response:set-status-code(404) , <Error>Error 404 - no matching inventory found </Error>
+        )
+    else if (matches(request:get-parameter("nodata", "204"),"204")) then
+        response:set-status-code(204) 
+    else 
+        response:set-status-code(400) 
+};
+
+
 (:locationCode:)
