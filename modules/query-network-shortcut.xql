@@ -3,16 +3,19 @@ xquery version "3.1";
 declare default element namespace "http://www.fdsn.org/xml/station/1" ;
 declare namespace ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd";
 import module namespace stationutil="http://exist-db.org/apps/fdsn-station/modules/stationutil"  at "util.xql";
+(:import module namespace errors="http://exist-db.org/apps/fdsn-station/modules/errors"  at "errors.xql";:)
 
 declare namespace request="http://exist-db.org/xquery/request";
-declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
-declare option output:method "xml";
-declare option output:media-type "text/xml";
+(:declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";:)
+(:declare option exist:serialize "method=xml media-type=text/html";:)
 (:TODO uncomment after debug:)
-declare option output:indent "yes";
+(:declare option output:method "xml";:)
+(:declare option output:media-type "text/xml";:)
+(:declare option output:indent "yes";:)
 
-if (true()) then
-(:if (stationutil:check_parameters_limits() and stationutil:channel_exists()) then :)
+(:if (true()) then:)
+if (stationutil:check_parameters_limits() and stationutil:channel_exists()) then 
+    
 (:if (stationutil:check_parameters_limits() ) then     :)
 <FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
   <Source>eXistDB</Source>
@@ -62,6 +65,5 @@ for $network in $item//Network
 }   
 </FDSNStationXML>
 else
-    <ERROR/>
+    stationutil:nodata_error()
 
-    
