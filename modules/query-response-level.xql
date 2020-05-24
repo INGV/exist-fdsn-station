@@ -192,6 +192,6 @@ for $network in $item//Network
 }   
 </FDSNStationXML>
 else
-    <ERROR/>
+    stationutil:nodata_error()
 
     
