@@ -160,14 +160,18 @@ declare function stationutil:channel_match( $channels as item()* )  as xs:boolea
 (:FUNZIONE DA CANCELLARE:)
     for $channel in $channels
     
-        let $missing_startbefore := request:get-parameter("startbefore", true())
-        let $missing_endbefore := request:get-parameter("endbefore", true())
-        let $missing_startafter := request:get-parameter("startafter", true())
-        let $missing_endafter := request:get-parameter("endafter", true())
+        let $missing_startbefore := request:get-parameter("startbefore", "yes")
+        let $missing_endbefore := request:get-parameter("endbefore", "yes")
+        let $missing_startafter := request:get-parameter("startafter", "yes")
+        let $missing_endafter := request:get-parameter("endafter", "yes")
+        let $missing_startime := request:get-parameter("starttime", "yes")
+        let $missing_endtime := request:get-parameter("endtime", "yes")
         let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
         let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
         let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
         let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))
+        let $starttime := xs:dateTime(request:get-parameter("starttime", "1800-01-01T01:01:01"))
+        let $endtime := xs:dateTime(request:get-parameter("endtime", "6000-01-01T01:01:01"))   
         let $network_param := request:get-parameter("network", "*")
         let $station_param := request:get-parameter("station", "*")
         let $channel_param := request:get-parameter("channel", "*")
@@ -183,19 +187,18 @@ declare function stationutil:channel_match( $channels as item()* )  as xs:boolea
         let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180.0"))
         let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180.0"))          
        return 
-(:        concat(   :)
-(:            $channelcode=$channel/@Code and:)
+
             $Latitude  > $minlatitude 
             and $Latitude  < $maxlatitude 
             and $Longitude > $minlongitude 
             and $Longitude < $maxlongitude and
-           (($missing_startbefore) or ($CreationDate < $startbefore)) and 
+            (($missing_startbefore) or ($CreationDate < $startbefore)) and 
             (($missing_startafter) or($CreationDate > $startafter))  and
             (($missing_endbefore) or  (not(empty($TerminationDate)) and ($TerminationDate < $endbefore))) and
             (($missing_endafter) or  (empty($TerminationDate)) or ($TerminationDate > $endafter))
-(:            , ","    :)
-(:        ):)
-        
+
+            (($missing_starttime) or($CreationDate >= $starttime))  
+            (($missing_endtime) or  (not(empty($TerminationDate)) and ($TerminationDate <= $endtime)))
 
 };
 
@@ -208,14 +211,19 @@ let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90.0"))
 let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180.0"))
 let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180.0"))   
 (:I valori di default non hanno senso, se non sono passati i parametri bisogna saltare il check :)
-let $missing_startbefore := request:get-parameter("startbefore", true())
-let $missing_endbefore := request:get-parameter("endbefore", true())
-let $missing_startafter := request:get-parameter("startafter", true())
-let $missing_endafter := request:get-parameter("endafter", true())
+let $missing_startbefore := request:get-parameter("startbefore", "yes")
+let $missing_endbefore := request:get-parameter("endbefore", "yes")
+let $missing_startafter := request:get-parameter("startafter", "yes")
+let $missing_endafter := request:get-parameter("endafter", "yes")
+let $missing_starttime := request:get-parameter("starttime", "yes")
+let $missing_endtime := request:get-parameter("endtime", "yes")
 let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
 let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
 let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
 let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))
+let $starttime := xs:dateTime(request:get-parameter("starttime", "1800-01-01T01:01:01"))
+let $endtime := xs:dateTime(request:get-parameter("endtime", "6000-01-01T01:01:01"))   
+
 let $network_param := request:get-parameter("network", "*")
 let $station_param := request:get-parameter("station", "*")
 let $channel_param := request:get-parameter("channel", "*")
@@ -260,6 +268,8 @@ where
         (($missing_startafter) or($CreationDate > $startafter))  and
         (($missing_endbefore) or  (not(empty($TerminationDate)) and ($TerminationDate < $endbefore))) and
         (($missing_endafter) or  (empty($TerminationDate)) or ($TerminationDate > $endafter)) and        
+        (($missing_starttime) or($CreationDate >= $starttime))  and
+        (($missing_endtime) or  (not(empty($TerminationDate)) and ($TerminationDate <= $endtime))) and
         matches($networkcode, stationutil:network_pattern_translate($network_param) ) 
         and matches($stationcode, stationutil:station_pattern_translate($station_param) )
         and matches ($selchannelcode, $pattern)        
@@ -281,6 +291,9 @@ let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01
 let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
 let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
 let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))
+let $starttime := xs:dateTime(request:get-parameter("starttime", "1800-01-01T01:01:01"))
+let $endtime := xs:dateTime(request:get-parameter("endtime", "6000-01-01T01:01:01"))   
+
 let $network_param := request:get-parameter("network", "*")
 let $station_param := request:get-parameter("station", "*")
 let $station_param := request:get-parameter("channel", "*")
@@ -293,6 +306,7 @@ return if (
            or $minlongitude > $maxlongitude 
            or $startbefore < $startafter
            or $endbefore < $endafter
+           or $starttime > $endtime
            or not(matches($outputlevel,"network|station|channel|response"))
            )) then false() else true()
 } ;
@@ -323,6 +337,94 @@ declare function stationutil:nodata_error() {
         response:set-status-code(204) 
     else 
         response:set-status-code(400) 
+};
+
+declare function stationutil:syntax_longitude() as xs:string{
+    
+let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0"))
+let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90"))
+let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180"))
+let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180"))   
+let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
+let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
+let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
+let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))
+let $starttime := xs:dateTime(request:get-parameter("starttime", "1800-01-01T01:01:01"))
+let $endtime := xs:dateTime(request:get-parameter("endtime", "6000-01-01T01:01:01"))   
+
+let $network_param := request:get-parameter("network", "*")
+let $station_param := request:get-parameter("station", "*")
+let $station_param := request:get-parameter("channel", "*")
+let $outputlevel := request:get-parameter("level", "network")
+
+ 
+return 
+    if ($minlongitude>180.0 or $maxlongitude > 180.0 or $minlongitude<-180.0 or $maxlongitude <-180.0) then 
+" 
+Must be -180 < longitude < 180
+"
+else ""     
+  
+};
+
+declare function stationutil:syntax_latitude() as xs:string{
+    
+let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0"))
+let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90"))
+
+return 
+    if ( $minlatitude>90.0 or $maxlatitude > 90.0 or $minlatitude<-90.0 or $maxlatitude <-90.0) 
+    then
+        "
+Must be -90 < latitude < 90
+"
+    else ""
+
+};
+
+declare function stationutil:syntax_station() as xs:string{
+    
+let $station := xs:string(request:get-parameter("station","*"))
+
+return 
+    if ( string-length($station)>5) 
+    then
+        "
+Station code too long
+"
+    else  ""
+
+};
+
+
+
+declare function stationutil:badrequest_error() {
+(: declare output method locally to override default xml   :)
+    util:declare-option("exist:serialize","method=text media-type=text/plain indent=yes")  ,  
+     response:set-status-code(400) , 
+     "Error 400: Bad request 
+     
+Syntax Error in Request
+
+" ||
+stationutil:syntax_latitude() ||
+stationutil:syntax_longitude() ||
+stationutil:syntax_station() ||
+"
+
+Usage details are available from <SERVICE DOCUMENTATION URI>
+
+Request: " || request:get-query-string()||
+"
+
+Request Submitted: " || current-dateTime() ||  
+"
+
+Service version: 1.1.50"
+
+(:            response:set-status-code(404) , transform:transform(<Error>Error 404 - no matching inventory found</Error>, doc("error-translation.xsl"), ()):)
+              
+
 };
 
 
