@@ -14,8 +14,8 @@ declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 (:TODO uncomment after debug:)
 declare option output:indent "no";
 
-
-if (stationutil:check_parameters_limits() and stationutil:channel_exists()) then 
+if (stationutil:check_parameters_limits()) then 
+    if (stationutil:channel_exists()) then 
 (:if (stationutil:check_parameters_limits() ) then     :)
 (:if (true()) then:)
 <FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
@@ -117,5 +117,5 @@ for $network in $item//Network
 </FDSNStationXML>
 else
     stationutil:nodata_error()
-
-    
+else 
+    stationutil:badrequest_error()
