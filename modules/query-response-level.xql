@@ -33,10 +33,14 @@ let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0"))
 let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90.0"))
 let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180.0"))
 let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180.0"))
+let $missing_starttime := request:get-parameter("starttime", "yes")
+let $missing_endtime := request:get-parameter("endtime", "yes") 
 let $missing_startbefore := request:get-parameter("startbefore", "yes")
 let $missing_startafter := request:get-parameter("startafter", "yes")
 let $missing_endbefore := request:get-parameter("endbefore", "yes")
 let $missing_endafter := request:get-parameter("endafter", "yes")  
+let $starttime := xs:dateTime(request:get-parameter("starttime", "6000-01-01T01:01:01"))
+let $endtime := xs:dateTime(request:get-parameter("endtime", "1800-01-01T01:01:01"))
 let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
 let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
 let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
@@ -56,6 +60,12 @@ let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
 let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
 let $CreationDate:= $item/FDSNStationXML/Network/Station/Channel/@startDate
 let $TerminationDate:= $item/FDSNStationXML/Network/Station/Channel/@endDate
+let $starttime := xs:dateTime(request:get-parameter("starttime", "6000-01-01T01:01:01"))
+let $endtime := xs:dateTime(request:get-parameter("endtime", "1800-01-01T01:01:01"))
+let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
+let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
+let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
+let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))
 
 where 
     $Latitude  > $minlatitude and  
@@ -64,7 +74,9 @@ where
     $Longitude < $maxlongitude 
 (: Optimization  attempt :)    
  and   stationutil:parameter_constraint_onchannel( 
+        $missing_starttime, $missing_endtime,     
         $missing_startbefore, $missing_startafter, $missing_endbefore, $missing_endafter,
+        $starttime,$endtime,
         $startbefore, $startafter, $endbefore, $endafter, 
         $CreationDate, $TerminationDate )             
 
@@ -113,22 +125,31 @@ for $network in $item//Network
             let $networkcode:=$network/@code
             let $pattern:=stationutil:channel_pattern_translate($channel_param)
             let $location_pattern:=stationutil:location_pattern_translate($location_param)
+            let $missing_starttime := request:get-parameter("starttime", "yes")
+            let $missing_endtime := request:get-parameter("endtime", "yes") 
             let $missing_startbefore := request:get-parameter("startbefore", "yes")
             let $missing_startafter := request:get-parameter("startafter", "yes")
             let $missing_endbefore := request:get-parameter("endbefore", "yes")
             let $missing_endafter := request:get-parameter("endafter", "yes")  
+            let $starttime := xs:dateTime(request:get-parameter("starttime", "6000-01-01T01:01:01"))
+            let $endtime := xs:dateTime(request:get-parameter("endtime", "1800-01-01T01:01:01"))
+            let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
+            let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
+            let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
+            let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))                
         where 
             $Latitude  > $minlatitude and  
             $Latitude  < $maxlatitude and 
             $Longitude > $minlongitude and 
             $Longitude < $maxlongitude and
             stationutil:parameter_constraint_onchannel(
+                $missing_starttime, $missing_endtime,     
                 $missing_startbefore, $missing_startafter, $missing_endbefore, $missing_endafter,
+                $starttime,$endtime,
                 $startbefore, $startafter, $endbefore, $endafter, 
                 $CreationDate, $TerminationDate ) and            
             matches ($channelcode,  $pattern ) and
             matches ($channellocationcode,  $location_pattern)
-            
             order by $station/@code
         return
             <Station>
@@ -152,13 +173,23 @@ for $network in $item//Network
                 let $location_pattern:=stationutil:location_pattern_translate($location_param)
                 let $CreationDate:= $channel/@startDate
                 let $TerminationDate:= $channel/@endDate                
+                let $missing_starttime := request:get-parameter("starttime", "yes")
+                let $missing_endtime := request:get-parameter("endtime", "yes") 
                 let $missing_startbefore := request:get-parameter("startbefore", "yes")
                 let $missing_startafter := request:get-parameter("startafter", "yes")
                 let $missing_endbefore := request:get-parameter("endbefore", "yes")
                 let $missing_endafter := request:get-parameter("endafter", "yes")       
+                let $starttime := xs:dateTime(request:get-parameter("starttime", "6000-01-01T01:01:01"))
+                let $endtime := xs:dateTime(request:get-parameter("endtime", "1800-01-01T01:01:01"))
+                let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
+                let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
+                let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
+                let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))                    
                 where 
                     stationutil:parameter_constraint_onchannel(
+                        $missing_starttime, $missing_endtime,
                         $missing_startbefore, $missing_startafter, $missing_endbefore, $missing_endafter,
+                        $starttime,$endtime,                        
                         $startbefore, $startafter, $endbefore, $endafter, 
                         $CreationDate, $TerminationDate ) and
                     matches ($selchannelcode,  $pattern ) and
@@ -174,12 +205,23 @@ for $network in $item//Network
                 let $location_pattern:=stationutil:location_pattern_translate($location_param)
                 let $CreationDate:= $channel/@startDate
                 let $TerminationDate:= $channel/@endDate  
+                let $missing_starttime := request:get-parameter("starttime", "yes")
+                let $missing_endtime := request:get-parameter("endtime", "yes") 
                 let $missing_startbefore := request:get-parameter("startbefore", "yes")
                 let $missing_startafter := request:get-parameter("startafter", "yes")
                 let $missing_endbefore := request:get-parameter("endbefore", "yes")
-                let $missing_endafter := request:get-parameter("endafter", "yes")                  where 
+                let $missing_endafter := request:get-parameter("endafter", "yes")
+                let $starttime := xs:dateTime(request:get-parameter("starttime", "6000-01-01T01:01:01"))
+                let $endtime := xs:dateTime(request:get-parameter("endtime", "1800-01-01T01:01:01"))
+                let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
+                let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
+                let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
+                let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))      
+                where 
                     stationutil:parameter_constraint_onchannel(
+                        $missing_starttime, $missing_endtime,
                         $missing_startbefore, $missing_startafter, $missing_endbefore, $missing_endafter,
+                        $starttime,$endtime,            
                         $startbefore, $startafter, $endbefore, $endafter, 
                         $CreationDate, $TerminationDate ) and                    
                     matches ($selchannelcode,  $pattern )and
