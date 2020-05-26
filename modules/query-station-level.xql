@@ -37,11 +37,7 @@ let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0"))
 let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90.0"))
 let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180.0"))
 let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180.0"))
-(:I valori di default non hanno senso, se non sono passati i parametri bisogna saltare il check :)
-let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
-let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
-let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
-let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))
+
 let $network_param := request:get-parameter("network", "*")
 let $station_param := request:get-parameter("station", "*")
 let $channel_param := request:get-parameter("channel", "*")
@@ -56,19 +52,12 @@ for $item in collection("/db/apps/fdsn-station/Station/")
 
 let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
 let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
-let $CreationDate:= $item/FDSNStationXML/Network/Station/Channel/@startDate
-let $TerminationDate:= $item/FDSNStationXML/Network/Station/Channel/@endDate
 
 where $Latitude  > $minlatitude and  
       $Latitude  < $maxlatitude and 
       $Longitude > $minlongitude and 
       $Longitude < $maxlongitude 
-(:      and :)
-(:      $CreationDate < $startbefore and :)
-(:      $CreationDate > $startafter and:)
-(:      (not(empty($TerminationDate)) or ($TerminationDate < $endbefore)) and :)
-(:      (empty($TerminationDate) or ($TerminationDate > $endafter))  :)
-    
+
 for $network in $item//Network  
     let $networkcode := $network/@code
     let $station:=$network/Station
@@ -83,15 +72,9 @@ for $network in $item//Network
     let $restrictedStatus:=$network/@restrictedStatus
     let $Description := $network/Description
     let $ingv_identifier := $network/ingv:Identifier
-    let $missing_startbefore := request:get-parameter("startbefore", "yes")
-    let $missing_startafter := request:get-parameter("startafter", "yes")
-    let $missing_endbefore := request:get-parameter("endbefore", "yes")
-    let $missing_endafter := request:get-parameter("endafter", "yes")    
+
     where
-        stationutil:parameter_constraint_onchannel(
-            $missing_startbefore, $missing_startafter, $missing_endbefore, $missing_endafter,
-            $startbefore, $startafter, $endbefore, $endafter, 
-            $CreationDate, $TerminationDate ) and
+        stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and
         matches($networkcode,  $network_pattern ) 
         and matches($stationcode,  $station_pattern )
         and matches ($channelcode,  $channel_pattern) 
@@ -124,19 +107,13 @@ for $network in $item//Network
             let $networkcode:=$network/@code
             let $pattern:=stationutil:channel_pattern_translate($channel_param)
             let $location_pattern:=stationutil:location_pattern_translate($location_param)    
-            let $missing_startbefore := request:get-parameter("startbefore", "yes")
-            let $missing_startafter := request:get-parameter("startafter", "yes")
-            let $missing_endbefore := request:get-parameter("endbefore", "yes")
-            let $missing_endafter := request:get-parameter("endafter", "yes")           
+
         where 
             $Latitude  > $minlatitude and  
             $Latitude  < $maxlatitude and 
             $Longitude > $minlongitude and 
             $Longitude < $maxlongitude and 
-            stationutil:parameter_constraint_onchannel(
-                $missing_startbefore, $missing_startafter, $missing_endbefore, $missing_endafter,
-                $startbefore, $startafter, $endbefore, $endafter, 
-                $CreationDate, $TerminationDate ) and          
+            stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and          
             matches ($channelcode,  $pattern ) and
             matches($channellocationcode,$location_pattern)
             order by $station/@code

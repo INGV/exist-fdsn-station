@@ -192,7 +192,7 @@ declare function stationutil:channel_match( $channels as item()* )  as xs:boolea
 {
  
 (:I valori di default non hanno senso, se non sono passati i parametri bisogna saltare il check :)
-(:FUNZIONE DA CANCELLARE:)
+(:FUNZIONE DA rivedere:)
     for $channel in $channels
     
         let $missing_startbefore := request:get-parameter("startbefore", "yes")
@@ -244,18 +244,6 @@ let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90.0"))
 let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180.0"))
 let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180.0"))   
 (:I valori di default non hanno senso, se non sono passati i parametri bisogna saltare il check :)
-let $missing_startbefore := request:get-parameter("startbefore", "yes")
-let $missing_endbefore := request:get-parameter("endbefore", "yes")
-let $missing_startafter := request:get-parameter("startafter", "yes")
-let $missing_endafter := request:get-parameter("endafter", "yes")
-let $missing_starttime := request:get-parameter("starttime", "yes")
-let $missing_endtime := request:get-parameter("endtime", "yes")
-let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
-let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
-let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
-let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))
-let $starttime := xs:dateTime(request:get-parameter("starttime", "1800-01-01T01:01:01"))
-let $endtime := xs:dateTime(request:get-parameter("endtime", "6000-01-01T01:01:01"))   
 
 let $network_param := request:get-parameter("network", "*")
 let $station_param := request:get-parameter("station", "*")
@@ -280,11 +268,6 @@ where
     and $Latitude  < $maxlatitude 
     and $Longitude > $minlongitude 
     and $Longitude < $maxlongitude 
-(:    and $CreationDate < $startbefore:)
-(:    and $CreationDate > $startafter  :)
-(:    and:)
-(:    (not(empty($TerminationDate)) or ($TerminationDate < $endbefore)) and :)
-(:    (empty($TerminationDate) or ($TerminationDate > $endafter))  :)
     for $network in $item//Network  
         let $networkcode := $network/@code
         let $station :=$network/Station
@@ -296,25 +279,8 @@ where
         let $selchannellocationcode:=$channel/@locationCode
         let $CreationDate:= $channel/@startDate
         let $TerminationDate:= $channel/@endDate   
-let $missing_startbefore := request:get-parameter("startbefore", "yes")
-let $missing_endbefore := request:get-parameter("endbefore", "yes")
-let $missing_startafter := request:get-parameter("startafter", "yes")
-let $missing_endafter := request:get-parameter("endafter", "yes")
-let $missing_starttime := request:get-parameter("starttime", "yes")
-let $missing_endtime := request:get-parameter("endtime", "yes")
-let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
-let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
-let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
-let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))
-let $starttime := xs:dateTime(request:get-parameter("starttime", "1800-01-01T01:01:01"))
-let $endtime := xs:dateTime(request:get-parameter("endtime", "6000-01-01T01:01:01"))          
     where
-        (($missing_startbefore="yes") or ($CreationDate < $startbefore)) and 
-        (($missing_startafter="yes") or($CreationDate > $startafter))  and
-        (($missing_endbefore="yes") or  (not(empty($TerminationDate)) and ($TerminationDate < $endbefore))) and
-        (($missing_endafter="yes") or  (empty($TerminationDate)) or ($TerminationDate > $endafter)) and        
-        (($missing_starttime="yes") or ($CreationDate >= $starttime))  and
-        (($missing_endtime="yes") or  (not(empty($TerminationDate)) and ($TerminationDate <= $endtime))) and
+        stationutil:constraints_onchannel($CreationDate,$TerminationDate) and
         matches($networkcode, stationutil:network_pattern_translate($network_param) ) 
         and matches($stationcode, stationutil:station_pattern_translate($station_param) )
         and matches ($selchannelcode, $pattern)        

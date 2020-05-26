@@ -33,21 +33,12 @@ if (stationutil:check_parameters_limits()) then
   <Created>{current-dateTime()}</Created>
 {
 (:  any level file must match the default level :)
-let $outputlevel := request:get-parameter("level", "network")
+(:let $outputlevel := request:get-parameter("level", "network"):)
 
 let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0"))
 let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90.0"))
 let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180.0"))
 let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180.0"))   
-(:I valori di default non hanno senso, se non sono passati i parametri bisogna saltare il check :)
-(:let $missing_startbefore := request:get-parameter("startbefore", true()):)
-(:let $missing_endbefore := request:get-parameter("endbefore", true()):)
-(:let $missing_startafter := request:get-parameter("startafter", true()):)
-(:let $missing_endafter := request:get-parameter("endafter", true()):)
-let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
-let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
-let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))
-let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))
 
 let $network_param := request:get-parameter("network", "*")
 let $station_param := request:get-parameter("station", "*")
@@ -63,8 +54,6 @@ for $item in collection("/db/apps/fdsn-station/Station/")
 
 let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
 let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
-(:let $CreationDate:= $item/FDSNStationXML/Network/Station/Channel/@startDate:)
-(:let $TerminationDate:= $item/FDSNStationXML/Network/Station/Channel/@endDate:)
 
 where $Latitude  > $minlatitude and  
       $Latitude  < $maxlatitude and 
@@ -85,20 +74,9 @@ for $network in $item//Network
     let $restrictedStatus:=$network/@restrictedStatus
     let $Description := $network/Description
     let $ingv_identifier := $network/ingv:Identifier
-    let $missing_startbefore := request:get-parameter("startbefore", "yes")
-    let $missing_startafter := request:get-parameter("startafter", "yes")
-    let $missing_endbefore := request:get-parameter("endbefore", "yes")
-    let $missing_endafter := request:get-parameter("endafter", "yes")
-    let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
-    let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
-    let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))
-    let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))    
     where
-        stationutil:parameter_constraint_onchannel(
-            $missing_startbefore, $missing_startafter, $missing_endbefore, $missing_endafter,
-            $startbefore, $startafter, $endbefore, $endafter, 
-            $CreationDate, $TerminationDate ) and
-        matches($networkcode,  $network_pattern ) 
+        stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) 
+        and matches($networkcode,  $network_pattern ) 
         and matches($stationcode,  $station_pattern )
         and matches ($channelcode,  $channel_pattern) 
         and matches($channellocationcode,$location_pattern)
