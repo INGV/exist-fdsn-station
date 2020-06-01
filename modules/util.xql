@@ -135,31 +135,6 @@ declare function stationutil:location_pattern_translate($input as item()*) as xs
 };
 
 
-(:declare function stationutil:parameter_constraint_onchannel( :)
-(:    $missing_starttime as xs:string*, :)
-(:    $missing_endtime as xs:string*,:)
-(:    $missing_startbefore as xs:string*, :)
-(:    $missing_startafter as xs:string*,:)
-(:    $missing_endbefore as xs:string*,:)
-(:    $missing_endafter as xs:string*,:)
-(:    $starttime as xs:dateTime*,  :)
-(:    $endtime as xs:dateTime*, :)
-(:    $startbefore as xs:dateTime*,  :)
-(:    $startafter as xs:dateTime*, :)
-(:    $endbefore as xs:dateTime*, :)
-(:    $endafter as xs:dateTime*, :)
-(:    $CreationDate as xs:dateTime*, :)
-(:    $TerminationDate as xs:dateTime* ) as xs:boolean :)
-(:    {:)
-(:        (($missing_starttime="yes") or($CreationDate >= $starttime)) and :)
-(:        (($missing_endtime="yes") or  (not(empty($TerminationDate)) and ($TerminationDate <= $endtime))) and:)
-(:        (($missing_startbefore="yes") or ($CreationDate < $startbefore)) and :)
-(:        (($missing_startafter="yes") or($CreationDate > $startafter))  and:)
-(:        (($missing_endbefore="yes") or  (not(empty($TerminationDate)) and ($TerminationDate < $endbefore))) and:)
-(:        (($missing_endafter="yes") or  (empty($TerminationDate)) or ($TerminationDate > $endafter))   :)
-(:        :)
-(:};:)
-
 
 (:YYYY-MM-DD:)
 declare function stationutil:time_adjust( $mydatetime as xs:string ) as xs:string {
@@ -318,8 +293,9 @@ let $starttime := xs:dateTime(stationutil:time_adjust(request:get-parameter("sta
 let $endtime := xs:dateTime(stationutil:time_adjust(request:get-parameter("endtime", "6000-01-01T01:01:01")))   
 let $latitude := xs:decimal(request:get-parameter("latitude",""))
 let $longitude := xs:decimal(request:get-parameter("longitude", ""))
-let $minradius := xs:decimal(request:get-parameter("minradius", ""))
-let $maxradius := xs:decimal(request:get-parameter("maxradius", ""))
+let $minradius := xs:decimal(request:get-parameter("minradius", "0"))
+let $maxradius := xs:decimal(request:get-parameter("maxradius", "12742.0"))
+let $includerestricted := xs:string(request:get-parameter("includerestricted","TRUE"))
 
 let $network := request:get-parameter("network", "*")
 let $station := request:get-parameter("station", "*")
@@ -340,6 +316,7 @@ return if (
            or $endbefore < $endafter
            or $starttime > $endtime
            or not(matches($outputlevel,"network|station|channel|response"))
+           or not($includerestricted="TRUE" or $includerestricted="FALSE")
            or (contains(stationutil:network_pattern_translate($network), "NEVERMATCH")) 
            or (contains(stationutil:station_pattern_translate($station), "NEVERMATCH")) 
            or (contains(stationutil:channel_pattern_translate($channel), "NEVERMATCH")) 
@@ -508,6 +485,20 @@ Check network parameter
 
 };
 
+declare function stationutil:syntax_includerestricted() as xs:string{
+    
+let $includerestricted := xs:string(request:get-parameter("includerestricted","TRUE"))
+
+return 
+    if (not($includerestricted="TRUE" or $includerestricted="FALSE"))
+    then
+"
+The includerestricted parameter must be TRUE or FALSE
+"
+    else  ""
+
+};
+
 
 declare function stationutil:syntax_times() as xs:string {
 try 
@@ -548,6 +539,7 @@ stationutil:syntax_latitude() ||
 stationutil:syntax_longitude() ||
 stationutil:syntax_times() ||
 stationutil:syntax_radius() ||
+stationutil:syntax_includerestricted() ||
 "
 
 Usage details are available from <SERVICE DOCUMENTATION URI>
@@ -565,5 +557,6 @@ Service version: 1.1.50"
 
 };
 
+(: TODO gestire restrictedStatus :)
 
 (:locationCode:)
