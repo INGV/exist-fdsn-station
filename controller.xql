@@ -1,10 +1,26 @@
 xquery version "3.0";
-
+(:import module namespace stationutil="http://exist-db.org/apps/fdsn-station/modules/stationutil"  at "modules/util.xql";:)
 declare variable $exist:path external;
 declare variable $exist:resource external;
 declare variable $exist:controller external;
 declare variable $exist:prefix external;
 declare variable $exist:root external;
+
+(::)
+(:declare variable $login :=:)
+(:    let $tryImport :=:)
+(:        try {:)
+(:            contains($exist:path, "/query/"):)
+(:        } catch * {:)
+(:            false():)
+(:        }:)
+(:    return:)
+(:        if ($tryImport) then:)
+(:           "":)
+(:        else:)
+(:            stationutil:nodata_error():)
+(:;:)
+
 
 
 if ($exist:path eq '') then
@@ -146,3 +162,5 @@ else
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
         <cache-control cache="yes"/>
     </dispatch>
+
+
