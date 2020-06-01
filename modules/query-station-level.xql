@@ -19,11 +19,10 @@ if (stationutil:check_parameters_limits()) then
 (:if ( stationutil:check_parameters_limits() ) then     :)
 <FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
   <TEST>{matches("HHZ",stationutil:channel_pattern_translate(request:get-parameter("channel", "")))}</TEST> 
-  <TEST>c_p_t: {stationutil:channel_pattern_translate(request:get-parameter("channel", ""))}</TEST>   
-  <TEST>channel exists {stationutil:channel_exists()}</TEST> 
-  <TEST>tokenize example {tokenize("HHZ",",")}</TEST>
   <TEST>maxlatitude {xs:decimal(request:get-parameter("minlatitude", "90.0")) < xs:decimal(request:get-parameter("maxlatitude", "90.0"))}</TEST>
-  <TEST>min max longitude {xs:decimal(request:get-parameter("minlongitude", "90.0")) < xs:decimal(request:get-parameter("maxlongitude", "90.0"))}</TEST>
+  <TEST>Un grado di latitudine  {stationutil:distance( "42.0" , "12" , "43.0" , "12"  )}</TEST> 
+  <TEST>Vero?  {stationutil:check_radius( "42.5981", "13.218" )}  </TEST>
+  
   <Source>eXistDB</Source>
   <Sender>INGV-ONT</Sender>
   <Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
@@ -37,6 +36,7 @@ let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0"))
 let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90.0"))
 let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180.0"))
 let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180.0"))
+
 
 let $network_param := request:get-parameter("network", "*")
 let $station_param := request:get-parameter("station", "*")
@@ -57,12 +57,15 @@ where $Latitude  > $minlatitude and
       $Latitude  < $maxlatitude and 
       $Longitude > $minlongitude and 
       $Longitude < $maxlongitude 
+(:      and stationutil:check_radius($Latitude,$Longitude):)
 
 for $network in $item//Network  
     let $networkcode := $network/@code
     let $station:=$network/Station
     let $stationcode:=$network/Station/@code    
     let $channel:=$station/Channel
+    let $lat := $station/Latitude
+    let $lon := $station/Longitude
     let $CreationDate:= $channel/@startDate
     let $TerminationDate:= $channel/@endDate
     let $channelcode:=$channel/@code
@@ -75,6 +78,7 @@ for $network in $item//Network
 
     where
         stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and
+        stationutil:check_radius($lat,$lon) and 
         matches($networkcode,  $network_pattern ) 
         and matches($stationcode,  $station_pattern )
         and matches ($channelcode,  $channel_pattern) 
@@ -100,8 +104,9 @@ for $network in $item//Network
             let $channel :=$station/Channel
             let $channelcode:=$channel/@code
             let $channellocationcode:=$channel/@locationCode
-            let $Latitude:=  xs:decimal($station/Latitude)
-            let $Longitude:= xs:decimal($station/Longitude) 
+            
+            let $Latitude:=  $station/Latitude
+            let $Longitude:= $station/Longitude 
             let $CreationDate:= $channel/@startDate
             let $TerminationDate:= $channel/@endDate 
             let $networkcode:=$network/@code
@@ -109,13 +114,15 @@ for $network in $item//Network
             let $location_pattern:=stationutil:location_pattern_translate($location_param)    
 
         where 
-            $Latitude  > $minlatitude and  
-            $Latitude  < $maxlatitude and 
-            $Longitude > $minlongitude and 
-            $Longitude < $maxlongitude and 
+            xs:decimal($Latitude)  > $minlatitude and  
+            xs:decimal($Latitude)  < $maxlatitude and 
+            xs:decimal($Longitude) > $minlongitude and 
+            xs:decimal($Longitude) < $maxlongitude and 
             stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and          
             matches ($channelcode,  $pattern ) and
-            matches($channellocationcode,$location_pattern)
+            matches($channellocationcode,$location_pattern) 
+            and 
+            stationutil:check_radius($Latitude,$Longitude) 
             order by $station/@code
         return
             <Station>
