@@ -65,6 +65,8 @@ for $network in $item//Network
     let $station:=$network/Station
     let $stationcode:=$station/@code
     let $channel:=$station/Channel
+    let $lat := $station/Latitude
+    let $lon := $station/Longitude    
     let $CreationDate:= $channel/@startDate
     let $TerminationDate:= $channel/@endDate
     let $channelcode:=$channel/@code
@@ -76,6 +78,7 @@ for $network in $item//Network
     let $ingv_identifier := $network/ingv:Identifier
     where
         stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) 
+        and stationutil:check_radius($lat,$lon) 
         and matches($networkcode,  $network_pattern ) 
         and matches($stationcode,  $station_pattern )
         and matches ($channelcode,  $channel_pattern) 
