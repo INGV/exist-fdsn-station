@@ -292,7 +292,7 @@ where
         let $lon :=  $station/Longitude
     where
         stationutil:constraints_onchannel($CreationDate,$TerminationDate) 
-        and stationutil:check_maxradius($lat,$lon)         
+        and stationutil:check_radius($lat,$lon)         
         and matches($networkcode, stationutil:network_pattern_translate($network_param) ) 
         and matches($stationcode, stationutil:station_pattern_translate($station_param) )
         and matches ($selchannelcode, $pattern)        
@@ -374,11 +374,14 @@ return $d
     
 };    
 
-declare function stationutil:check_maxradius( $Latitude1 as xs:string, $Longitude1 as xs:string ) as xs:boolean 
+declare function stationutil:check_radius( $Latitude1 as xs:string, $Longitude1 as xs:string ) as xs:boolean 
 {
     let $latitude  := request:get-parameter("latitude","")
     let $longitude := request:get-parameter("longitude","")
-    return stationutil:distance($Latitude1, $Longitude1, $latitude, $longitude) < xs:decimal(request:get-parameter("maxradius",""))
+    
+    return 
+        stationutil:distance($Latitude1, $Longitude1, $latitude, $longitude) < xs:decimal(request:get-parameter("maxradius","")) and
+        stationutil:distance($Latitude1, $Longitude1, $latitude, $longitude) > xs:decimal(request:get-parameter("minradius",""))
 };
 
 declare function stationutil:nodata_error() {
