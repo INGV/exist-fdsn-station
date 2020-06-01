@@ -9,7 +9,7 @@ declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 declare option output:method "xml";
 declare option output:media-type "text/xml";
 (:TODO uncomment after debug:)
-declare option output:indent "no";
+declare option output:indent "yes";
 
 (:    TODO: selected number channels in AIO va preso non il totale ma il totale per la network in cui si sta scrivendo :)
 
@@ -75,8 +75,10 @@ where
     
 for $network in $item//Network  
     let $networkcode := $network/@code
-    let $stationcode:=$network/Station/@code
     let $station:=$network/Station
+    let $stationcode:=$station/@code
+    let $lat := $station/Latitude
+    let $lon := $station/Longitude       
     let $channel:=$station/Channel
     let $channelcode:=$channel/@code
     let $channellocationcode:=$channel/@locationCode
@@ -87,6 +89,7 @@ for $network in $item//Network
     let $ingv_identifier := $network/ingv:Identifier
     where
         stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and    
+        stationutil:check_radius($lat,$lon) and            
         matches($networkcode,  $network_pattern ) 
         and matches($stationcode,  $station_pattern )
         and matches ($channelcode,  $channel_pattern)
@@ -114,6 +117,8 @@ for $network in $item//Network
             let $channellocationcode := $channel/@locationCode
             let $Latitude:=  xs:decimal($station/Latitude)
             let $Longitude:= xs:decimal($station/Longitude) 
+            let $lat := $station/Latitude
+            let $lon := $station/Longitude               
             let $CreationDate:= $channel/@startDate
             let $TerminationDate:= $channel/@endDate 
             let $networkcode:=$network/@code
@@ -125,6 +130,7 @@ for $network in $item//Network
             $Longitude > $minlongitude and 
             $Longitude < $maxlongitude and 
             stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and          
+            stationutil:check_radius($lat,$lon) and            
             matches ($channelcode,  $pattern) and
             matches ($channellocationcode,  $location_pattern)
             order by $station/@code
@@ -152,6 +158,7 @@ for $network in $item//Network
                 let $TerminationDate:= $channel/@endDate                                  
                 where 
                     stationutil:constraints_onchannel($CreationDate, $TerminationDate ) and
+                    stationutil:check_radius($lat,$lon) and            
                     matches ($selchannelcode,  $pattern ) and
                     matches ($channellocationcode,  $location_pattern)
                 return $selchannelcode)
@@ -167,6 +174,7 @@ for $network in $item//Network
                 let $TerminationDate:= $channel/@endDate                  
                 where
                     stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and
+                    stationutil:check_radius($lat,$lon) and            
                     matches ($selchannelcode,  $pattern )and
                     matches ($channellocationcode,  $location_pattern)
                 return stationutil:remove-elements($channel,"Stage")
