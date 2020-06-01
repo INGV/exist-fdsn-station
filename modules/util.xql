@@ -205,7 +205,6 @@ declare function stationutil:channel_match( $channels as item()* )  as xs:boolea
 (:I valori di default non hanno senso, se non sono passati i parametri bisogna saltare il check :)
 (:FUNZIONE DA rivedere:)
     for $channel in $channels
-    
         let $missing_startbefore := request:get-parameter("startbefore", "yes")
         let $missing_endbefore := request:get-parameter("endbefore", "yes")
         let $missing_startafter := request:get-parameter("startafter", "yes")
@@ -225,7 +224,7 @@ declare function stationutil:channel_match( $channels as item()* )  as xs:boolea
         let $CreationDate:= $channel/@startDate
         let $TerminationDate:= $channel/@endDate
         let $Latitude:= $channel/Latitude
-        let $Longitude:=  $channel//Longitude    
+        let $Longitude:=  $channel/Longitude    
         let $pattern:=stationutil:channel_pattern_translate($channel_param)
         let $locationpattern:=stationutil:location_pattern_translate($location_param)
         let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0"))
@@ -233,7 +232,6 @@ declare function stationutil:channel_match( $channels as item()* )  as xs:boolea
         let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180.0"))
         let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180.0"))          
        return 
-
             $Latitude  > $minlatitude 
             and $Latitude  < $maxlatitude 
             and $Longitude > $minlongitude 
@@ -289,10 +287,13 @@ where
         let $selchannelcode:=$channel/@code
         let $selchannellocationcode:=$channel/@locationCode
         let $CreationDate:= $channel/@startDate
-        let $TerminationDate:= $channel/@endDate   
+        let $TerminationDate:= $channel/@endDate 
+        let $lat :=  $station/Latitude
+        let $lon :=  $station/Longitude
     where
-        stationutil:constraints_onchannel($CreationDate,$TerminationDate) and
-        matches($networkcode, stationutil:network_pattern_translate($network_param) ) 
+        stationutil:constraints_onchannel($CreationDate,$TerminationDate) 
+        and stationutil:check_maxradius($lat,$lon)         
+        and matches($networkcode, stationutil:network_pattern_translate($network_param) ) 
         and matches($stationcode, stationutil:station_pattern_translate($station_param) )
         and matches ($selchannelcode, $pattern)        
         and matches ($selchannellocationcode,$locationpattern)
@@ -315,6 +316,10 @@ let $endbefore := xs:dateTime(stationutil:time_adjust(request:get-parameter("end
 let $endafter := xs:dateTime(stationutil:time_adjust(request:get-parameter("endafter", "1800-01-01T01:01:01")))
 let $starttime := xs:dateTime(stationutil:time_adjust(request:get-parameter("starttime", "1800-01-01T01:01:01")))
 let $endtime := xs:dateTime(stationutil:time_adjust(request:get-parameter("endtime", "6000-01-01T01:01:01")))   
+let $latitude := xs:decimal(request:get-parameter("latitude",""))
+let $longitude := xs:decimal(request:get-parameter("longitude", ""))
+let $minradius := xs:decimal(request:get-parameter("minradius", ""))
+let $maxradius := xs:decimal(request:get-parameter("maxradius", ""))
 
 let $network := request:get-parameter("network", "*")
 let $station := request:get-parameter("station", "*")
@@ -327,6 +332,10 @@ return if (
            or $minlatitude > $maxlatitude 
            or $minlongitude>180.0 or $maxlongitude > 180.0 or $minlongitude<-180.0 or $maxlongitude <-180.0
            or $minlongitude > $maxlongitude 
+           or $latitude  >90.0  or $latitude  <  -90.0 
+           or $longitude >180.0 or $longitude < -180.0
+           or $minradius <0 or $minradius >= $maxradius
+           or $maxradius <0 or $maxradius > 20016.0 
            or $startbefore < $startafter
            or $endbefore < $endafter
            or $starttime > $endtime
@@ -335,7 +344,6 @@ return if (
            or (contains(stationutil:station_pattern_translate($station), "NEVERMATCH")) 
            or (contains(stationutil:channel_pattern_translate($channel), "NEVERMATCH")) 
            or (contains(stationutil:location_pattern_translate($location), "NEVERMATCH")) 
-           
            )) then false() else true()
 }
 catch err:FORG0001 {false()}
@@ -352,6 +360,26 @@ declare function stationutil:remove-elements($input as element(), $remove-names 
       }
 };
 
+declare function stationutil:distance( $Latitude1 as xs:string , $Longitude1 as xs:string , $Latitude2 as xs:string , $Longitude2 as xs:string  ) as xs:decimal {
+(: In radians :)
+let $lat1 := xs:decimal($Latitude1)  * ( math:pi() div 180.0 )
+let $lon1 := xs:decimal($Longitude1)  * ( math:pi() div 180.0 )
+
+let $lat2 := xs:decimal($Latitude2)  * ( math:pi() div 180.0 )
+let $lon2 := xs:decimal($Longitude2)  * ( math:pi() div 180.0 )
+
+(: Distance, d = 6371 * arccos[ (sin(lat1) * sin(lat2)) + cos(lat1) * cos(lat2) * cos(long2 – long1) ] :)
+let $d:= 6371.0 * math:acos(  math:sin($lat1) * math:sin($lat2)  + math:cos($lat1) * math:cos($lat2) * math:cos($lon2 - $lon1) ) 
+return $d
+    
+};    
+
+declare function stationutil:check_maxradius( $Latitude1 as xs:string, $Longitude1 as xs:string ) as xs:boolean 
+{
+    let $latitude  := request:get-parameter("latitude","")
+    let $longitude := request:get-parameter("longitude","")
+    return stationutil:distance($Latitude1, $Longitude1, $latitude, $longitude) < xs:decimal(request:get-parameter("maxradius",""))
+};
 
 declare function stationutil:nodata_error() {
 (: declare output method locally to override default xml   :)
@@ -372,10 +400,11 @@ declare function stationutil:nodata_error() {
 declare function stationutil:syntax_longitude() as xs:string{
 
 let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180"))
-let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180"))   
+let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180"))
+let $longitude := xs:decimal(request:get-parameter("longitude", "180"))
  
 return 
-    if ($minlongitude>180.0 or $maxlongitude > 180.0 or $minlongitude<-180.0 or $maxlongitude <-180.0) then 
+    if ($minlongitude>180.0 or $maxlongitude > 180.0 or $minlongitude<-180.0 or $maxlongitude <-180.0 or $longitude>180.0 or $longitude <-180.0) then 
 " 
 Must be -180 < longitude < 180
 "
@@ -387,9 +416,10 @@ declare function stationutil:syntax_latitude() as xs:string{
     
 let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0"))
 let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90"))
+let $latitude := xs:decimal(request:get-parameter("latitude", "90"))
 
 return 
-    if ( $minlatitude>90.0 or $maxlatitude > 90.0 or $minlatitude<-90.0 or $maxlatitude <-90.0) 
+    if ( $minlatitude>90.0 or $maxlatitude > 90.0 or $minlatitude<-90.0 or $maxlatitude <-90.0 or $latitude> 90.0 or $latitude < -90.0) 
     then
         "
 Must be -90 < latitude < 90
@@ -397,6 +427,26 @@ Must be -90 < latitude < 90
     else ""
 
 };
+
+declare function stationutil:syntax_radius() as xs:string{
+    
+let $minradius := xs:decimal(request:get-parameter("minradius","0"))
+let $maxradius := xs:decimal(request:get-parameter("maxradius", "12742.0"))
+
+return 
+    if (  ($maxradius - $minradius) <=0  or $maxradius<0 or $minradius<0 ) 
+    then
+        "
+Must be 0<minradius<maxradius
+"
+    else if ( $maxradius > 20016.0 ) then 
+        "
+maxradius too large for your planet        
+"
+    else
+    ""
+};
+
 
 declare function stationutil:syntax_location() as xs:string{
     
@@ -494,6 +544,7 @@ stationutil:syntax_location() ||
 stationutil:syntax_latitude() ||
 stationutil:syntax_longitude() ||
 stationutil:syntax_times() ||
+stationutil:syntax_radius() ||
 "
 
 Usage details are available from <SERVICE DOCUMENTATION URI>
