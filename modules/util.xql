@@ -291,10 +291,10 @@ let $endbefore := xs:dateTime(stationutil:time_adjust(request:get-parameter("end
 let $endafter := xs:dateTime(stationutil:time_adjust(request:get-parameter("endafter", "1800-01-01T01:01:01")))
 let $starttime := xs:dateTime(stationutil:time_adjust(request:get-parameter("starttime", "1800-01-01T01:01:01")))
 let $endtime := xs:dateTime(stationutil:time_adjust(request:get-parameter("endtime", "6000-01-01T01:01:01")))   
-let $latitude := xs:decimal(request:get-parameter("latitude",""))
-let $longitude := xs:decimal(request:get-parameter("longitude", ""))
+let $latitude := xs:decimal(request:get-parameter("latitude","0"))
+let $longitude := xs:decimal(request:get-parameter("longitude", "0"))
 let $minradius := xs:decimal(request:get-parameter("minradius", "0"))
-let $maxradius := xs:decimal(request:get-parameter("maxradius", "12742.0"))
+let $maxradius := xs:decimal(request:get-parameter("maxradius", "180.0"))
 let $includerestricted := xs:string(request:get-parameter("includerestricted","TRUE"))
 
 let $network := request:get-parameter("network", "*")
@@ -311,7 +311,7 @@ return if (
            or $latitude  >90.0  or $latitude  <  -90.0 
            or $longitude >180.0 or $longitude < -180.0
            or $minradius <0 or $minradius >= $maxradius
-           or $maxradius <0 or $maxradius > 20016.0 
+           or $maxradius <0 or $maxradius > 180.0 
            or $startbefore < $startafter
            or $endbefore < $endafter
            or $starttime > $endtime
@@ -345,8 +345,8 @@ let $lon1 := xs:decimal($Longitude1)  * ( math:pi() div 180.0 )
 let $lat2 := xs:decimal($Latitude2)  * ( math:pi() div 180.0 )
 let $lon2 := xs:decimal($Longitude2)  * ( math:pi() div 180.0 )
 
-(: Distance, d = 6371 * arccos[ (sin(lat1) * sin(lat2)) + cos(lat1) * cos(lat2) * cos(long2 – long1) ] :)
-let $d:= 6371.0 * math:acos(  math:sin($lat1) * math:sin($lat2)  + math:cos($lat1) * math:cos($lat2) * math:cos($lon2 - $lon1) ) 
+(: Distance in km R*fi , d = 6371 * arccos[ (sin(lat1) * sin(lat2)) + cos(lat1) * cos(lat2) * cos(long2 – long1) ] :)
+let $d:=  180.0 div math:pi() * math:acos(  math:sin($lat1) * math:sin($lat2)  + math:cos($lat1) * math:cos($lat2) * math:cos($lon2 - $lon1) ) 
 return $d
     
 };    
@@ -355,8 +355,12 @@ declare function stationutil:check_radius( $Latitude1 as xs:string, $Longitude1 
 {
     let $latitude  := request:get-parameter("latitude","")
     let $longitude := request:get-parameter("longitude","")
-    
-    return 
+    return
+    if (request:get-parameter("latitude","") ="" or 
+    request:get-parameter("longitude","")     ="" or 
+    request:get-parameter("maxradius","")     ="" or 
+    request:get-parameter("minradius","")     = "" ) then true() 
+    else 
         stationutil:distance($Latitude1, $Longitude1, $latitude, $longitude) < xs:decimal(request:get-parameter("maxradius","")) and
         stationutil:distance($Latitude1, $Longitude1, $latitude, $longitude) > xs:decimal(request:get-parameter("minradius",""))
 };
@@ -411,17 +415,13 @@ Must be -90 < latitude < 90
 declare function stationutil:syntax_radius() as xs:string{
     
 let $minradius := xs:decimal(request:get-parameter("minradius","0"))
-let $maxradius := xs:decimal(request:get-parameter("maxradius", "12742.0"))
+let $maxradius := xs:decimal(request:get-parameter("maxradius", "180.0"))
 
 return 
-    if (  ($maxradius - $minradius) <=0  or $maxradius<0 or $minradius<0 ) 
+    if (  ($maxradius - $minradius) <=0  or $maxradius<0 or $minradius<0  or $maxradius >180.0) 
     then
         "
-Must be 0<minradius<maxradius
-"
-    else if ( $maxradius > 20016.0 ) then 
-        "
-maxradius too large for your planet        
+Must be 0<minradius<maxradius<=180
 "
     else
     ""
