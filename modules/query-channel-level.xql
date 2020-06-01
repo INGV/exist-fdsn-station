@@ -14,16 +14,16 @@ declare option output:indent "no";
 (:    TODO: selected number channels in AIO va preso non il totale ma il totale per la network in cui si sta scrivendo :)
 
 (: Functions declarations  :)
-declare function local:remove-elements($input as element(), $remove-names as xs:string*) as element() {
-   element {node-name($input) }
-      {$input/@*,
-       for $child in $input/node()[not(name(.)=$remove-names)]
-          return
-             if ($child instance of element())
-                then local:remove-elements($child, $remove-names)
-                else $child
-      }
-};
+(:declare function local:remove-elements($input as element(), $remove-names as xs:string*) as element() {:)
+(:   element {node-name($input) }:)
+(:      {$input/@*,:)
+(:       for $child in $input/node()[not(name(.)=$remove-names)]:)
+(:          return:)
+(:             if ($child instance of element()):)
+(:                then local:remove-elements($child, $remove-names):)
+(:                else $child:)
+(:      }:)
+(:};:)
 
 
 if (stationutil:check_parameters_limits()) then 
@@ -169,7 +169,7 @@ for $network in $item//Network
                     stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and
                     matches ($selchannelcode,  $pattern )and
                     matches ($channellocationcode,  $location_pattern)
-                return local:remove-elements($channel,"Stage")
+                return stationutil:remove-elements($channel,"Stage")
             }
             </Station>
 }
