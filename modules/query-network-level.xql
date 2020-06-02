@@ -14,6 +14,7 @@ declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 (:TODO uncomment after debug:)
 declare option output:indent "no";
 
+
 if (stationutil:check_parameters_limits()) then 
     if (stationutil:channel_exists()) then 
 (:if (stationutil:check_parameters_limits() ) then     :)
@@ -24,7 +25,7 @@ if (stationutil:check_parameters_limits()) then
   <TEST>channel exists {stationutil:channel_exists()}</TEST> 
   <TEST>tokenize example {tokenize("HHZ",",")}</TEST>
   <TEST>maxlatitude {xs:decimal(request:get-parameter("minlatitude", "90.0")) < xs:decimal(request:get-parameter("maxlatitude", "90.0"))}</TEST>
-  <TEST>min max longitude {xs:decimal(request:get-parameter("minlongitude", "90.0")) < xs:decimal(request:get-parameter("maxlongitude", "90.0"))}</TEST>
+  <TEST>min max longitude {xs:decimal(stationutil:get-parameter("minlongitude")) < xs:decimal(stationutil:get-parameter("maxlongitude"))}</TEST>
   <TEST>c_l_t: {stationutil:location_pattern_translate(request:get-parameter("location", "*"))}</TEST>     
   <Source>eXistDB</Source>
   <Sender>INGV-ONT</Sender>
@@ -35,15 +36,15 @@ if (stationutil:check_parameters_limits()) then
 (:  any level file must match the default level :)
 (:let $outputlevel := request:get-parameter("level", "network"):)
 
-let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0"))
-let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90.0"))
-let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180.0"))
-let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180.0"))   
+let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
+let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
+let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
+let $maxlongitude := xs:decimal(stationutil:get-parameter("maxlongitude"))   
 
-let $network_param := request:get-parameter("network", "*")
-let $station_param := request:get-parameter("station", "*")
-let $channel_param := request:get-parameter("channel", "*")
-let $location_param := request:get-parameter("location", "*")
+let $network_param := stationutil:get-parameter("network")
+let $station_param := stationutil:get-parameter("station")
+let $channel_param := stationutil:get-parameter("channel")
+let $location_param := stationutil:get-parameter("location")
 
 let $network_pattern:=stationutil:network_pattern_translate($network_param)
 let $station_pattern:=stationutil:station_pattern_translate($station_param)
