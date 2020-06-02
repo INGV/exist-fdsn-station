@@ -22,7 +22,7 @@ if (stationutil:check_parameters_limits()) then
   <TEST>maxlatitude {xs:decimal(request:get-parameter("minlatitude", "90.0")) < xs:decimal(request:get-parameter("maxlatitude", "90.0"))}</TEST>
   <TEST>Un grado di latitudine  {stationutil:distance( "42.0" , "12" , "43.0" , "12"  )}</TEST> 
   <TEST>Vero?  {stationutil:check_radius( "42.5981", "13.218" )}  </TEST>
-  
+  <TEST>location:      {stationutil:get-parameter("location")}</TEST>      
   <Source>eXistDB</Source>
   <Sender>INGV-ONT</Sender>
   <Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
@@ -30,18 +30,18 @@ if (stationutil:check_parameters_limits()) then
   <Created>{current-dateTime()}</Created>
 {
 (:  any level file must match the default level :)
-let $outputlevel := request:get-parameter("level", "station")
+(:let $outputlevel := stationutil:get-parameter("level", "station"):)
 
-let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0"))
-let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90.0"))
-let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180.0"))
-let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180.0"))
+let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
+let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
+let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
+let $maxlongitude := xs:decimal(stationutil:get-parameter("maxlongitude"))
 
 
-let $network_param := request:get-parameter("network", "*")
-let $station_param := request:get-parameter("station", "*")
-let $channel_param := request:get-parameter("channel", "*")
-let $location_param := request:get-parameter("location", "*")
+let $network_param := stationutil:get-parameter("network")
+let $station_param := stationutil:get-parameter("station")
+let $channel_param := stationutil:get-parameter("channel")
+let $location_param := stationutil:get-parameter("location")
 
 let $network_pattern:=stationutil:network_pattern_translate($network_param)
 let $station_pattern:=stationutil:station_pattern_translate($station_param)
