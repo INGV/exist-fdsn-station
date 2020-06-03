@@ -92,7 +92,7 @@ else if (contains($exist:path, "/$shared/")) then
             contains($exist:path, "/query/") 
 
             and (matches(request:get-parameter("level","network"),"response") or matches(request:get-parameter("level","network"),"channel"))
-            and not(matches(string-join(request:get-parameter-names()) ,"minlatitude|maxlatitude|minlongitude|maxlongitude|starttime|endtime|startbefore|endbefore|startafter|endafter" ))
+            and not(matches(string-join(request:get-parameter-names()) ,"station|sta|channel|cha|location|loc|minlatitude|minlat|maxlatitude|maxlat|minlongitude|minlon|maxlongitude|maxlon|starttime|start|endtime|end|startbefore|endbefore|startafter|endafter|latitude|lat|longitude|lon|maxradius|minradius" ))
         ) then 
         
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
