@@ -78,7 +78,7 @@ declare function stationutil:station_pattern_translate ($input as xs:string) as 
             let $pattern:= translate( $token, "*", ".*")
             let $pattern:= translate( $pattern, "?", ".")
             (: * -> 0 or more characters, ? exactly one character :)                
-             return "^"||$pattern
+             return "^"||$pattern||"$"
         else
             let $pattern:="NEVERMATCH"
             return $pattern
