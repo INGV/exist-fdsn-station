@@ -19,8 +19,8 @@ if (stationutil:check_parameters_limits()) then
   <TEST>c_p_t: {stationutil:channel_pattern_translate(request:get-parameter("channel", ""))}</TEST>   
   <TEST>channel exists {stationutil:channel_exists()}</TEST> 
   <TEST>tokenize example {tokenize("HHZ",",")}</TEST>
-  <TEST>maxlatitude {xs:decimal(request:get-parameter("minlatitude", "90.0")) < xs:decimal(request:get-parameter("maxlatitude", "90.0"))}</TEST>
-  <TEST>min max longitude {xs:decimal(request:get-parameter("minlongitude", "90.0")) < xs:decimal(request:get-parameter("maxlongitude", "90.0"))}</TEST>
+  <TEST>maxlatitude {xs:decimal(stationutil:get-parameter("minlatitude")) < xs:decimal(stationutil:get-parameter("maxlatitude"))}</TEST>
+  <TEST>min max longitude {xs:decimal(stationutil:get-parameter("minlongitude")) < xs:decimal(stationutil:get-parameter("maxlongitude"))}</TEST>
   <Source>eXistDB</Source>
   <Sender>INGV-ONT</Sender>
   <Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
@@ -28,21 +28,21 @@ if (stationutil:check_parameters_limits()) then
   <Created>{current-dateTime()}</Created>
 {
 (:  any level file must match the default level :    :)
-let $outputlevel := request:get-parameter("level", "response")
-let $minlatitude := xs:decimal(request:get-parameter("minlatitude","-90.0"))
-let $maxlatitude := xs:decimal(request:get-parameter("maxlatitude", "90.0"))
-let $minlongitude := xs:decimal(request:get-parameter("minlongitude","-180.0"))
-let $maxlongitude := xs:decimal(request:get-parameter("maxlongitude", "180.0"))
-let $missing_starttime := request:get-parameter("starttime", "yes")
-let $missing_endtime := request:get-parameter("endtime", "yes") 
-let $missing_startbefore := request:get-parameter("startbefore", "yes")
-let $missing_startafter := request:get-parameter("startafter", "yes")
-let $missing_endbefore := request:get-parameter("endbefore", "yes")
-let $missing_endafter := request:get-parameter("endafter", "yes")  
-let $network_param := request:get-parameter("network", "*")
-let $station_param := request:get-parameter("station", "*")
-let $channel_param := request:get-parameter("channel", "*")
-let $location_param := request:get-parameter("location", "*") 
+(:let $outputlevel := request:get-parameter("level", "response"):)
+let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
+let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
+let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
+let $maxlongitude := xs:decimal(stationutil:get-parameter("maxlongitude"))
+(:let $missing_starttime := request:get-parameter("starttime", "yes"):)
+(:let $missing_endtime := request:get-parameter("endtime", "yes") :)
+(:let $missing_startbefore := request:get-parameter("startbefore", "yes"):)
+(:let $missing_startafter := request:get-parameter("startafter", "yes"):)
+(:let $missing_endbefore := request:get-parameter("endbefore", "yes"):)
+(:let $missing_endafter := request:get-parameter("endafter", "yes")  :)
+let $network_param := stationutil:get-parameter("network")
+let $station_param := stationutil:get-parameter("station")
+let $channel_param := stationutil:get-parameter("channel")
+let $location_param := stationutil:get-parameter("location") 
 let $network_pattern:=stationutil:network_pattern_translate($network_param)
 let $station_pattern:=stationutil:station_pattern_translate($station_param)
 let $channel_pattern:=stationutil:channel_pattern_translate($channel_param)    
@@ -54,12 +54,12 @@ let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
 let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
 let $CreationDate:= $item/FDSNStationXML/Network/Station/Channel/@startDate
 let $TerminationDate:= $item/FDSNStationXML/Network/Station/Channel/@endDate
-let $starttime := xs:dateTime(request:get-parameter("starttime", "6000-01-01T01:01:01"))
-let $endtime := xs:dateTime(request:get-parameter("endtime", "1800-01-01T01:01:01"))
-let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01"))
-let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01"))
-let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   
-let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01"))
+(:let $starttime := xs:dateTime(request:get-parameter("starttime", "6000-01-01T01:01:01")):)
+(:let $endtime := xs:dateTime(request:get-parameter("endtime", "1800-01-01T01:01:01")):)
+(:let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01")):)
+(:let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01")):)
+(:let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   :)
+(:let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01")):)
 
 where 
     $Latitude  > $minlatitude and  
