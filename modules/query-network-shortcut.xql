@@ -6,11 +6,7 @@ import module namespace stationutil="http://exist-db.org/apps/fdsn-station/modul
 (:import module namespace errors="http://exist-db.org/apps/fdsn-station/modules/errors"  at "errors.xql";:)
 
 declare namespace request="http://exist-db.org/xquery/request";
-(:declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";:)
-(:declare option exist:serialize "method=xml media-type=text/html";:)
 (:TODO uncomment after debug:)
-(:declare option output:method "xml";:)
-(:declare option output:media-type "text/xml";:)
 (:declare option output:indent "yes";:)
 
 (:if (true()) then:)
@@ -30,7 +26,7 @@ for $item in collection("/db/apps/fdsn-station/Station/")
 
 for $network in $item//Network  
 
-    let $network_param := request:get-parameter("network", "*")
+    let $network_param := stationutil:get-parameter("network")
     let $networkcode := $network/@code
     let $startDate := $network/@startDate
     let $endDate := $network/@endDate
@@ -54,9 +50,9 @@ for $network in $item//Network
         <SelectedNumberStations> {count($network/Station)} </SelectedNumberStations>
         {
         for $station in $network/Station
-        order by $station
+        order by $station/@code
         return
-        if ( matches(request:get-parameter("level", "response"),"channel")) 
+        if ( matches(stationutil:get-parameter("level"),"channel")) 
             then stationutil:remove-elements($station,"Stage")
             else $station
 }
