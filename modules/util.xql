@@ -43,7 +43,7 @@ declare function stationutil:network_pattern_translate ($input as xs:string) as 
    return 
         if (string-length($token)=2) 
         then
-            let $pattern:= translate( $token, "*", ".*")
+            let $pattern:= replace( $token, "\*", ".*")               
             let $pattern:= translate( $pattern, "?", ".")
                 (: * -> 0 or more characters, ? exactly one character :)
                 return "^"||$pattern||"$"
@@ -75,10 +75,10 @@ declare function stationutil:station_pattern_translate ($input as xs:string) as 
    return 
         if (string-length($token)<6 ) 
         then
-            let $pattern:= translate( $token, "*", ".*")
+            let $pattern:= replace( $token, "\*", ".*")               
             let $pattern:= translate( $pattern, "?", ".")
             (: * -> 0 or more characters, ? exactly one character :)                
-             return "^"||$pattern||"$"
+        return "^"||$pattern||"$"
         else
             let $pattern:="NEVERMATCH"
             return $pattern
@@ -99,10 +99,10 @@ declare function stationutil:channel_pattern_translate($input as item()*) as xs:
    return 
         if (string-length($token)<4 ) 
         then
-            let $pattern:= translate( $token, "*", ".*")
+            let $pattern:= replace( $token, "\*", ".*")            
             let $pattern:= translate( $pattern, "?", ".")
                 (: every character will remain the same, only * and ? become . ():)
-            return  $pattern     
+             return "^"||$pattern||"$"     
         else
             let $pattern:="NEVERMATCH"
             return $pattern
@@ -129,7 +129,7 @@ declare function stationutil:location_pattern_translate($input as item()*) as xs
             let $pattern:= if ($pattern="--") then "^$" else $pattern
 (:                (: every character will remain the same, only * and ? become . ():):)
             return
-                     $pattern
+                     "^"||$pattern||"$"  
         else
             let $pattern:="NEVERMATCH"
             return $pattern
@@ -250,8 +250,8 @@ for $item in collection("/db/apps/fdsn-station/Station/")
 (:    let $CreationDate:= $item/FDSNStationXML/Network/Station/Channel/@startDate:)
 (:    let $TerminationDate:= $item/FDSNStationXML/Network/Station/Channel/@endDate:)
 (:TODO move check on channes epochs    :)    
-    let $pattern:=stationutil:channel_pattern_translate($channel_param)
-    let $locationpattern:=stationutil:location_pattern_translate($location_param)
+(:    let $pattern:=stationutil:channel_pattern_translate($channel_param):)
+(:    let $locationpattern:=stationutil:location_pattern_translate($location_param):)
 where 
     $Latitude  > $minlatitude 
     and $Latitude  < $maxlatitude 
@@ -275,8 +275,8 @@ where
         and stationutil:check_radius($lat,$lon)         
         and matches($networkcode, stationutil:network_pattern_translate($network_param) ) 
         and matches($stationcode, stationutil:station_pattern_translate($station_param) )
-        and matches ($selchannelcode, $pattern)        
-        and matches ($selchannellocationcode,$locationpattern)
+        and matches ($selchannelcode, stationutil:channel_pattern_translate($channel_param))        
+        and matches ($selchannellocationcode,stationutil:location_pattern_translate($location_param))
         return $selchannelcode 
     )))
     then true()
@@ -359,16 +359,15 @@ return $d
 
 declare function stationutil:check_radius( $Latitude1 as xs:string, $Longitude1 as xs:string ) as xs:boolean 
 {
-    let $latitude  := request:get-parameter("latitude","")
-    let $longitude := request:get-parameter("longitude","")
+    let $latitude  := stationutil:get-parameter("latitude")
+    let $longitude := stationutil:get-parameter("longitude")
+    let $maxradius := stationutil:get-parameter("maxradius")
+    let $minradius := stationutil:get-parameter("minradius")
     return
-    if (request:get-parameter("latitude","") ="" or 
-    request:get-parameter("longitude","")     ="" or 
-    request:get-parameter("maxradius","")     ="" or 
-    request:get-parameter("minradius","")     = "" ) then true() 
+    if ($latitude ="0" and $longitude ="0" and $maxradius ="180" and $minradius = "0" ) then true() 
     else 
-        stationutil:distance($Latitude1, $Longitude1, $latitude, $longitude) < xs:decimal(request:get-parameter("maxradius","")) and
-        stationutil:distance($Latitude1, $Longitude1, $latitude, $longitude) > xs:decimal(request:get-parameter("minradius",""))
+        stationutil:distance($Latitude1, $Longitude1, $latitude, $longitude) < xs:decimal($maxradius) and
+        stationutil:distance($Latitude1, $Longitude1, $latitude, $longitude) > xs:decimal($minradius)
 };
 
 declare function stationutil:nodata_error() {
