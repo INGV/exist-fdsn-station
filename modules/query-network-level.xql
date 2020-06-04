@@ -25,8 +25,9 @@ if (stationutil:check_parameters_limits()) then
   <TEST>channel exists {stationutil:channel_exists()}</TEST> 
   <TEST>tokenize example {tokenize("HHZ",",")}</TEST>
   <TEST>maxlatitude {xs:decimal(request:get-parameter("minlatitude", "90.0")) < xs:decimal(request:get-parameter("maxlatitude", "90.0"))}</TEST>
-  <TEST>min max longitude {xs:decimal(stationutil:get-parameter("minlongitude")) < xs:decimal(stationutil:get-parameter("maxlongitude"))}</TEST>
-  <TEST>c_l_t: {stationutil:location_pattern_translate(request:get-parameter("location", "*"))}</TEST>     
+  <TEST>min max longitude {xs:decimal(stationutil:get-parameter("minlongitude"))} ++  {  xs:decimal(stationutil:get-parameter("maxlongitude"))}</TEST>
+  <TEST>c_l_t: {stationutil:location_pattern_translate(request:get-parameter("location", "*"))}</TEST>    
+  <TEST>c_l_t: {stationutil:channel_pattern_translate(stationutil:get-parameter("channel"))}</TEST>    
   <Source>eXistDB</Source>
   <Sender>INGV-ONT</Sender>
   <Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
