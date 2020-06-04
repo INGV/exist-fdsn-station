@@ -30,7 +30,7 @@ if (stationutil:check_parameters_limits()) then
     if (stationutil:channel_exists()) then 
 (:if (stationutil:check_parameters_limits() ) then     :)
 <FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
-  <TEST>{matches("HHZ",stationutil:channel_pattern_translate(request:get-parameter("channel", "")))}</TEST> 
+  <TEST>location {stationutil:get-parameter("location")} {matches("",stationutil:location_pattern_translate(stationutil:get-parameter("location")))}</TEST> 
   <TEST>c_p_t: {stationutil:channel_pattern_translate(request:get-parameter("channel", ""))}</TEST>   
   <TEST>channel exists {stationutil:channel_exists()}</TEST> 
   <TEST>tokenize example {tokenize("HHZ",",")}</TEST>
