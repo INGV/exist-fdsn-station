@@ -22,7 +22,7 @@ if (stationutil:check_parameters_limits()) then
   <TEST>maxlatitude {xs:decimal(request:get-parameter("minlatitude", "90.0")) < xs:decimal(request:get-parameter("maxlatitude", "90.0"))}</TEST>
   <TEST>Un grado di latitudine  {stationutil:distance( "42.0" , "12" , "43.0" , "12"  )}</TEST> 
   <TEST>Vero?  {stationutil:check_radius( "42.5981", "13.218" )}  </TEST>
-  <TEST>location:      {stationutil:get-parameter("location")}</TEST>      
+  <TEST>station:      {stationutil:get-parameter("station")}</TEST>      
   <Source>eXistDB</Source>
   <Sender>INGV-ONT</Sender>
   <Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
