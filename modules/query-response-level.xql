@@ -27,18 +27,12 @@ if (stationutil:check_parameters_limits()) then
   <ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
   <Created>{current-dateTime()}</Created>
 {
-(:  any level file must match the default level :    :)
-(:let $outputlevel := request:get-parameter("level", "response"):)
+
 let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
 let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
 let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
 let $maxlongitude := xs:decimal(stationutil:get-parameter("maxlongitude"))
-(:let $missing_starttime := request:get-parameter("starttime", "yes"):)
-(:let $missing_endtime := request:get-parameter("endtime", "yes") :)
-(:let $missing_startbefore := request:get-parameter("startbefore", "yes"):)
-(:let $missing_startafter := request:get-parameter("startafter", "yes"):)
-(:let $missing_endbefore := request:get-parameter("endbefore", "yes"):)
-(:let $missing_endafter := request:get-parameter("endafter", "yes")  :)
+
 let $network_param := stationutil:get-parameter("network")
 let $station_param := stationutil:get-parameter("station")
 let $channel_param := stationutil:get-parameter("channel")
@@ -54,25 +48,13 @@ let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
 let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
 let $CreationDate:= $item/FDSNStationXML/Network/Station/Channel/@startDate
 let $TerminationDate:= $item/FDSNStationXML/Network/Station/Channel/@endDate
-(:let $starttime := xs:dateTime(request:get-parameter("starttime", "6000-01-01T01:01:01")):)
-(:let $endtime := xs:dateTime(request:get-parameter("endtime", "1800-01-01T01:01:01")):)
-(:let $startbefore := xs:dateTime(request:get-parameter("startbefore", "6000-01-01T01:01:01")):)
-(:let $startafter := xs:dateTime(request:get-parameter("startafter", "1800-01-01T01:01:01")):)
-(:let $endbefore := xs:dateTime(request:get-parameter("endbefore", "6000-01-01T01:01:01"))   :)
-(:let $endafter := xs:dateTime(request:get-parameter("endafter", "1800-01-01T01:01:01")):)
 
 where 
+    stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and
     $Latitude  > $minlatitude and  
     $Latitude  < $maxlatitude and 
     $Longitude > $minlongitude and 
     $Longitude < $maxlongitude 
-(: Optimization  attempt :)    
-(: and   stationutil:parameter_constraint_onchannel( :)
-(:        $missing_starttime, $missing_endtime,     :)
-(:        $missing_startbefore, $missing_startafter, $missing_endbefore, $missing_endafter,:)
-(:        $starttime,$endtime,:)
-(:        $startbefore, $startafter, $endbefore, $endafter, :)
-(:        $CreationDate, $TerminationDate )             :)
 
 for $network in $item//Network  
     let $networkcode := $network/@code
