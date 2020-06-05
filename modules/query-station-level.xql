@@ -12,11 +12,8 @@ declare option output:media-type "text/xml";
 (:TODO uncomment after debug:)
 declare option output:indent "yes";
 
-(:if (true()) then :)
 if (stationutil:check_parameters_limits()) then 
     if (stationutil:channel_exists()) then  
-(:if (stationutil:channel_exists()) then     :)
-(:if ( stationutil:check_parameters_limits() ) then     :)
 <FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
   <TEST>{matches("HHZ",stationutil:channel_pattern_translate(request:get-parameter("channel", "")))}</TEST> 
   <TEST>maxlatitude {xs:decimal(request:get-parameter("minlatitude", "90.0")) < xs:decimal(request:get-parameter("maxlatitude", "90.0"))}</TEST>
@@ -29,14 +26,11 @@ if (stationutil:check_parameters_limits()) then
   <ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
   <Created>{current-dateTime()}</Created>
 {
-(:  any level file must match the default level :)
-(:let $outputlevel := stationutil:get-parameter("level", "station"):)
 
 let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
 let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
 let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
 let $maxlongitude := xs:decimal(stationutil:get-parameter("maxlongitude"))
-
 
 let $network_param := stationutil:get-parameter("network")
 let $station_param := stationutil:get-parameter("station")
@@ -57,7 +51,7 @@ where $Latitude  > $minlatitude and
       $Latitude  < $maxlatitude and 
       $Longitude > $minlongitude and 
       $Longitude < $maxlongitude 
-(:      and stationutil:check_radius($Latitude,$Longitude):)
+(: TODO ????  and stationutil:check_radius($Latitude,$Longitude):)
 
 for $network in $item//Network  
     let $networkcode := $network/@code
@@ -112,7 +106,6 @@ for $network in $item//Network
             let $networkcode:=$network/@code
             let $pattern:=stationutil:channel_pattern_translate($channel_param)
             let $location_pattern:=stationutil:location_pattern_translate($location_param)    
-
         where 
             xs:decimal($Latitude)  > $minlatitude and  
             xs:decimal($Latitude)  < $maxlatitude and 
