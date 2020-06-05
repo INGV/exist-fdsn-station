@@ -17,8 +17,6 @@ declare option output:indent "no";
 
 if (stationutil:check_parameters_limits()) then 
     if (stationutil:channel_exists()) then 
-(:if (stationutil:check_parameters_limits() ) then     :)
-(:if (true()) then:)
 <FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
   <TEST>{matches("HHZ",stationutil:channel_pattern_translate(request:get-parameter("channel", "")))}</TEST> 
   <TEST>c_p_t: {stationutil:channel_pattern_translate(request:get-parameter("channel", ""))}</TEST>   
@@ -34,8 +32,6 @@ if (stationutil:check_parameters_limits()) then
   <ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
   <Created>{current-dateTime()}</Created>
 {
-(:  any level file must match the default level :)
-(:let $outputlevel := request:get-parameter("level", "network"):)
 
 let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
 let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
