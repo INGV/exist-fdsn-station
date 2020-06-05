@@ -158,7 +158,7 @@ declare function stationutil:constraints_onchannel(
     let $missing_endbefore := request:get-parameter("endbefore", "yes")
     let $missing_startafter := request:get-parameter("startafter", "yes")
     let $missing_endafter := request:get-parameter("endafter", "yes")
-    let $missing_starttime := request:get-parameter("stationutil:get-parameter", "yes")
+    let $missing_starttime := request:get-parameter("starttime", "yes")
     let $missing_endtime := request:get-parameter("endtime", "yes")
     let $startbefore := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("startbefore")))
     let $startafter := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("startafter")))
@@ -227,7 +227,7 @@ declare function stationutil:channel_match( $channels as item()* )  as xs:boolea
 
 declare function stationutil:channel_exists() as xs:boolean
 {
-    
+try {    
 let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
 let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
 let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
@@ -281,11 +281,13 @@ where
     )))
     then true()
     else false()
+}
+catch err:* {false()}    
 };
 
 declare function stationutil:check_parameters_limits() as xs:boolean 
 {
-(:try {:)
+try {
 let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
 let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
 let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
@@ -328,8 +330,8 @@ return if (
            or (contains(stationutil:channel_pattern_translate($channel), "NEVERMATCH")) 
            or (contains(stationutil:location_pattern_translate($location), "NEVERMATCH"))
            ) then false() else true()
-(:}:)
-(:catch err:* {false()}:)
+}
+catch err:* {false()}
 } ;
 
 declare function stationutil:remove-elements($input as element(), $remove-names as xs:string*) as element() {
