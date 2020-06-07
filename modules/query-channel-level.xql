@@ -12,7 +12,7 @@ declare option output:media-type "text/xml";
 declare option output:indent "yes";
 
 (: TODO includerestricted :)
-
+declare function local:main() as element() {
 if (stationutil:check_parameters_limits()) then 
     if (stationutil:channel_exists()) then 
 
@@ -172,4 +172,18 @@ else
     stationutil:nodata_error()
 else 
     stationutil:badrequest_error()
+};    
+
+declare function local:main_text(){
+        util:declare-option("exist:serialize","method=text media-type=text/plain indent=yes")  ,    
+        transform:transform(local:main(), doc("channel.xsl"), ())
+};    
     
+try {
+if (stationutil:get-parameter("format")="xml") 
+    then local:main()
+    else if (stationutil:get-parameter("format")="text") then local:main_text()
+    else ()
+}
+catch err:* {"Error checking parameters"}
+
