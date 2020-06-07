@@ -187,7 +187,7 @@ declare function stationutil:constraints_onchannel(
 
 declare function stationutil:channel_exists() as xs:boolean
 {
-try {    
+(:try {    :)
 let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
 let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
 let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
@@ -196,6 +196,7 @@ let $network_param := stationutil:get-parameter("network")
 let $station_param := stationutil:get-parameter("station")
 let $channel_param := stationutil:get-parameter("channel")
 let $location_param := stationutil:get-parameter("location")
+let $includerestricted := stationutil:get-parameter("includerestricted")
 
 return 
 
@@ -223,9 +224,16 @@ where
         let $TerminationDate:= $channel/@endDate 
         let $lat :=  $station/Latitude
         let $lon :=  $station/Longitude
+        let $networkrestrictedStatus := $network/@restrictedStatus
+        let $stationrestrictedStatus := $station/@restrictedStatus        
+        let $channelrestrictedStatus := $channel/@restrictedStatus    
     where
         stationutil:constraints_onchannel($CreationDate,$TerminationDate) 
-        and stationutil:check_radius($lat,$lon)         
+        and stationutil:check_radius($lat,$lon)  
+        and 
+        (upper-case($includerestricted)="TRUE" or ( stationutil:check_restricted($networkrestrictedStatus)
+        and stationutil:check_restricted($stationrestrictedStatus)        
+        and stationutil:check_restricted($channelrestrictedStatus)))   
         and matches($networkcode, stationutil:network_pattern_translate($network_param) ) 
         and matches($stationcode, stationutil:station_pattern_translate($station_param) )
         and matches ($selchannelcode, stationutil:channel_pattern_translate($channel_param))        
@@ -234,8 +242,8 @@ where
     )))
     then true()
     else false()
-}
-catch err:* {false()}    
+(:}:)
+(:catch err:* {false()}    :)
 };
 
 declare function stationutil:check_parameters_limits() as xs:boolean 
@@ -256,6 +264,7 @@ let $longitude := xs:decimal(stationutil:get-parameter("longitude"))
 let $minradius := xs:decimal(stationutil:get-parameter("minradius"))
 let $maxradius := xs:decimal(stationutil:get-parameter("maxradius"))
 let $includerestricted := xs:string(stationutil:get-parameter("includerestricted"))
+let $format := stationutil:get-parameter("format")
 
 let $network := stationutil:get-parameter("network")
 let $station := stationutil:get-parameter("station")
@@ -278,6 +287,7 @@ return if (
            or $starttime > $endtime
            or not(matches($level,"network|station|channel|response"))
            or not($includerestricted="TRUE" or $includerestricted="FALSE")
+           or not( $format ="xml" or $format="text")           
            or (contains(stationutil:network_pattern_translate($network), "NEVERMATCH")) 
            or (contains(stationutil:station_pattern_translate($station), "NEVERMATCH")) 
            or (contains(stationutil:channel_pattern_translate($channel), "NEVERMATCH")) 
@@ -325,6 +335,16 @@ declare function stationutil:check_radius( $Latitude1 as xs:string, $Longitude1 
         stationutil:distance($Latitude1, $Longitude1, $latitude, $longitude) > xs:decimal($minradius)
 };
 
+(: TODO open partial restricted:)
+declare function stationutil:check_restricted($restrictedStatus as xs:string * ) as xs:boolean {
+    let $includerestricted:=stationutil:get-parameter("includerestricted")
+    return
+    some $rs in $restrictedStatus
+    satisfies 
+    if (upper-case($includerestricted)="TRUE") then true()
+    else (not($rs="restricted"))
+};
+
 declare function stationutil:nodata_error() {
 (: declare output method locally to override default xml   :)
     util:declare-option("exist:serialize","method=text media-type=text/plain indent=no")  ,  
@@ -350,7 +370,8 @@ let $endafter := request:get-parameter("endafter", $stationutil:default_past_tim
 let $level := request:get-parameter("level", "network")
 let $minradius := request:get-parameter("minradius", "0")
 let $maxradius := request:get-parameter("maxradius", "180")
-let $includerestricted := xs:string(request:get-parameter("includerestricted","TRUE"))
+let $includerestricted := upper-case(xs:string(request:get-parameter("includerestricted","TRUE")))
+let $format := request:get-parameter("format","xml")
 
 let $minlatitude1 := request:get-parameter("minlatitude",())
 let $minlat := request:get-parameter("minlat",())
@@ -401,6 +422,7 @@ let $starttime:=if (exists($start)) then $start else if (exists($starttime1)) th
 let $start:=$starttime
 let $endtime:=if (exists($end)) then $end else if (exists($endtime1)) then $endtime1 else $stationutil:default_future_time
 let $end:=$endtime
+
 return map {
 "level" : $level, 
 "location" : $location,
@@ -412,6 +434,7 @@ return map {
 "network" : $network, 
 "net" : $net, 
 "includerestricted" : $includerestricted, 
+"format" : $format,
 "maxradius" : $maxradius, 
 "minradius" : $minradius,
 "longitude" : $longitude, 
@@ -612,6 +635,20 @@ The includerestricted parameter must be TRUE/true or FALSE/false
 
 };
 
+declare function stationutil:syntax_format() as xs:string{
+    
+let $format := xs:string(stationutil:get-parameter("format"))
+
+return 
+    if (not( $format ="xml" or $format="text"))
+    then
+"
+The format parameter must be xml or text
+"
+    else  ""
+
+};
+
 
 declare function stationutil:syntax_times() as xs:string {
 try 
@@ -701,6 +738,7 @@ stationutil:syntax_times() ||
 stationutil:syntax_radius() ||
 stationutil:syntax_includerestricted() ||
 stationutil:empty_parameter_error() ||
+stationutil:syntax_format() ||
 (:stationutil:debug_parameter_error() ||:)
 "
 
