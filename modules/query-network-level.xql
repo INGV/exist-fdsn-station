@@ -12,9 +12,10 @@ declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 (:declare option output:media-type "text/xml";:)
 (:declare option exist:serialize "method=xml media-type=text/html";:)
 (:TODO uncomment after debug:)
-declare option output:indent "no";
+declare option output:indent "yes";
 
-
+declare function local:main() as element() {
+    
 if (stationutil:check_parameters_limits()) then 
     if (stationutil:channel_exists()) then 
 <FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
@@ -91,6 +92,8 @@ for $network in $item//Network
         {$restrictedStatus}
         {$Description}    
         {$ingv_identifier}
+        <TotalNumberStations> {stationutil:stationcount($networkcode)} </TotalNumberStations>
+        <SelectedNumberStations> {count($network/Station)} </SelectedNumberStations>
 </Network>
 }   
 </FDSNStationXML>
@@ -98,3 +101,15 @@ else
     stationutil:nodata_error()
 else 
     stationutil:badrequest_error()
+};
+
+declare function local:main_text(){
+        util:declare-option("exist:serialize","method=text media-type=text/plain indent=yes")  ,    
+        transform:transform(local:main(), doc("network.xsl"), ())
+};    
+    
+
+if (stationutil:get-parameter("format")="xml") 
+    then local:main()
+    else if (stationutil:get-parameter("format")="text") then local:main_text()
+    else ()
