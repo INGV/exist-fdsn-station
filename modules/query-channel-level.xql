@@ -11,6 +11,8 @@ declare option output:media-type "text/xml";
 (:TODO uncomment after debug:)
 declare option output:indent "yes";
 
+(: TODO includerestricted :)
+
 if (stationutil:check_parameters_limits()) then 
     if (stationutil:channel_exists()) then 
 
