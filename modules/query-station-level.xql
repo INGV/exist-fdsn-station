@@ -12,6 +12,7 @@ declare option output:media-type "text/xml";
 (:TODO uncomment after debug:)
 declare option output:indent "yes";
 
+declare function local:main() as element() {
 if (stationutil:check_parameters_limits()) then 
     if (stationutil:channel_exists()) then  
 <FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
@@ -52,7 +53,7 @@ where $Latitude  > $minlatitude and
       $Longitude > $minlongitude and 
       $Longitude < $maxlongitude 
 (: TODO ????  and stationutil:check_radius($Latitude,$Longitude):)
-
+(: TODO includerestricted :)
 for $network in $item//Network  
     let $networkcode := $network/@code
     let $station:=$network/Station
@@ -138,4 +139,20 @@ else
     stationutil:nodata_error()
 else 
     stationutil:badrequest_error()
+};
+
+declare function local:main_text(){
+        util:declare-option("exist:serialize","method=text media-type=text/plain indent=yes")  ,    
+        transform:transform(local:main(), doc("station.xsl"), ())
+};    
     
+try {
+if (stationutil:get-parameter("format")="xml") 
+    then local:main()
+    else if (stationutil:get-parameter("format")="text") then local:main_text()
+    else ()
+}
+catch err:* {"Error checking parameters"}
+
+
+
