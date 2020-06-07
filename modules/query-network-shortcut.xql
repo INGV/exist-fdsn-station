@@ -7,8 +7,9 @@ import module namespace stationutil="http://exist-db.org/apps/fdsn-station/modul
 declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 declare namespace request="http://exist-db.org/xquery/request";
 (:TODO uncomment after debug:)
-declare option output:indent "no";
+declare option output:indent "yes";
 
+declare function local:main() as element() {
 if (stationutil:check_parameters_limits()) then 
     if (stationutil:channel_exists()) then 
 <FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
@@ -32,7 +33,7 @@ for $network in $item//Network
     let $ingv_identifier := $network/ingv:Identifier
     let $network_pattern:=stationutil:network_pattern_translate($network_param)
     where
-        matches($networkcode,  $network_pattern ) 
+        matches($networkcode,  $network_pattern)
         group by $networkcode, $startDate, $endDate, $restrictedStatus, $Description, $ingv_identifier
         order by $networkcode
     return 
@@ -62,3 +63,8 @@ else
     stationutil:nodata_error()
 else 
     stationutil:badrequest_error()
+};
+
+if (stationutil:get-parameter("format")="xml") 
+    then local:main()
+    else transform:transform(local:main(), doc("channel.xsl"), ())
