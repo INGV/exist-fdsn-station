@@ -21,6 +21,26 @@ declare variable $exist:root external;
 (:            stationutil:nodata_error():)
 (:;:)
 
+(:
+ 
+POST example:
+parameter1=value :)
+(:parameter2=value:)
+(:NET STA LOC CHA STARTTIME ENDTIME:)
+(:NET STA LOC CHA STARTTIME ENDTIME:)
+(:NET STA LOC CHA STARTTIME ENDTIME:)
+(:(::):)
+(:curl -X POST -H 'Content-Type: application/xml' --data-binary @/tmp/person-name.xml http://localhost:8080/exist/rest/db/people:)
+(:curl -X POST "http://webservices.ingv.it/fdsnws/station/1/query" -H  "accept: application/xml" -H  "Content-Type: text/plain" -d "parameter1=value parameter2=value NET STA LOC CHA STARTTIME ENDTIMENET STA LOC CHA STARTTIME ENDTIMENET STA LOC CHA STARTTIME ENDTIME":)
+(:(base) stefano@excuse:/tmp$ curl -X POST "http://webservices.ingv.it/fdsnws/station/1/query" -H  "accept: application/xml" -H  "Content-Type: text/plain" --data-binary @POST.txt :)
+(:<?xml version="1.0" encoding="UTF-8"?>:)
+(:<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd"><Source>SeisNet-mysql</Source><Sender>INGV-CNT</Sender><Module>INGV-CNT WEB SERVICE: fdsnws-station | version: 1.1.41.1</Module><ModuleURI>http://webservices.ingv.it/fdsnws/station/1/query</ModuleURI><Created>2020-06-10T17:32:36</Created><Network code="MN" startDate="1988-01-01T00:00:00" restrictedStatus="open"><Description>Mediterranean Very Broadband Seismographic Network</Description><ingv:Identifier>N22</ingv:Identifier><TotalNumberStations>35</TotalNumberStations><SelectedNumberStations>5</SelectedNumberStations><Station code="AQU" startDate="1988-08-01T00:00:00" restrictedStatus="open"><ingv:Identifier>S7</ingv:Identifier><Latitude>42.354</Latitude><Longitude>13.405</Longitude><Elevation>710</Elevation><Site><Name>L'Aquila, Italy</Name></Site><CreationDate>1988-08-01T00:00:00</CreationDate></Station><Station code="CII" startDate="1994-10-19T00:00:00" endDate="2006-06-23T12:00:22" restrictedStatus="open"><ingv:Identifier>S218</ingv:Identifier><Latitude>41.723</Latitude><Longitude>14.305</Longitude><Elevation>910</Elevation><Site><Name>Carovilli, Italy</Name></Site><CreationDate>1994-10-19T00:00:00</CreationDate><TerminationDate>2006-06-23T12:00:22</TerminationDate></Station><Station code="PDG" startDate="2008-07-18T00:00:00" restrictedStatus="open"><ingv:Identifier>S231</ingv:Identifier><Latitude>42.4297</Latitude><Longitude>19.2608</Longitude><Elevation>40</Elevation><Site><Name>Podgorica, Montenegro</Name></Site><CreationDate>2008-07-18T00:00:00</CreationDate></Station><Station code="TIR" startDate="1994-07-13T00:00:00" restrictedStatus="open"><ingv:Identifier>S235</ingv:Identifier><Latitude>41.3472</Latitude><Longitude>19.8631</Longitude><Elevation>247</Elevation><Site><Name>Tirana, Albania</Name></Site><CreationDate>1994-07-13T00:00:00</CreationDate></Station><Station code="VTS" startDate="1996-05-10T00:00:00" restrictedStatus="open"><ingv:Identifier>S242</ingv:Identifier><Latitude>42.618</Latitude><Longitude>23.235</Longitude><Elevation>1490</Elevation><Site><Name>Vitosha, Bulgary</Name></Site><CreationDate>1996-05-10T00:00:00</CreationDate></Station></Network></FDSNStationXML>:)
+(::)
+(:POST.txt:)
+(:minlat=40:)
+(:maxlat=43:)
+(:MN * * * 2000-01-01T00:00:00.0 2020-01-01T00:00:00.0:)
+
 
 
 if ($exist:path eq '') then
