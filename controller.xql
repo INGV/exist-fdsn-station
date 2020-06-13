@@ -108,9 +108,14 @@ else if (contains($exist:path, "/$shared/")) then
 (:		</dispatch>:)
 (:		:)
 (: Old code works without pipeline TODO filter for json, txt, error cleaning output :)
+  else if ( contains($exist:path, "/query/") )  then 
+    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
+        <forward url="{$exist:controller}/modules/query.xql">
+            <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>
+        </forward>
+    </dispatch> 
   else if ( 
             contains($exist:path, "/query/") 
-
             and (matches(request:get-parameter("level","network"),"response") or matches(request:get-parameter("level","network"),"channel"))
             and not(matches(string-join(request:get-parameter-names()) ,"station|sta|channel|cha|location|loc|minlatitude|minlat|maxlatitude|maxlat|minlongitude|minlon|maxlongitude|maxlon|starttime|start|endtime|end|startbefore|endbefore|startafter|endafter|latitude|lat|longitude|lon|maxradius|minradius|includerestricted" ))
         ) then 
