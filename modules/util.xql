@@ -13,7 +13,8 @@ declare namespace ingv="https://raw.githubusercontent.com/FDSN/StationXML/master
 (:BEWARE the order matters !!! :)
 declare %public variable $stationutil:default_past_time as xs:string := "0001-01-01T00:00:00";
 declare %public variable $stationutil:default_future_time as xs:string := "10001-01-01T00:00:00";
-declare %public variable $stationutil:parameters as map() :=stationutil:get_params_map();
+declare %public variable $stationutil:parameters as map() := if ( request:get-method() eq "POST")  then stationutil:alternate_parameters()  else stationutil:get_params_map(); 
+(:declare %public variable $stationutil:parameters as map() := map{};:)
 
 
 (: Functions declarations  :)
@@ -291,6 +292,7 @@ declare function stationutil:check_parameters_limits() as xs:boolean
 {
 
 try {
+(:let $stationutil:parameters  := stationutil:get_params_map():)
 let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
 let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
 let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
@@ -337,6 +339,7 @@ return if (
            ) then false() else true()
 }
 catch err:* {false()}
+
 } ;
 
 declare function stationutil:remove-elements($input as element(), $remove-names as xs:string*) as element() {
@@ -465,6 +468,9 @@ let $start:=$starttime
 let $endtime:=if (exists($end)) then $end else if (exists($endtime1)) then $endtime1 else $stationutil:default_future_time
 let $end:=$endtime
 
+
+
+
 let $result := map {
 "level" : $level, 
 "location" : $location,
@@ -500,15 +506,75 @@ let $result := map {
 "minlatitude" :$minlatitude,    
 "minlat" :$minlat    
 }
-return
-if ( request:get-method() eq "POST") 
-    then
-        let $result := map:put($result, "station" , "AQU" )
-        return $result
-    else    
-       $result
+
+
+return $result
 };
 
+
+declare function stationutil:alternate_parameters1() as map(*) {
+try
+{
+    
+        let $POST_DATA:= util:base64-decode(request:get-data())
+        let $sequenceoflines :=stationutil:lines($POST_DATA)
+(:        let $p:= util:log("error", "Before cicle " || $POST_DATA ):)
+    return    
+    map:merge( 
+
+        
+    for $line in $sequenceoflines
+        return
+         if (matches($line,"="))
+            then (
+                let $key_val := tokenize($line,"=")
+                let $p:= util:log("error", "Matched " || $key_val[1] || "=" || $key_val[2] )
+                return map:entry($key_val[1], $key_val[2]) 
+            )
+            else ()
+ ) 
+}
+catch err:* {
+    let $m := map {}
+    return $m
+    
+}
+};
+
+
+declare function stationutil:alternate_parameters() as map(*) {
+    (:let $res :=$result:)
+(:let $res := map{}:)
+(:let $result := map{}:)
+
+let $map := 
+map:merge( 
+        let $POST_DATA:= util:base64-decode(request:get-data())
+        let $sequenceoflines :=stationutil:lines($POST_DATA)
+        let $p:= util:log("error", "Before cicle " || $POST_DATA )
+        
+    for $line in $sequenceoflines
+        return
+            if (matches($line,"="))
+            then (
+                let $key_val := tokenize($line,"=")
+                let $p:= util:log("error", "Matched " || $key_val[1] || "=" || $key_val[2] )
+                return map:entry($key_val[1], $key_val[2]) 
+                )
+            else ()
+ ) 
+(::)
+(:for $key in map:keys($map) let $D := util:log("error", "Reading seqmap " ||$key || "=" || $map($key) )    :)
+
+let $res := $map
+
+(:for $key in map:keys($res) :)
+(:let $D := util:log("error", "Reading result " ||$key || "=" || $res($key) )    :)
+return $map
+};
+
+
+(: TODO do not use count() :)
 declare function stationutil:empty_parameter_check() as xs:boolean
 {
 try {
@@ -721,7 +787,7 @@ Valid syntax: YYYY-MM-DD, YYYY-MM-DDTHH:MM:SS, YYY-MM-DDTHH:MM:SS.ssssss
 
 declare function stationutil:empty_parameter_error() as xs:string
 {
-try {
+(:try {:)
 (:let $params_map:=stationutil:get_params_map():)
 (:let $dummy :=stationutil:adiust_map_params():)
 let $params_map:=$stationutil:parameters
@@ -737,14 +803,14 @@ Parameter " || $key || " cannot be empty
    
 )
 
-}
-catch err:* {"Error checking parameters"}
+(:}:)
+(:catch err:* {"Error checking parameters"}:)
 } ;
 
 
 declare function stationutil:debug_parameter_error() as xs:string
 {
-try {
+(:try {:)
 (:let $params_map:=stationutil:get_params_map():)
 (:let $dummy :=stationutil:adiust_map_params():)
 let $params_map:=$stationutil:parameters
@@ -762,8 +828,8 @@ Parameter " || $key || " cannot be empty
    
 )
 
-}
-catch err:* {"Error checking parameters"}
+(:}:)
+(:catch err:* {"Error checking parameters"}:)
 } ;
 
 declare function stationutil:post_error() as xs:string {
@@ -796,8 +862,8 @@ stationutil:syntax_radius() ||
 stationutil:syntax_includerestricted() ||
 stationutil:empty_parameter_error() ||
 stationutil:syntax_format() ||
-stationutil:post_error() ||
-(:stationutil:debug_parameter_error() ||:)
+(:stationutil:post_error() ||:)
+stationutil:debug_parameter_error() ||
 "
 
 Usage details are available from <SERVICE DOCUMENTATION URI>
@@ -818,30 +884,31 @@ Service version: 1.1.50"
 
 declare function stationutil:get-parameter($k as xs:string) as xs:string
 {
-    $stationutil:parameters($k)
+      if ( empty($stationutil:parameters($k))  ) then  "*" else  $stationutil:parameters($k) 
 };
 
 declare function stationutil:lines
   ( $arg as xs:string? )  as xs:string* {
 
-   tokenize($arg, '(\r\n?|\n\r?)')
+(:   tokenize($arg, '(\r\n?|\n\r?)'):)
+   tokenize($arg, '[\n\r]+', "m")
+   
  } ;
 
-declare function stationutil:map_post() as item() {
-    let $POST_DATA:= request:get-data()
-    let $sequenceoflines :=stationutil:lines($POST_DATA)
-    for $line in $sequenceoflines
-    return
-    if (matches($key_val,"=")) 
-        then 
-            let $key_val := tokenize($line,"=")
-            let $stationutil:parameters := map:put($stationutil:parameters, $key_val[0], $key_val[1])
-        
-        return $key_val
-        
-        else let $NSLCSE := tokenize($line," ") 
-        return $NSLCSE
-};
+(:declare function stationutil:map_post() {:)
+(:    let $POST_DATA:= util:base64-decode(request:get-data()):)
+(:    let $sequenceoflines :=stationutil:lines($POST_DATA):)
+(:    for $line in $sequenceoflines:)
+(:    return:)
+(:    if (matches($line,"=")) :)
+(:        then ( :)
+(:            let $key_val := tokenize($line,"="):)
+(:            let $stationutil:parameters := map:put($stationutil:parameters, $key_val[0], $key_val[1]):)
+(:            return "":)
+(:        ):)
+(:        else let $NSLCSE := tokenize($line," ") :)
+(:        return "":)
+(:};:)
 
 
 (: TODO gestire restrictedStatus :)
