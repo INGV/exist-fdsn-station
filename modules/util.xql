@@ -512,14 +512,61 @@ return $result
 };
 
 
-declare function stationutil:alternate_parameters1() as map(*) {
+declare function stationutil:alternate_parameters() as map(*) {
 try
 {
+(: SET defaults :)
+
+let $params_default := map {
+
+"startbefore" :  $stationutil:default_future_time,
+"startafter" :  $stationutil:default_past_time,
+"endbefore" : $stationutil:default_future_time,
+"endafter" : $stationutil:default_past_time,
+"level" : "network",
+"minradius" : "0",
+"maxradius" : "180",
+"includerestricted" : "TRUE",
+"format" : "xml"
+
+(:"network" : "*",:)
+(:"net" : "*",:)
+(:"station" : "*", :)
+(:"sta" : "*",:)
+(:"channel" : "*", :)
+(:"cha" : "*",:)
+(:"location" : "*", :)
+(:"loc": "*",:)
+
+(: Alias treated after:)
+(:"latitude" : "0",  :)
+(:"lat" : "0",:)
+(:"longitude" : "0",:)
+(:"lon" : "0",:)
+(:"minlatitude": "-90.0",:)
+(:"minlat": "-90.0",:)
+(:"maxlatitude": "90.0",:)
+(:"maxlat": "90.0", :)
+(:"minlongitude": "-180.0",:)
+(:"minlon" : "-180.0",:)
+(:"maxlongitude" : "180.0",  :)
+(:"maxlon": "180.0",:)
+(:"starttime" : $stationutil:default_past_time,:)
+(:"start" : $stationutil:default_past_time,:)
+(:"endtime": $stationutil:default_future_time,:)
+(:"end" : $stationutil:default_future_time:)
+
     
-        let $POST_DATA:= util:base64-decode(request:get-data())
-        let $sequenceoflines :=stationutil:lines($POST_DATA)
+}
+
+
+
+
+let $POST_DATA:= util:base64-decode(request:get-data())
+let $sequenceoflines :=stationutil:lines($POST_DATA)
 (:        let $p:= util:log("error", "Before cicle " || $POST_DATA ):)
     return    
+let $params :=
     map:merge( 
 
         
@@ -533,6 +580,59 @@ try
             )
             else ()
  ) 
+ 
+(: Overwrite defaults :) 
+(:"startbefore" ,"startafter" , "endbefore" , "endafter" , "level" , "minradius", "maxradius", "includerestricted", "format":)
+let $result := map:merge(($params_default, $params)) 
+
+(: Manage alias, preferred short version:)
+
+let $latitude:=if (exists($result("lat"))) then $result("lat") else if (exists($result("latitude"))) then $result("latitude") else "0"  
+let $lat:=$latitude
+
+let $longitude:=if (exists($result("lon"))) then $result("lon") else if (exists($result("longitude"))) then $result("longitude") else "0"  
+let $lon:=$longitude
+
+let $minlatitude:=if (exists($result("minlat"))) then $result("minlat") else if (exists($result("minlatitude"))) then $result("minlatitude") else "-90.0"
+let $minlat:=$minlatitude
+
+let $maxlatitude:=if (exists($result("maxlat"))) then $result("maxlat") else if (exists($result("maxlatitude"))) then $result("maxlatitude") else "90.0"
+let $maxlat:=$maxlatitude
+
+let $minlongitude:=if (exists($result("minlon"))) then $result("minlon") else if (exists($result("minlongitude"))) then $result("minlongitude") else "-180.0"  
+let $minlon:=$minlongitude
+
+let $maxlongitude:=if (exists($result("maxlon"))) then $result("maxlon") else if (exists($result("maxlongitude"))) then $result("maxlongitude") else "180.0" let $maxlon:=$maxlongitude
+
+let $starttime:=if (exists($result("start"))) then $result("start") else if (exists($result("starttime"))) then $result("starttime") else $stationutil:default_past_time  
+let $start:=$starttime
+
+let $endtime:=if (exists($result("$end"))) then $result("end") else if (exists($result("$endtime"))) then $result("endtime") else $stationutil:default_future_time
+let $end:=$endtime
+
+(: put in map all alias parameters :)
+let $result := map:put($result,"latitude",$latitude)
+let $result := map:put($result,"lat",$lat)
+let $result := map:put($result,"longitude",$longitude)
+let $result := map:put($result,"lon",$lon)
+let $result := map:put($result,"minlatitude",$minlatitude)
+let $result := map:put($result,"minlat",$minlat)
+let $result := map:put($result,"minlongitude",$minlongitude)
+let $result := map:put($result,"minlon",$minlon)
+let $result := map:put($result,"maxlatitude",$maxlatitude)
+let $result := map:put($result,"maxlat",$maxlat)
+let $result := map:put($result,"maxlongitude",$maxlongitude)
+let $result := map:put($result,"maxlon",$maxlon)
+let $result := map:put($result,"starttime",$starttime)
+let $result := map:put($result,"start",$start)
+let $result := map:put($result,"endtime",$endtime)
+let $result := map:put($result,"end",$end)
+
+(: for $key in map:keys($result) :)
+(: let $D := util:log("error", "Reading result " ||$key || "=" || $result($key) )    :)
+ 
+ 
+ return $result
 }
 catch err:* {
     let $m := map {}
@@ -542,7 +642,7 @@ catch err:* {
 };
 
 
-declare function stationutil:alternate_parameters() as map(*) {
+declare function stationutil:alternate_parametersok() as map(*) {
     (:let $res :=$result:)
 (:let $res := map{}:)
 (:let $result := map{}:)
@@ -884,7 +984,7 @@ Service version: 1.1.50"
 
 declare function stationutil:get-parameter($k as xs:string) as xs:string
 {
-      if ( empty($stationutil:parameters($k))  ) then  "*" else  $stationutil:parameters($k) 
+      if ( empty($stationutil:parameters($k))  ) then  "" else  $stationutil:parameters($k) 
 };
 
 declare function stationutil:lines
