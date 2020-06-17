@@ -114,41 +114,41 @@ else if (contains($exist:path, "/$shared/")) then
             <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>
         </forward>
     </dispatch> 
-  else if ( 
-            contains($exist:path, "/query/") 
-            and (matches(request:get-parameter("level","network"),"response") or matches(request:get-parameter("level","network"),"channel"))
-            and not(matches(string-join(request:get-parameter-names()) ,"station|sta|channel|cha|location|loc|minlatitude|minlat|maxlatitude|maxlat|minlongitude|minlon|maxlongitude|maxlon|starttime|start|endtime|end|startbefore|endbefore|startafter|endafter|latitude|lat|longitude|lon|maxradius|minradius|includerestricted" ))
-        ) then 
-        
-    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-        <forward url="{$exist:controller}/modules/query-network-shortcut.xql">
-            <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>
-        </forward>
-    </dispatch>
-  else if (contains($exist:path, "/query/") and matches(request:get-parameter("level", "network"),"network")) then
-    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-        <forward url="{$exist:controller}/modules/query-network-level.xql">
-            <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>
-        </forward>
-    </dispatch>  
-  else if (contains($exist:path, "/query/") and matches(request:get-parameter("level", "station"),"station")) then 
-    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-        <forward url="{$exist:controller}/modules/query-station-level.xql">
-            <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>
-        </forward>
-    </dispatch>  
-  else if (contains($exist:path, "/query/") and matches(request:get-parameter("level", "station"),"channel")) then 
-    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-        <forward url="{$exist:controller}/modules/query-channel-level.xql">
-            <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>
-        </forward>
-    </dispatch>  
-  else if (contains($exist:path, "/query/") and matches(request:get-parameter("level", "station"),"response")) then 
-    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-        <forward url="{$exist:controller}/modules/query-response-level.xql">
-            <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>
-        </forward>
-    </dispatch>  
+(:  else if ( :)
+(:            contains($exist:path, "/query/") :)
+(:            and (matches(request:get-parameter("level","network"),"response") or matches(request:get-parameter("level","network"),"channel")):)
+(:            and not(matches(string-join(request:get-parameter-names()) ,"station|sta|channel|cha|location|loc|minlatitude|minlat|maxlatitude|maxlat|minlongitude|minlon|maxlongitude|maxlon|starttime|start|endtime|end|startbefore|endbefore|startafter|endafter|latitude|lat|longitude|lon|maxradius|minradius|includerestricted" )):)
+(:        ) then :)
+(:        :)
+(:    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">:)
+(:        <forward url="{$exist:controller}/modules/query-network-shortcut.xql">:)
+(:            <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>:)
+(:        </forward>:)
+(:    </dispatch>:)
+(:  else if (contains($exist:path, "/query/") and matches(request:get-parameter("level", "network"),"network")) then:)
+(:    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">:)
+(:        <forward url="{$exist:controller}/modules/query-network-level.xql">:)
+(:            <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>:)
+(:        </forward>:)
+(:    </dispatch>  :)
+(:  else if (contains($exist:path, "/query/") and matches(request:get-parameter("level", "station"),"station")) then :)
+(:    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">:)
+(:        <forward url="{$exist:controller}/modules/query-station-level.xql">:)
+(:            <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>:)
+(:        </forward>:)
+(:    </dispatch>  :)
+(:  else if (contains($exist:path, "/query/") and matches(request:get-parameter("level", "station"),"channel")) then :)
+(:    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">:)
+(:        <forward url="{$exist:controller}/modules/query-channel-level.xql">:)
+(:            <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>:)
+(:        </forward>:)
+(:    </dispatch>  :)
+(:  else if (contains($exist:path, "/query/") and matches(request:get-parameter("level", "station"),"response")) then :)
+(:    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">:)
+(:        <forward url="{$exist:controller}/modules/query-response-level.xql">:)
+(:            <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>:)
+(:        </forward>:)
+(:    </dispatch>  :)
 else if (ends-with($exist:path, "application.wadl")) then		
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
         <forward url="{$exist:controller}/Static/ingv-application.wadl">
