@@ -13,14 +13,17 @@ declare option output:indent "yes";
 
 
 
-declare function local:main_text(){
-        util:declare-option("exist:serialize","method=text media-type=text/plain indent=yes") ,
-        transform:transform(stationutil:query_channel_main(), doc("channel.xsl"), ())
-};    
+(:declare function local:main_text(){:)
+(:        util:declare-option("exist:serialize","method=text media-type=text/plain indent=yes") ,:)
+(:        transform:transform(stationutil:query_channel_main(), doc("channel.xsl"), ()):)
+(:};    :)
 
-(:  TODO check request and create params accordingly choose functions to match POST syntax  :)
+(: check request and create params accordingly choose functions to match POST syntax  :)
+(: TODO change functions to adapt to POST  :)
     
-try {
+(:try {:)
+if (request:get-method() eq "POST")  then stationutil:compose()
+else
 if (stationutil:get-parameter("format")="xml")  then 
     if (stationutil:get-parameter("level")="response")
         then ( 
@@ -62,6 +65,6 @@ else if (stationutil:get-parameter("format")="text") then (
 )
     else ()
 
-}
-catch err:* {"Error checking parameters"}
+(:}:)
+(:catch err:* {"Error checking parameters"}:)
 
