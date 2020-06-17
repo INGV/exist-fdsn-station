@@ -2,6 +2,7 @@ xquery version "3.1";
 
 module namespace stationutil="http://exist-db.org/apps/fdsn-station/modules/stationutil";
 import module namespace request = "http://exist-db.org/xquery/request";
+import module namespace util = "http://exist-db.org/xquery/util";
 declare default element namespace "http://www.fdsn.org/xml/station/1" ;
 declare namespace ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd";
 
@@ -13,7 +14,12 @@ declare namespace ingv="https://raw.githubusercontent.com/FDSN/StationXML/master
 (:BEWARE the order matters !!! :)
 declare %public variable $stationutil:default_past_time as xs:string := "0001-01-01T00:00:00";
 declare %public variable $stationutil:default_future_time as xs:string := "10001-01-01T00:00:00";
-declare %public variable $stationutil:parameters as map() := if ( request:get-method() eq "POST")  then stationutil:alternate_parameters()  else stationutil:get_params_map(); 
+
+declare %public variable $stationutil:postdata as xs:string* := if (request:get-method() eq "POST") then stationutil:setpostdata() else "";
+declare %public variable $stationutil:all_lines as map()* := if (request:get-method() eq "POST")  then stationutil:post_lines()  else map{}; 
+declare %public variable $stationutil:parameters as map() := if (request:get-method() eq "POST")  then stationutil:alternate_parameters()  else stationutil:get_params_map(); 
+
+
 (:declare %public variable $stationutil:parameters as map() := map{};:)
 
 
@@ -507,10 +513,44 @@ let $result := map {
 "minlat" :$minlat    
 }
 
-
 return $result
 };
 
+(: FIXME request:get-data() cannot be called twice :)
+declare function stationutil:setpostdata() as xs:string* {
+util:base64-decode(request:get-data())    
+};
+
+declare function stationutil:sequenceoflines() as xs:string* {
+let $sequenceoflines :=stationutil:lines($stationutil:postdata)
+return $sequenceoflines     
+};
+
+declare function stationutil:post_lines() as map()* {
+
+
+let $p:= util:log("error", "POST: " )
+let $sequenceoflines :=stationutil:lines($stationutil:postdata)
+let $p:= util:log("error", "POST: " || $stationutil:postdata)
+
+(: A sequence of maps :)
+let $NSLC :=
+    for $line in $sequenceoflines
+        return
+         if (matches($line,"=") or $line="" )
+            then ()
+            else (
+                let $key_val := tokenize($line,"\s+")
+                let $p:= util:log("error", "Matched in post_lines" || $key_val[1] || "," || $key_val[2] || "," || $key_val[3] || "," || $key_val[4]|| "," || $key_val[5] || "," || $key_val[6])
+                return map:merge((map:entry("net", $key_val[1]), map:entry("sta", $key_val[2]), map:entry("loc", $key_val[3]), map:entry( "cha", $key_val[4]) 
+                ,map:entry("start", $key_val[5]), map:entry( "end", $key_val[6]) )) 
+            )
+(:NET STA LOC CHA STARTTIME ENDTIME:)
+ 
+(:let $lines :=map{}:)
+return $NSLC
+    
+};
 
 declare function stationutil:alternate_parameters() as map(*) {
 try
@@ -529,43 +569,15 @@ let $params_default := map {
 "includerestricted" : "TRUE",
 "format" : "xml"
 
-(:"network" : "*",:)
-(:"net" : "*",:)
-(:"station" : "*", :)
-(:"sta" : "*",:)
-(:"channel" : "*", :)
-(:"cha" : "*",:)
-(:"location" : "*", :)
-(:"loc": "*",:)
-
-(: Alias treated after:)
-(:"latitude" : "0",  :)
-(:"lat" : "0",:)
-(:"longitude" : "0",:)
-(:"lon" : "0",:)
-(:"minlatitude": "-90.0",:)
-(:"minlat": "-90.0",:)
-(:"maxlatitude": "90.0",:)
-(:"maxlat": "90.0", :)
-(:"minlongitude": "-180.0",:)
-(:"minlon" : "-180.0",:)
-(:"maxlongitude" : "180.0",  :)
-(:"maxlon": "180.0",:)
-(:"starttime" : $stationutil:default_past_time,:)
-(:"start" : $stationutil:default_past_time,:)
-(:"endtime": $stationutil:default_future_time,:)
-(:"end" : $stationutil:default_future_time:)
-
-    
 }
 
+(:let $POST_DATA:= util:base64-decode(request:get-data()):)
+(:(:let $POST_DATA:= util:base64-decode(request:get-data()):):)
+let $sequenceoflines :=stationutil:lines($stationutil:postdata)
+(:let $sequenceoflines := $stationutil:sequenceoflines:)
 
-
-
-let $POST_DATA:= util:base64-decode(request:get-data())
-let $sequenceoflines :=stationutil:lines($POST_DATA)
 (:        let $p:= util:log("error", "Before cicle " || $POST_DATA ):)
-    return    
+(:    return    :)
 let $params :=
     map:merge( 
 
@@ -580,10 +592,51 @@ let $params :=
             )
             else ()
  ) 
+
+(:let $NSLC :=:)
+(:    map:merge( :)
+(:    for $line in $sequenceoflines:)
+(:        return:)
+(:         if (matches($line,"=") or $line="" ):)
+(:            then () :)
+(:            else ( :)
+(:                let $key_val := tokenize($line,"\s+"):)
+(:                let $p:= util:log("error", "Matched " || $key_val[1] || "," || $key_val[2] || "," || $key_val[3] || "," || $key_val[4]|| "," || $key_val[5] || "," || $key_val[6]):)
+(:                return (map:entry("net", $key_val[1]), map:entry("sta", $key_val[2]),map:entry("loc", $key_val[3]), map:entry( "cha", $key_val[4]) :)
+(:                ,map:entry("start", $key_val[5]), map:entry( "end", $key_val[6]) ) :)
+(:            ):)
+(: ) :)
+
+(:let $NSLCSE := tokenize($line," "):)
+
+(:NET STA LOC CHA STARTTIME ENDTIME:)
  
 (: Overwrite defaults :) 
 (:"startbefore" ,"startafter" , "endbefore" , "endafter" , "level" , "minradius", "maxradius", "includerestricted", "format":)
 let $result := map:merge(($params_default, $params)) 
+
+(:  Temporaneo uso una sola riga nel POST :)
+(:let $result  := map:merge(($result0, $NSLC)) :)
+(::)
+(:let $network:=if (exists($result("net"))) then $result("net") else if (exists($result("network"))) then $result("network") else "*" :)
+(:let $result := map:put($result,"network",$network):)
+(::)
+(:let $station:=if (exists($result("sta"))) then $result("sta") else if (exists($result("station"))) then $result("station") else "*"  :)
+(:let $result := map:put($result,"station",$station):)
+(::)
+(:let $location:=if (exists($result("loc"))) then $result("loc") else if (exists($result("location"))) then $result("location") else "*"  :)
+(:let $result := map:put($result,"location",$location):)
+(::)
+(:let $channel:=if (exists($result("cha"))) then $result("cha") else if (exists($result("channel"))) then $result("channel") else "*"  :)
+(:let $result := map:put($result,"channel",$channel):)
+(::)
+(:let $starttime:=if (exists($result("start"))) then $result("start") else if (exists($result("starttime"))) then $result("starttime") else $stationutil:default_past_time  :)
+(:let $result := map:put($result,"starttime",$starttime):)
+(::)
+(:let $endtime:=if (exists($result("end"))) then $result("end") else if (exists($result("endtime"))) then $result("endtime") else $stationutil:default_future_time:)
+(:let $result := map:put($result,"endtime",$endtime):)
+(::)
+(: Fine temporaneo :)
 
 (: Manage alias, preferred short version:)
 
@@ -628,9 +681,7 @@ let $result := map:put($result,"start",$start)
 let $result := map:put($result,"endtime",$endtime)
 let $result := map:put($result,"end",$end)
 
-(: for $key in map:keys($result) :)
-(: let $D := util:log("error", "Reading result " ||$key || "=" || $result($key) )    :)
- 
+(:let $dummy:=$stationutil:all_lines:)
  
  return $result
 }
@@ -641,37 +692,6 @@ catch err:* {
 }
 };
 
-
-declare function stationutil:alternate_parametersok() as map(*) {
-    (:let $res :=$result:)
-(:let $res := map{}:)
-(:let $result := map{}:)
-
-let $map := 
-map:merge( 
-        let $POST_DATA:= util:base64-decode(request:get-data())
-        let $sequenceoflines :=stationutil:lines($POST_DATA)
-        let $p:= util:log("error", "Before cicle " || $POST_DATA )
-        
-    for $line in $sequenceoflines
-        return
-            if (matches($line,"="))
-            then (
-                let $key_val := tokenize($line,"=")
-                let $p:= util:log("error", "Matched " || $key_val[1] || "=" || $key_val[2] )
-                return map:entry($key_val[1], $key_val[2]) 
-                )
-            else ()
- ) 
-(::)
-(:for $key in map:keys($map) let $D := util:log("error", "Reading seqmap " ||$key || "=" || $map($key) )    :)
-
-let $res := $map
-
-(:for $key in map:keys($res) :)
-(:let $D := util:log("error", "Reading result " ||$key || "=" || $res($key) )    :)
-return $map
-};
 
 
 (: TODO do not use count() :)
@@ -962,7 +982,7 @@ stationutil:syntax_radius() ||
 stationutil:syntax_includerestricted() ||
 stationutil:empty_parameter_error() ||
 stationutil:syntax_format() ||
-(:stationutil:post_error() ||:)
+stationutil:post_error() ||
 stationutil:debug_parameter_error() ||
 "
 
@@ -987,6 +1007,12 @@ declare function stationutil:get-parameter($k as xs:string) as xs:string
       if ( empty($stationutil:parameters($k))  ) then  "" else  $stationutil:parameters($k) 
 };
 
+declare function stationutil:get-parameter-names() as xs:string*
+{
+      map:keys($stationutil:parameters) 
+};
+
+
 declare function stationutil:lines
   ( $arg as xs:string? )  as xs:string* {
 
@@ -1009,6 +1035,34 @@ declare function stationutil:lines
 (:        else let $NSLCSE := tokenize($line," ") :)
 (:        return "":)
 (:};:)
+ 
+(: TODO cicle for all_lines making a file, then reorder, remove scnl duplicates, then incapsulate in network tag  :) 
+declare function stationutil:compose() as element()* {
+
+(:for $NSLCSE in $stationutil:all_lines:)
+(: let $parameters:= map:put( $stationutil:parameters , "net", $NSLCSE("net")  ):)
+(: let $parameters:= map:put( $stationutil:parameters , "sta", $NSLCSE("sta")  ):)
+(: let $parameters:= map:put( $stationutil:parameters , "loc", $NSLCSE("loc")  ):)
+(: let $parameters:= map:put( $stationutil:parameters , "cha", $NSLCSE("cha")  ):)
+(: let $parameters:= map:put( $stationutil:parameters , "start", $NSLCSE("start")  ):)
+(: let $parameters:= map:put( $stationutil:parameters , "end", $NSLCSE("end")  ):)
+(: let $parameters:= map:put( $stationutil:parameters , "network", $NSLCSE("net")  ):)
+(: let $parameters:= map:put( $stationutil:parameters , "station", $NSLCSE("sta")  ):)
+(: let $parameters:= map:put( $stationutil:parameters , "location", $NSLCSE("loc")  ):)
+(: let $parameters:= map:put( $stationutil:parameters , "channel", $NSLCSE("cha")  ):)
+(: let $parameters:= map:put( $stationutil:parameters , "starttime", $NSLCSE("start")  ):)
+(: let $parameters:= map:put( $stationutil:parameters , "endtime", $NSLCSE("end")  ):)
+(: let $stationutil:parameters:=$parameters:)
+(: let $p:= util:log("error", "PARAMS: " || $stationutil:parameters("network") ):)
+for $NSLCSE in $stationutil:all_lines
+  let $p:= util:log("error", "PARAMS: " ||  $NSLCSE("net") )
+  (: Cannot be changed $stationutil:parameters after inizialization must change the get-parameter to choose line params insted:)
+ let $stationutil:parameters:= map:merge(( $stationutil:parameters , $NSLCSE  ))
+  let $p:= util:log("error", "PARAMS: " ||  stationutil:get-parameter("net") )
+return stationutil:query_network_main()
+
+    
+}; 
 
 
 (: TODO gestire restrictedStatus :)
@@ -1025,6 +1079,7 @@ if (stationutil:check_parameters_limits()) then
   <Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
   <ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
   <Created>{current-dateTime()}</Created>
+  <TEST>query_network_shortcut_main</TEST>
 {
 
 for $item in collection("/db/apps/fdsn-station/Station/")
@@ -1087,6 +1142,7 @@ if (stationutil:check_parameters_limits()) then
 <Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
 <ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
 <Created>{current-dateTime()}</Created>
+  <TEST>query_network_main</TEST>
 {
 
 let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
@@ -1172,6 +1228,7 @@ if (stationutil:check_parameters_limits()) then
 <Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
 <ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
 <Created>{current-dateTime()}</Created>
+<TEST>query_station_main</TEST>
 {
 
 let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
@@ -1302,6 +1359,7 @@ if (stationutil:check_parameters_limits()) then
   <Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
   <ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
   <Created>{current-dateTime()}</Created>
+  <TEST>query_channel_main</TEST>
 {
 
 let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
@@ -1462,6 +1520,7 @@ if (stationutil:check_parameters_limits()) then
 <Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
 <ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
 <Created>{current-dateTime()}</Created>
+<TEST>query_response_main</TEST>
 {
 
 let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
