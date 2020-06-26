@@ -194,6 +194,9 @@ declare function stationutil:constraints_onchannel(
     catch err:FORG0001 {false()}
 };
 
+
+(:TODO TRY to loop on a sequence of $NSLCSE returning true if matching once:)
+
 declare function stationutil:constraints_onchannel(
     $NSLCSE as map(),
     $CreationDate as xs:dateTime*, 
@@ -538,6 +541,7 @@ declare function stationutil:check_radius( $Latitude1 as xs:string, $Longitude1 
         stationutil:distance($Latitude1, $Longitude1, $latitude, $longitude) > xs:decimal($minradius)
 };
 
+(:TODO loop on $NSLCSE return true if match ones :)
 declare function stationutil:check_radius( $NSLCSE as map(), $Latitude1 as xs:string, $Longitude1 as xs:string ) as xs:boolean 
 {
     let $latitude  := $NSLCSE("latitude")
@@ -1202,47 +1206,19 @@ declare function stationutil:lines
  
 (: TODO cicle for all_lines making a file, then reorder, remove scnl duplicates, then incapsulate in network tag  :) 
 declare function stationutil:compose()  {
-
+(:DEBUG:)
+(:let $dummy0:=:)
 (:for $NSLCSE in $stationutil:all_lines:)
-(: let $parameters:= map:put( $stationutil:parameters , "net", $NSLCSE("net")  ):)
-(: let $parameters:= map:put( $stationutil:parameters , "sta", $NSLCSE("sta")  ):)
-(: let $parameters:= map:put( $stationutil:parameters , "loc", $NSLCSE("loc")  ):)
-(: let $parameters:= map:put( $stationutil:parameters , "cha", $NSLCSE("cha")  ):)
-(: let $parameters:= map:put( $stationutil:parameters , "start", $NSLCSE("start")  ):)
-(: let $parameters:= map:put( $stationutil:parameters , "end", $NSLCSE("end")  ):)
-(: let $parameters:= map:put( $stationutil:parameters , "network", $NSLCSE("net")  ):)
-(: let $parameters:= map:put( $stationutil:parameters , "station", $NSLCSE("sta")  ):)
-(: let $parameters:= map:put( $stationutil:parameters , "location", $NSLCSE("loc")  ):)
-(: let $parameters:= map:put( $stationutil:parameters , "channel", $NSLCSE("cha")  ):)
-(: let $parameters:= map:put( $stationutil:parameters , "starttime", $NSLCSE("start")  ):)
-(: let $parameters:= map:put( $stationutil:parameters , "endtime", $NSLCSE("end")  ):)
-(: let $stationutil:parameters:=$parameters:)
-(: let $p:= util:log("error", "PARAMS: " || $stationutil:parameters("network") ):)
-let $dummy0:=
-for $NSLCSE in $stationutil:all_lines
-    let $keys := map:keys($NSLCSE)
-    for $k in $keys 
-(:  let $p:= util:log("error", "PARAMS in all_lines: " || $NSLCSE("net") || $NSLCSE("sta") || $NSLCSE("loc") || $NSLCSE("cha") || $NSLCSE("start") || $NSLCSE("end")):)
-  let $p:= util:log("error", "PARAMS in all_lines: " || $k || " = " || $NSLCSE($k) )
-  
-return ""
-
-(:let $keys:=map:keys($stationutil:parameters) :)
-(:let $dummy1 :=:)
-(:for $k  in $keys:)
-(:  let $p:= util:log("error", "PARAMS in parameters: " || $k || " = " || $stationutil:parameters($k) ):)
-(:(:  (: Cannot be changed $stationutil:parameters after inizialization must change the get-parameter to choose line params insted:):):)
-(:(: let $stationutil:parameters:= map:merge(( $stationutil:parameters , $NSLCSE  )):):)
-(:(: let $p:= util:log("error", "PARAMS: " ||  stationutil:get-parameter("net") ):):)
-(:return "":)
-
-return 
-for $NSLCSE in $stationutil:all_lines
 (:    let $keys := map:keys($NSLCSE):)
 (:    for $k in $keys :)
-(:  let $p:= util:log("error", "PARAMS in all_lines: " || $NSLCSE("net") || $NSLCSE("sta") || $NSLCSE("loc") || $NSLCSE("cha") || $NSLCSE("start") || $NSLCSE("end")):)
 (:  let $p:= util:log("error", "PARAMS in all_lines: " || $k || " = " || $NSLCSE($k) ):)
-  
+(:  :)
+(:return "":)
+(:return :)
+(:DEBUG:)
+
+for $NSLCSE in $stationutil:all_lines
+
 return  
 
 if ($NSLCSE("format")="xml")  then 
@@ -2382,7 +2358,7 @@ for $network in $item//Network
     let $ingv_identifier := $network/ingv:Identifier
     where
         stationutil:constraints_onchannel( $NSLCSE, $CreationDate, $TerminationDate ) and
-        stationutil:check_radius($lat,$lon) and     
+        stationutil:check_radius($NSLCSE, $lat,$lon) and     
         matches($networkcode,  $network_pattern ) 
         and matches($stationcode,  $station_pattern )
         and matches ($channelcode,  $channel_pattern)
@@ -2423,7 +2399,7 @@ for $network in $item//Network
             $Longitude > $minlongitude and 
             $Longitude < $maxlongitude and
             stationutil:constraints_onchannel( $NSLCSE, $CreationDate, $TerminationDate ) and  
-            stationutil:check_radius($lat,$lon) and
+            stationutil:check_radius($NSLCSE, $lat,$lon) and
             matches ($channelcode,  $pattern ) and
             matches ($channellocationcode,  $location_pattern)
             order by $station/@code
@@ -2451,7 +2427,7 @@ for $network in $item//Network
                 let $TerminationDate:= $channel/@endDate                
                 where 
                     stationutil:constraints_onchannel( $NSLCSE, $CreationDate, $TerminationDate ) and
-                    stationutil:check_radius($lat,$lon) and    
+                    stationutil:check_radius($NSLCSE, $lat,$lon) and    
                     matches ($selchannelcode,  $pattern ) and
                     matches ($channellocationcode,  $location_pattern)
                 return $selchannelcode)
@@ -2467,7 +2443,7 @@ for $network in $item//Network
                 let $TerminationDate:= $channel/@endDate  
                 where 
                     stationutil:constraints_onchannel( $NSLCSE, $CreationDate, $TerminationDate ) and                    
-                    stationutil:check_radius($lat,$lon) and
+                    stationutil:check_radius($NSLCSE, $lat,$lon) and
                     matches ($selchannelcode,  $pattern )and
                     matches ($channellocationcode,  $location_pattern)
                 return $channel
