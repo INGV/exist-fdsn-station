@@ -200,18 +200,18 @@ declare function stationutil:constraints_onchannel(
     $TerminationDate as xs:dateTime* ) as xs:boolean 
     {
     try {    
-    let $string_startbefore := stationutil:get-parameter($NSLCSE,"startbefore")
-    let $string_endbefore := stationutil:get-parameter($NSLCSE,"endbefore")
-    let $string_startafter := stationutil:get-parameter($NSLCSE,"startafter")
-    let $string_endafter := stationutil:get-parameter($NSLCSE,"endafter")
-    let $string_starttime := stationutil:get-parameter($NSLCSE,"starttime")
-    let $string_endtime := stationutil:get-parameter($NSLCSE,"endtime")
-    let $startbefore := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter($NSLCSE,"startbefore")))
-    let $startafter := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter($NSLCSE,"startafter")))
-    let $endbefore := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter($NSLCSE,"endbefore")))   
-    let $endafter := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter($NSLCSE,"endafter")))
-    let $starttime := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter($NSLCSE,"starttime")))
-    let $endtime := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter($NSLCSE,"endtime")))   
+    let $string_startbefore := $NSLCSE("startbefore")
+    let $string_endbefore := $NSLCSE("endbefore")
+    let $string_startafter := $NSLCSE("startafter")
+    let $string_endafter := $NSLCSE("endafter")
+    let $string_starttime := $NSLCSE("starttime")
+    let $string_endtime := $NSLCSE("endtime")
+    let $startbefore := xs:dateTime(stationutil:time_adjust($NSLCSE("startbefore")))
+    let $startafter := xs:dateTime(stationutil:time_adjust($NSLCSE("startafter")))
+    let $endbefore := xs:dateTime(stationutil:time_adjust($NSLCSE("endbefore")))   
+    let $endafter := xs:dateTime(stationutil:time_adjust($NSLCSE("endafter")))
+    let $starttime := xs:dateTime(stationutil:time_adjust($NSLCSE("starttime")))
+    let $endtime := xs:dateTime(stationutil:time_adjust($NSLCSE("endtime")))   
     return    
         (($string_starttime=$stationutil:default_past_time) or($CreationDate >= $starttime)) and 
         (($string_endtime=$stationutil:default_future_time) or  (not(empty($TerminationDate)) and ($TerminationDate <= $endtime))) and
@@ -291,15 +291,15 @@ where
 declare function stationutil:channel_exists($NSLCSE as map()) as xs:boolean
 {
 (:try {    :)
-let $minlatitude := xs:decimal(stationutil:get-parameter($NSLCSE,"minlatitude"))
-let $maxlatitude := xs:decimal(stationutil:get-parameter($NSLCSE,"maxlatitude"))
-let $minlongitude := xs:decimal(stationutil:get-parameter($NSLCSE,"minlongitude"))
-let $maxlongitude := xs:decimal(stationutil:get-parameter($NSLCSE,"maxlongitude"))   
-let $network_param := stationutil:get-parameter($NSLCSE,"network")
-let $station_param := stationutil:get-parameter($NSLCSE,"station")
-let $channel_param := stationutil:get-parameter($NSLCSE,"channel")
-let $location_param := stationutil:get-parameter($NSLCSE,"location")
-let $includerestricted := stationutil:get-parameter($NSLCSE,"includerestricted")
+let $minlatitude := xs:decimal($NSLCSE("minlatitude"))
+let $maxlatitude := xs:decimal($NSLCSE("maxlatitude"))
+let $minlongitude := xs:decimal($NSLCSE("minlongitude"))
+let $maxlongitude := xs:decimal($NSLCSE("maxlongitude"))   
+let $network_param := $NSLCSE("network")
+let $station_param := $NSLCSE("station")
+let $channel_param := $NSLCSE("channel")
+let $location_param := $NSLCSE("location")
+let $includerestricted := $NSLCSE("includerestricted")
 
 return 
 
@@ -449,28 +449,28 @@ declare function stationutil:check_parameters_limits( $NSLCSE as map()) as xs:bo
 
 (:try {:)
 (:let $stationutil:parameters  := stationutil:get_params_map():)
-let $minlatitude := xs:decimal(stationutil:get-parameter($NSLCSE,"minlatitude"))
-let $maxlatitude := xs:decimal(stationutil:get-parameter($NSLCSE,"maxlatitude"))
-let $minlongitude := xs:decimal(stationutil:get-parameter($NSLCSE,"minlongitude"))
-let $maxlongitude := xs:decimal(stationutil:get-parameter($NSLCSE,"maxlongitude"))   
-let $startbefore := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter($NSLCSE,"startbefore")))
-let $startafter := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter($NSLCSE,"startafter")))
-let $endbefore := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter($NSLCSE,"endbefore")))   
-let $endafter := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter($NSLCSE,"endafter")))
-let $starttime := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter($NSLCSE,"starttime")))
-let $endtime := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter($NSLCSE,"endtime")))   
-let $latitude := xs:decimal(stationutil:get-parameter($NSLCSE,"latitude"))
-let $longitude := xs:decimal(stationutil:get-parameter($NSLCSE,"longitude"))
-let $minradius := xs:decimal(stationutil:get-parameter($NSLCSE,"minradius"))
-let $maxradius := xs:decimal(stationutil:get-parameter($NSLCSE,"maxradius"))
-let $includerestricted := xs:string(stationutil:get-parameter($NSLCSE,"includerestricted"))
-let $format := stationutil:get-parameter($NSLCSE,"format")
+let $minlatitude := xs:decimal($NSLCSE("minlatitude"))
+let $maxlatitude := xs:decimal($NSLCSE("maxlatitude"))
+let $minlongitude := xs:decimal($NSLCSE("minlongitude"))
+let $maxlongitude := xs:decimal($NSLCSE("maxlongitude"))   
+let $startbefore := xs:dateTime(stationutil:time_adjust($NSLCSE("startbefore")))
+let $startafter := xs:dateTime(stationutil:time_adjust($NSLCSE("startafter")))
+let $endbefore := xs:dateTime(stationutil:time_adjust($NSLCSE("endbefore")))   
+let $endafter := xs:dateTime(stationutil:time_adjust($NSLCSE("endafter")))
+let $starttime := xs:dateTime(stationutil:time_adjust($NSLCSE("starttime")))
+let $endtime := xs:dateTime(stationutil:time_adjust($NSLCSE("endtime")))   
+let $latitude := xs:decimal($NSLCSE("latitude"))
+let $longitude := xs:decimal($NSLCSE("longitude"))
+let $minradius := xs:decimal($NSLCSE("minradius"))
+let $maxradius := xs:decimal($NSLCSE("maxradius"))
+let $includerestricted := xs:string($NSLCSE("includerestricted"))
+let $format := $NSLCSE("format")
 
-let $network := stationutil:get-parameter($NSLCSE,"network")
-let $station := stationutil:get-parameter($NSLCSE,"station")
-let $channel := stationutil:get-parameter($NSLCSE,"channel")
-let $location := stationutil:get-parameter($NSLCSE,"location")
-let $level := stationutil:get-parameter($NSLCSE,"level")
+let $network := $NSLCSE("network")
+let $station := $NSLCSE("station")
+let $channel := $NSLCSE("channel")
+let $location := $NSLCSE("location")
+let $level := $NSLCSE("level")
 
 return if (
            not(stationutil:empty_parameter_check()) 
@@ -540,10 +540,10 @@ declare function stationutil:check_radius( $Latitude1 as xs:string, $Longitude1 
 
 declare function stationutil:check_radius( $NSLCSE as map(), $Latitude1 as xs:string, $Longitude1 as xs:string ) as xs:boolean 
 {
-    let $latitude  := stationutil:get-parameter($NSLCSE,"latitude")
-    let $longitude := stationutil:get-parameter($NSLCSE,"longitude")
-    let $maxradius := stationutil:get-parameter($NSLCSE,"maxradius")
-    let $minradius := stationutil:get-parameter($NSLCSE,"minradius")
+    let $latitude  := $NSLCSE("latitude")
+    let $longitude := $NSLCSE("longitude")
+    let $maxradius := $NSLCSE("maxradius")
+    let $minradius := $NSLCSE("minradius")
     return
     if ($latitude ="0" and $longitude ="0" and $maxradius ="180" and $minradius = "0" ) then true() 
     else 
@@ -1245,8 +1245,8 @@ for $NSLCSE in $stationutil:all_lines
   
 return  
 
-if (stationutil:get-parameter($NSLCSE,"format")="xml")  then 
-    if (stationutil:get-parameter($NSLCSE,"level")="response")
+if ($NSLCSE("format")="xml")  then 
+    if ($NSLCSE("level")="response")
         then 
             ( 
             if ( matches(string-join(stationutil:get-parameter-names($NSLCSE)) ,"station|sta|channel|cha|location|loc|minlatitude|minlat|maxlatitude|maxlat|minlongitude|minlon|maxlongitude|maxlon|starttime|start|endtime|end|startbefore|endbefore|startafter|endafter|latitude|lat|longitude|lon|maxradius|minradius|includerestricted" )) 
@@ -1254,29 +1254,29 @@ if (stationutil:get-parameter($NSLCSE,"format")="xml")  then
 (:            else ():)
             else stationutil:query_network_shortcut_main($NSLCSE)
             )
-        else if (stationutil:get-parameter($NSLCSE,"level")="channel") 
+        else if ($NSLCSE("level")="channel") 
             then  ( 
             if ( matches(string-join(stationutil:get-parameter-names($NSLCSE)) ,"station|sta|channel|cha|location|loc|minlatitude|minlat|maxlatitude|maxlat|minlongitude|minlon|maxlongitude|maxlon|starttime|start|endtime|end|startbefore|endbefore|startafter|endafter|latitude|lat|longitude|lon|maxradius|minradius|includerestricted" )) 
             then stationutil:query_channel_main($NSLCSE) 
             else stationutil:query_network_shortcut_main($NSLCSE) 
             ) 
-            else if (stationutil:get-parameter($NSLCSE,"level")="station") 
+            else if ($NSLCSE("level")="station") 
                 then stationutil:query_station_main($NSLCSE)
-                else if (stationutil:get-parameter($NSLCSE,"level")="network") 
+                else if ($NSLCSE("level")="network") 
                     then stationutil:query_network_main($NSLCSE) 
                     else ()
-else if (stationutil:get-parameter($NSLCSE,"format")="text") then (        
+else if ($NSLCSE("format")="text") then (        
     let $dummy := util:declare-option("exist:serialize","method=text media-type=text/plain indent=yes") 
     return 
-        if (stationutil:get-parameter($NSLCSE,"level")="channel") 
+        if ($NSLCSE("level")="channel") 
             then  ( 
             if ( matches(string-join(stationutil:get-parameter-names($NSLCSE)) ,"station|sta|channel|cha|location|loc|minlatitude|minlat|maxlatitude|maxlat|minlongitude|minlon|maxlongitude|maxlon|starttime|start|endtime|end|startbefore|endbefore|startafter|endafter|latitude|lat|longitude|lon|maxradius|minradius|includerestricted" )) 
             then ( transform:transform(stationutil:query_channel_main($NSLCSE), doc("channel.xsl"), ()) )
             else ( transform:transform(stationutil:query_network_shortcut_main($NSLCSE), doc("channel.xsl"), ()) )
             )    
-            else if (stationutil:get-parameter($NSLCSE,"level")="station") 
+            else if ($NSLCSE("level")="station") 
                 then ( transform:transform( stationutil:query_station_main($NSLCSE), doc("station.xsl"), ()) )
-                else if (stationutil:get-parameter($NSLCSE,"level")="network") 
+                else if ($NSLCSE("level")="network") 
                     then (transform:transform(stationutil:query_network_main($NSLCSE), doc("network.xsl"), ()) )
                     else ()
 )
@@ -1905,15 +1905,15 @@ if (stationutil:check_parameters_limits($NSLCSE)) then
   <TEST>query_network_main</TEST>
 {
 
-let $minlatitude := xs:decimal(stationutil:get-parameter($NSLCSE,"minlatitude"))
-let $maxlatitude := xs:decimal(stationutil:get-parameter($NSLCSE,"maxlatitude"))
-let $minlongitude := xs:decimal(stationutil:get-parameter($NSLCSE,"minlongitude"))
-let $maxlongitude := xs:decimal(stationutil:get-parameter($NSLCSE,"maxlongitude"))   
+let $minlatitude := xs:decimal($NSLCSE("minlatitude"))
+let $maxlatitude := xs:decimal($NSLCSE("maxlatitude"))
+let $minlongitude := xs:decimal($NSLCSE("minlongitude"))
+let $maxlongitude := xs:decimal($NSLCSE("maxlongitude"))   
 
-let $network_param := stationutil:get-parameter($NSLCSE,"network")
-let $station_param := stationutil:get-parameter($NSLCSE,"station")
-let $channel_param := stationutil:get-parameter($NSLCSE,"channel")
-let $location_param := stationutil:get-parameter($NSLCSE,"location")
+let $network_param := $NSLCSE("network")
+let $station_param := $NSLCSE("station")
+let $channel_param := $NSLCSE("channel")
+let $location_param := $NSLCSE("location")
 
 let $network_pattern:=stationutil:network_pattern_translate($network_param)
 let $station_pattern:=stationutil:station_pattern_translate($station_param)
@@ -1989,15 +1989,15 @@ if (stationutil:check_parameters_limits($NSLCSE)) then
 <TEST>query_station_main</TEST>
 {
 
-let $minlatitude := xs:decimal(stationutil:get-parameter($NSLCSE,"minlatitude"))
-let $maxlatitude := xs:decimal(stationutil:get-parameter($NSLCSE,"maxlatitude"))
-let $minlongitude := xs:decimal(stationutil:get-parameter($NSLCSE,"minlongitude"))
-let $maxlongitude := xs:decimal(stationutil:get-parameter($NSLCSE,"maxlongitude"))
+let $minlatitude := xs:decimal($NSLCSE("minlatitude"))
+let $maxlatitude := xs:decimal($NSLCSE("maxlatitude"))
+let $minlongitude := xs:decimal($NSLCSE("minlongitude"))
+let $maxlongitude := xs:decimal($NSLCSE("maxlongitude"))
 
-let $network_param := stationutil:get-parameter($NSLCSE,"network")
-let $station_param := stationutil:get-parameter($NSLCSE,"station")
-let $channel_param := stationutil:get-parameter($NSLCSE,"channel")
-let $location_param := stationutil:get-parameter($NSLCSE,"location")
+let $network_param := $NSLCSE("network")
+let $station_param := $NSLCSE("station")
+let $channel_param := $NSLCSE("channel")
+let $location_param := $NSLCSE("location")
 
 let $network_pattern:=stationutil:network_pattern_translate($network_param)
 let $station_pattern:=stationutil:station_pattern_translate($station_param)
@@ -2117,15 +2117,15 @@ if (stationutil:check_parameters_limits($NSLCSE)) then
   <TEST>query_channel_main</TEST>
 {
 
-let $minlatitude := xs:decimal(stationutil:get-parameter($NSLCSE,"minlatitude"))
-let $maxlatitude := xs:decimal(stationutil:get-parameter($NSLCSE,"maxlatitude"))
-let $minlongitude := xs:decimal(stationutil:get-parameter($NSLCSE,"minlongitude"))
-let $maxlongitude := xs:decimal(stationutil:get-parameter($NSLCSE,"maxlongitude"))   
+let $minlatitude := xs:decimal($NSLCSE("minlatitude"))
+let $maxlatitude := xs:decimal($NSLCSE("maxlatitude"))
+let $minlongitude := xs:decimal($NSLCSE("minlongitude"))
+let $maxlongitude := xs:decimal($NSLCSE("maxlongitude"))   
 
-let $network_param := stationutil:get-parameter($NSLCSE,"network")
-let $station_param := stationutil:get-parameter($NSLCSE,"station")
-let $channel_param := stationutil:get-parameter($NSLCSE,"channel")
-let $location_param := stationutil:get-parameter($NSLCSE,"location")    
+let $network_param := $NSLCSE("network")
+let $station_param := $NSLCSE("station")
+let $channel_param := $NSLCSE("channel")
+let $location_param := $NSLCSE("location")    
 
 let $network_pattern:=stationutil:network_pattern_translate($network_param)
 let $station_pattern:=stationutil:station_pattern_translate($station_param)
@@ -2338,15 +2338,15 @@ if (stationutil:check_parameters_limits($NSLCSE)) then
 <TEST>query_response_main</TEST>
 {
 
-let $minlatitude := xs:decimal(stationutil:get-parameter($NSLCSE,"minlatitude"))
-let $maxlatitude := xs:decimal(stationutil:get-parameter($NSLCSE,"maxlatitude"))
-let $minlongitude := xs:decimal(stationutil:get-parameter($NSLCSE,"minlongitude"))
-let $maxlongitude := xs:decimal(stationutil:get-parameter($NSLCSE,"maxlongitude"))
+let $minlatitude := xs:decimal($NSLCSE("minlatitude"))
+let $maxlatitude := xs:decimal($NSLCSE("maxlatitude"))
+let $minlongitude := xs:decimal($NSLCSE("minlongitude"))
+let $maxlongitude := xs:decimal($NSLCSE("maxlongitude"))
 
-let $network_param := stationutil:get-parameter($NSLCSE,"network")
-let $station_param := stationutil:get-parameter($NSLCSE,"station")
-let $channel_param := stationutil:get-parameter($NSLCSE,"channel")
-let $location_param := stationutil:get-parameter($NSLCSE,"location") 
+let $network_param := $NSLCSE("network")
+let $station_param := $NSLCSE("station")
+let $channel_param := $NSLCSE("channel")
+let $location_param := $NSLCSE("location") 
 let $network_pattern:=stationutil:network_pattern_translate($network_param)
 let $station_pattern:=stationutil:station_pattern_translate($station_param)
 let $channel_pattern:=stationutil:channel_pattern_translate($channel_param)    
