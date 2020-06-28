@@ -12,7 +12,7 @@ declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 (:declare option output:media-type "text/xml";:)
 (:declare option exist:serialize "method=xml media-type=text/html";:)
 (:TODO uncomment after debug:)
-declare option output:indent "no";
+declare option output:indent "yes";
 
 declare function local:main() as element() {
 if (stationutil:check_parameters_limits()) then 
