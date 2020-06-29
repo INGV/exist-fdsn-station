@@ -404,48 +404,16 @@ declare function stationutil:check_parameters_limits( $parameters as map()*) as 
 {
 
 try {
-(:let $stationutil:parameters  := stationutil:set_parameters_row_from_GET():)
+(: TODO level response and format text are unsupported:)
 
-(:for  $NSLCSE in $parameters:)
-(:let $minlatitude := xs:decimal($NSLCSE("minlatitude")):)
-(:let $maxlatitude := xs:decimal($NSLCSE("maxlatitude")):)
-(:let $minlongitude := xs:decimal($NSLCSE("minlongitude")):)
-(:let $maxlongitude := xs:decimal($NSLCSE("maxlongitude"))   :)
-(:let $startbefore := xs:dateTime(stationutil:time_adjust($NSLCSE("startbefore"))):)
-(:let $startafter := xs:dateTime(stationutil:time_adjust($NSLCSE("startafter"))):)
-(:let $endbefore := xs:dateTime(stationutil:time_adjust($NSLCSE("endbefore")))   :)
-(:let $endafter := xs:dateTime(stationutil:time_adjust($NSLCSE("endafter"))):)
-(:let $starttime := xs:dateTime(stationutil:time_adjust($NSLCSE("starttime"))):)
-(:let $endtime := xs:dateTime(stationutil:time_adjust($NSLCSE("endtime")))   :)
-(:let $latitude := xs:decimal($NSLCSE("latitude")):)
-(:let $longitude := xs:decimal($NSLCSE("longitude")):)
-(:let $minradius := xs:decimal($NSLCSE("minradius")):)
-(:let $maxradius := xs:decimal($NSLCSE("maxradius")):)
-(:let $includerestricted := xs:string($NSLCSE("includerestricted")):)
-(:let $format := $NSLCSE("format"):)
-(::)
-(:let $network := $NSLCSE("network"):)
-(:let $station := $NSLCSE("station"):)
-(:let $channel := $NSLCSE("channel"):)
-(:let $location := $NSLCSE("location"):)
-(:let $level := $NSLCSE("level"):)
- 
- 
-(:let $dummy0:=:)
-(:for $p in $parameters:)
-(:    let $keys := map:keys($p):)
-(:    for $k in $keys :)
-(:  let $q:= util:log("error", "PARAMS in all_lines: " || $k || " = " || $p($k) ):)
-(:  :)
-(:return "":)
-(:return :)
-(:true():)
 not( 
 some $NSLCSE in $parameters 
 satisfies
  ( 
 (:          not(stationutil:empty_parameter_check()) :)
+ 
            xs:decimal($NSLCSE("minlatitude"))>90.0 
+           or ($NSLCSE("level")="response" and $NSLCSE("format") ="text")
            or xs:decimal($NSLCSE("maxlatitude")) > 90.0 
            or xs:decimal($NSLCSE("minlatitude"))<-90.0 
            or xs:decimal($NSLCSE("maxlatitude")) <-90.0
@@ -1024,6 +992,7 @@ The format parameter must be xml or text
 };
 
 
+
 declare function stationutil:syntax_location($parameters as map()*) as xs:string{
 try {
 string-join(
@@ -1259,6 +1228,27 @@ The format parameter must be xml or text
 
 };
 
+declare function stationutil:syntax_level($parameters as map()*) as xs:string{
+    
+(:The first is sufficient :)
+for $p in $parameters[1]     
+let $level := xs:string($p("level"))
+let $format := xs:string($p("format"))
+return 
+    if (not( $level ="network" or $level="station" or $level ="channel" or $level="response"))  
+    then
+"
+Unsupported level " || $level 
+    else  
+        if ($level="response" and $format = "text")
+        then  
+"Unsupported combination of level and format
+"
+else ""
+
+
+};
+
 declare function stationutil:empty_parameter_error($parameters as map()*) as xs:string
 {
 try {
@@ -1467,6 +1457,8 @@ stationutil:syntax_includerestricted($parameters)
 ||
 stationutil:empty_parameter_error($parameters) ||
 stationutil:syntax_format($parameters) 
+||
+stationutil:syntax_level($parameters) 
 ||
 (:stationutil:$stationutil:parameters_table($parameters) :)
 (:||:)
