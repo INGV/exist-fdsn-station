@@ -200,27 +200,14 @@ declare function stationutil:constraints_onchannel(
     {
     try {    
     some $NSLCSE in $parameters
-        
-(:    let $string_startbefore := $NSLCSE("startbefore"):)
-(:    let $string_endbefore := $NSLCSE("endbefore"):)
-(:    let $string_startafter := $NSLCSE("startafter"):)
-(:    let $string_endafter := $NSLCSE("endafter"):)
-(:    let $string_starttime := $NSLCSE("starttime"):)
-(:    let $string_endtime := $NSLCSE("endtime"):)
-(:    let $startbefore := xs:dateTime(stationutil:time_adjust($NSLCSE("startbefore"))):)
-(:    let $startafter := xs:dateTime(stationutil:time_adjust($NSLCSE("startafter"))):)
-(:    let $endbefore := xs:dateTime(stationutil:time_adjust($NSLCSE("endbefore")))   :)
-(:    let $endafter := xs:dateTime(stationutil:time_adjust($NSLCSE("endafter"))):)
-(:    let $starttime := xs:dateTime(stationutil:time_adjust($NSLCSE("starttime"))):)
-(:    let $endtime := xs:dateTime(stationutil:time_adjust($NSLCSE("endtime")))   :)
-(:    return    :)
     satisfies    
         (($NSLCSE("starttime")=$stationutil:default_past_time) or($CreationDate >= xs:dateTime(stationutil:time_adjust($NSLCSE("starttime"))))) and 
-        (($NSLCSE("endtime")=$stationutil:default_future_time) or  (not(empty($TerminationDate)) and ($TerminationDate <=  xs:dateTime(stationutil:time_adjust($NSLCSE("endtime")))))) and
+        (($NSLCSE("endtime")=$stationutil:default_future_time) or empty($TerminationDate) or  (not(empty($TerminationDate)) and ($TerminationDate <=  xs:dateTime(stationutil:time_adjust($NSLCSE("endtime")))))) and
         (($NSLCSE("startbefore")=$stationutil:default_future_time) or ($CreationDate < xs:dateTime(stationutil:time_adjust($NSLCSE("startbefore"))))) and 
         (($NSLCSE("startafter")=$stationutil:default_past_time) or($CreationDate > xs:dateTime(stationutil:time_adjust($NSLCSE("startafter")))))  and
         (($NSLCSE("endbefore")=$stationutil:default_future_time) or  (not(empty($TerminationDate)) and ($TerminationDate < xs:dateTime(stationutil:time_adjust($NSLCSE("endbefore")))))) and
         (($NSLCSE("endafter")=$stationutil:default_past_time) or  (empty($TerminationDate)) or ($TerminationDate > xs:dateTime(stationutil:time_adjust($NSLCSE("endafter")))))   
+        
     }
     catch err:FORG0001 {false()}
 };
@@ -2314,8 +2301,8 @@ declare function stationutil:query_join_station_main($NSLCSE as map()*) {
 let $content := 
 for $item in collection("/db/apps/fdsn-station/Station/"), $condition in $NSLCSE
     
-    let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
-    let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
+    let $Latitude:=  $item/FDSNStationXML/Network/Station/Latitude
+    let $Longitude:=  $item/FDSNStationXML/Network/Station/Longitude
     let $network_param := $condition("network")
     let $station_param := $condition("station")
     let $channel_param := $condition("channel")
@@ -2330,10 +2317,10 @@ for $item in collection("/db/apps/fdsn-station/Station/"), $condition in $NSLCSE
     let $channel_pattern:=stationutil:channel_pattern_translate($channel_param)    
     let $location_pattern:=stationutil:location_pattern_translate($location_param)    
 
-where $Latitude  > xs:decimal($condition("minlatitude")) and  
-      $Latitude  < xs:decimal($condition("maxlatitude")) and 
-      $Longitude > xs:decimal($condition("minlongitude")) and 
-      $Longitude < xs:decimal($condition("maxlongitude")) 
+where $Latitude  > $minlatitude and  
+      $Latitude < $maxlatitude and 
+      $Longitude > $minlongitude and 
+      $Longitude < $maxlongitude 
 
 for $network in $item//Network  
     let $networkcode := $network/@code
@@ -2381,19 +2368,20 @@ for $network in $item//Network
             let $channelcode:=$channel/@code
             let $channellocationcode:=$channel/@locationCode
             
-            let $Latitude:=  xs:decimal($station/Latitude)
-            let $Longitude:= xs:decimal($station/Longitude) 
+            let $Latitude:=  $station/Latitude
+            let $Longitude:= $station/Longitude 
             let $CreationDate:= $channel/@startDate
             let $TerminationDate:= $channel/@endDate 
             let $networkcode:=$network/@code
             let $pattern:=stationutil:channel_pattern_translate($channel_param)
             let $location_pattern:=stationutil:location_pattern_translate($location_param)    
         where 
-            $Latitude  > $minlatitude and  
-            $Latitude  < $maxlatitude and 
-            $Longitude > $minlongitude and 
-            $Longitude < $maxlongitude and 
+            xs:decimal($Latitude)  > $minlatitude and  
+            xs:decimal($Latitude)  < $maxlatitude and 
+            xs:decimal($Longitude) > $minlongitude and 
+            xs:decimal($Longitude) < $maxlongitude and 
             stationutil:constraints_onchannel($condition, $CreationDate, $TerminationDate ) and          
+
             matches ($channelcode,  $pattern ) and
             matches($channellocationcode,$location_pattern) 
             and 
