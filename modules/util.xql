@@ -162,36 +162,10 @@ declare function stationutil:time_adjust( $mydatetime as xs:string ) as xs:strin
 };
 
 
-declare function stationutil:constraints_onchannel(
-    $CreationDate as xs:dateTime*, 
-    $TerminationDate as xs:dateTime* ) as xs:boolean 
-    {
-    try {    
-    let $string_startbefore := stationutil:get-parameter("startbefore")
-    let $string_endbefore := stationutil:get-parameter("endbefore")
-    let $string_startafter := stationutil:get-parameter("startafter")
-    let $string_endafter := stationutil:get-parameter("endafter")
-    let $string_starttime := stationutil:get-parameter("starttime")
-    let $string_endtime := stationutil:get-parameter("endtime")
-    let $startbefore := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("startbefore")))
-    let $startafter := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("startafter")))
-    let $endbefore := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("endbefore")))   
-    let $endafter := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("endafter")))
-    let $starttime := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("starttime")))
-    let $endtime := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("endtime")))   
-    return    
-        (($string_starttime=$stationutil:default_past_time) or($CreationDate >= $starttime)) and 
-        (($string_endtime=$stationutil:default_future_time) or  (not(empty($TerminationDate)) and ($TerminationDate <= $endtime))) and
-        (($string_startbefore=$stationutil:default_future_time) or ($CreationDate < $startbefore)) and 
-        (($string_startafter=$stationutil:default_past_time) or($CreationDate > $startafter))  and
-        (($string_endbefore=$stationutil:default_future_time) or  (not(empty($TerminationDate)) and ($TerminationDate < $endbefore))) and
-        (($string_endafter=$stationutil:default_past_time) or  (empty($TerminationDate)) or ($TerminationDate > $endafter))   
-    }
-    catch err:FORG0001 {false()}
-};
 
 
-(:TODO TRY to loop on a sequence of $NSLCSE returning true if matching once:)
+
+(: Use the "some" clause to check some channel meet criteria :)
 
 declare function stationutil:constraints_onchannel(
     $parameters as map()*,
@@ -215,73 +189,11 @@ declare function stationutil:constraints_onchannel(
 
 
 
-declare function stationutil:channel_exists() as xs:boolean
-{
-(:try {    :)
-let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
-let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
-let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
-let $maxlongitude := xs:decimal(stationutil:get-parameter("maxlongitude"))   
-let $network_param := stationutil:get-parameter("network")
-let $station_param := stationutil:get-parameter("station")
-let $channel_param := stationutil:get-parameter("channel")
-let $location_param := stationutil:get-parameter("location")
-let $includerestricted := stationutil:get-parameter("includerestricted")
-
-return 
-
-if (not(empty(
-for $item in collection("/db/apps/fdsn-station/Station/")
-
-    let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
-    let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
-
-where 
-    $Latitude  > $minlatitude 
-    and $Latitude  < $maxlatitude 
-    and $Longitude > $minlongitude 
-    and $Longitude < $maxlongitude 
-    for $network in $item//Network  
-        let $networkcode := $network/@code
-        let $station :=$network/Station
-        let $stationcode:=$station/@code
-        let $channel:=$station/Channel
-        let $CreationDate:= $channel/@startDate
-        let $TerminationDate:= $channel/@endDate
-        let $selchannelcode:=$channel/@code
-        let $selchannellocationcode:=$channel/@locationCode
-        let $CreationDate:= $channel/@startDate
-        let $TerminationDate:= $channel/@endDate 
-        let $lat :=  $station/Latitude
-        let $lon :=  $station/Longitude
-        let $networkrestrictedStatus := $network/@restrictedStatus
-        let $stationrestrictedStatus := $station/@restrictedStatus        
-        let $channelrestrictedStatus := $channel/@restrictedStatus    
-    where
-        stationutil:constraints_onchannel($CreationDate,$TerminationDate) 
-        and stationutil:check_radius($lat,$lon)  
-        and 
-        (upper-case($includerestricted)="TRUE" or ( stationutil:check_restricted($networkrestrictedStatus)
-        and stationutil:check_restricted($stationrestrictedStatus)        
-        and stationutil:check_restricted($channelrestrictedStatus)))   
-        and matches($networkcode, stationutil:network_pattern_translate($network_param) ) 
-        and matches($stationcode, stationutil:station_pattern_translate($station_param) )
-        and matches ($selchannelcode, stationutil:channel_pattern_translate($channel_param))        
-        and matches ($selchannellocationcode,stationutil:location_pattern_translate($location_param))
-        return $selchannelcode 
-    )))
-    then true()
-    else false()
-(:}:)
-(:catch err:* {false()}    :)
-};
-
-
 (: TODO change check_radius for AQU like station: two networks, single station :)
 (: TODO do not use check, create then encapsulate in tags:)
 declare function stationutil:channel_exists($parameters as map()*) as xs:boolean
 {
-(:try {    :)
+try {    
 
 some $item in collection("/db/apps/fdsn-station/Station/") , $condition in $parameters
 
@@ -301,110 +213,15 @@ satisfies
     and matches ($item//Network/Station/Channel/@code, stationutil:channel_pattern_translate($condition("channel")))        
     and matches ($item//Network/Station/Channel/@locationCode,stationutil:location_pattern_translate($condition("location")))
 
-(:}:)
-(:catch err:* {false()}    :)
-};
-
-
-
-declare function stationutil:channel_exists_test() as xs:boolean
-{
-try {    
-let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
-let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
-let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
-let $maxlongitude := xs:decimal(stationutil:get-parameter("maxlongitude"))   
-let $network_param := stationutil:get-parameter("network")
-let $station_param := stationutil:get-parameter("station")
-let $channel_param := stationutil:get-parameter("channel")
-let $location_param := stationutil:get-parameter("location")
-let $includerestricted := stationutil:get-parameter("includerestricted")
-
-return 
-
-    some $item in collection("/db/apps/fdsn-station/Station/")
-    satisfies (
-    $item/FDSNStationXML/Network/Station/Latitude > $minlatitude 
-    and $item/FDSNStationXML/Network/Station/Latitude < $maxlatitude 
-    and $item/FDSNStationXML/Network/Station/Longitude > $minlongitude 
-    and $item/FDSNStationXML/Network/Station/Longitude < $maxlongitude 
-    and 
-        stationutil:constraints_onchannel($item//Network/Station/Channel/@startDate , $item//Network/Station/Channel/@endDate) 
-        and stationutil:check_radius($item//Network/Station/Latitude,$item//Network/Station/Longitude)  
-        and 
-        (upper-case($includerestricted)="TRUE" or ( stationutil:check_restricted($item//Network/@restrictedStatus)
-        and stationutil:check_restricted($item//Network/Station/@restrictedStatus)        
-        and stationutil:check_restricted($item//Network/Station/Channel/@restrictedStatus)))   
-        and matches($item//Network/@code, stationutil:network_pattern_translate($network_param) ) 
-        and matches($item//Network/Station/@code, stationutil:station_pattern_translate($station_param) )
-        and matches($item//Network/Station/Channel/@code, stationutil:channel_pattern_translate($channel_param))        
-        and matches($item//Network/Station/Channel/@locationCode,stationutil:location_pattern_translate($location_param))
-    )
-
 }
 catch err:* {false()}    
 };
 
 
-declare function stationutil:check_parameters_limits() as xs:boolean 
-{
-
-try {
-(:let $stationutil:parameters  := stationutil:set_parameters_row_from_GET():)
-let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
-let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
-let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
-let $maxlongitude := xs:decimal(stationutil:get-parameter("maxlongitude"))   
-let $startbefore := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("startbefore")))
-let $startafter := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("startafter")))
-let $endbefore := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("endbefore")))   
-let $endafter := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("endafter")))
-let $starttime := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("starttime")))
-let $endtime := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("endtime")))   
-let $latitude := xs:decimal(stationutil:get-parameter("latitude"))
-let $longitude := xs:decimal(stationutil:get-parameter("longitude"))
-let $minradius := xs:decimal(stationutil:get-parameter("minradius"))
-let $maxradius := xs:decimal(stationutil:get-parameter("maxradius"))
-let $includerestricted := xs:string(stationutil:get-parameter("includerestricted"))
-let $format := stationutil:get-parameter("format")
-
-let $network := stationutil:get-parameter("network")
-let $station := stationutil:get-parameter("station")
-let $channel := stationutil:get-parameter("channel")
-let $location := stationutil:get-parameter("location")
-let $level := stationutil:get-parameter("level")
-
-return if (
-           not(stationutil:empty_parameter_check()) 
-           or $minlatitude>90.0 or $maxlatitude > 90.0 or $minlatitude<-90.0 or $maxlatitude <-90.0
-           or $minlatitude > $maxlatitude 
-           or $minlongitude>180.0 or $maxlongitude > 180.0 or $minlongitude<-180.0 or $maxlongitude <-180.0
-           or $minlongitude > $maxlongitude 
-           or $latitude  >90.0  or $latitude  <  -90.0 
-           or $longitude >180.0 or $longitude < -180.0
-           or $minradius <0 or $minradius >= $maxradius
-           or $maxradius <0 or $maxradius > 180.0 
-           or $startbefore < $startafter
-           or $endbefore < $endafter
-           or $starttime > $endtime
-           or not(matches($level,"network|station|channel|response"))
-           or not($includerestricted="TRUE" or $includerestricted="FALSE")
-           or not( $format ="xml" or $format="text")           
-           or (contains(stationutil:network_pattern_translate($network), "NEVERMATCH")) 
-           or (contains(stationutil:station_pattern_translate($station), "NEVERMATCH")) 
-           or (contains(stationutil:channel_pattern_translate($channel), "NEVERMATCH")) 
-           or (contains(stationutil:location_pattern_translate($location), "NEVERMATCH"))
-           ) then false() else true()
-}
-catch err:* {false()}
-
-} ;
-
 declare function stationutil:check_parameters_limits( $parameters as map()*) as xs:boolean 
 {
 
 try {
-(: TODO level response and format text are unsupported:)
 
 not( 
 some $NSLCSE in $parameters 
@@ -412,8 +229,8 @@ satisfies
  ( 
 (:          not(stationutil:empty_parameter_check()) :)
  
-           xs:decimal($NSLCSE("minlatitude"))>90.0 
-           or ($NSLCSE("level")="response" and $NSLCSE("format") ="text")
+           ($NSLCSE("level")="response" and $NSLCSE("format") ="text")
+           or xs:decimal($NSLCSE("minlatitude"))>90.0 
            or xs:decimal($NSLCSE("maxlatitude")) > 90.0 
            or xs:decimal($NSLCSE("minlatitude"))<-90.0 
            or xs:decimal($NSLCSE("maxlatitude")) <-90.0
@@ -439,7 +256,7 @@ satisfies
            or (contains(stationutil:location_pattern_translate($NSLCSE("location")), "NEVERMATCH"))
            ) 
 )           
-(:           then false() else true():)
+
 }
 catch err:* {false()}
 
@@ -472,20 +289,8 @@ return $d
     
 };    
 
-declare function stationutil:check_radius( $Latitude1 as xs:string, $Longitude1 as xs:string ) as xs:boolean 
-{
-    let $latitude  := stationutil:get-parameter("latitude")
-    let $longitude := stationutil:get-parameter("longitude")
-    let $maxradius := stationutil:get-parameter("maxradius")
-    let $minradius := stationutil:get-parameter("minradius")
-    return
-    if ($latitude ="0" and $longitude ="0" and $maxradius ="180" and $minradius = "0" ) then true() 
-    else 
-        stationutil:distance($Latitude1, $Longitude1, $latitude, $longitude) < xs:decimal($maxradius) and
-        stationutil:distance($Latitude1, $Longitude1, $latitude, $longitude) > xs:decimal($minradius)
-};
 
-(:TODO loop on $NSLCSE return true if match ones :)
+(: Use "some" clause to find matches :)
 declare function stationutil:check_radius( $parameter as map()*, $Latitude1 as xs:string*, $Longitude1 as xs:string* ) as xs:boolean 
 {
     some $NSLCSE in $parameter
@@ -512,19 +317,7 @@ declare function stationutil:check_restricted($restrictedStatus as xs:string * )
     else (not($rs="restricted"))
 };
 
-declare function stationutil:nodata_error() {
-(: declare output method locally to override default xml   :)
-    util:declare-option("exist:serialize","method=text media-type=text/plain indent=no")  ,  
-    if (matches(request:get-parameter("nodata", "204"),"404")) 
-    then
-        (
-             response:set-status-code(404) , "Error 404 - no matching inventory found"
-        )
-    else if (matches(request:get-parameter("nodata", "204"),"204")) then
-        response:set-status-code(204) 
-    else 
-        response:set-status-code(400) 
-};
+
 
 
 (: Here we map the request params in stationutil:parameters  :)
@@ -655,7 +448,7 @@ return $sequenceoflines
 
 declare function stationutil:set_parameters_table() as map()* {
 
-let $p:= util:log("error", "POST: " )
+(:let $p:= util:log("error", "POST: " ):)
 let $sequenceoflines :=stationutil:lines($stationutil:postdata)
 (:let $p:= util:log("error", "POST: " || $stationutil:postdata):)
 
@@ -667,13 +460,11 @@ let $NSLC :=
             then ()
             else (
                 let $key_val := tokenize($line,"\s+")
-                let $p:= util:log("error", "Matched in set_parameters_table" || $key_val[1] || "," || $key_val[2] || "," || $key_val[3] || "," || $key_val[4]|| "," || $key_val[5] || "," || $key_val[6])
+(:                let $p:= util:log("error", "Matched in set_parameters_table" || $key_val[1] || "," || $key_val[2] || "," || $key_val[3] || "," || $key_val[4]|| "," || $key_val[5] || "," || $key_val[6]):)
                 return map:merge((map:entry("net", $key_val[1]), map:entry("network", $key_val[1]),  map:entry("sta", $key_val[2]), map:entry("station", $key_val[2]), map:entry("loc", $key_val[3]), map:entry("location", $key_val[3]), map:entry( "cha", $key_val[4]) , map:entry( "channel", $key_val[4]),map:entry("start", $key_val[5]), map:entry("starttime", $key_val[5]), map:entry( "end", $key_val[6]), map:entry( "endtime", $key_val[6])  , $stationutil:parameters) ) 
-(: , $stationutil:parameters) )                 :)
             )
 (:NET STA LOC CHA STARTTIME ENDTIME più tutti gli altri parametri ripetuti:)
  
-(:let $lines :=map{}:)
 return $NSLC
     
 };
@@ -708,7 +499,7 @@ let $params :=
          if (matches($line,"="))
             then (
                 let $key_val := tokenize($line,"=")
-                let $p:= util:log("error", "Matched " || $key_val[1] || "=" || $key_val[2] )
+(:                let $p:= util:log("error", "Matched " || $key_val[1] || "=" || $key_val[2] ):)
                 return map:entry($key_val[1], $key_val[2]) 
             )
             else ()
@@ -720,28 +511,6 @@ let $params :=
 (: "nodata" , "startbefore" ,"startafter" , "endbefore" , "endafter" , "level" , "minradius", "maxradius", "includerestricted", "format":)
 let $result := map:merge(($params_default, $params)) 
 
-(:  Temporaneo uso una sola riga nel POST :)
-(:let $result  := map:merge(($result0, $NSLC)) :)
-(::)
-(:let $network:=if (exists($result("net"))) then $result("net") else if (exists($result("network"))) then $result("network") else "*" :)
-(:let $result := map:put($result,"network",$network):)
-(::)
-(:let $station:=if (exists($result("sta"))) then $result("sta") else if (exists($result("station"))) then $result("station") else "*"  :)
-(:let $result := map:put($result,"station",$station):)
-(::)
-(:let $location:=if (exists($result("loc"))) then $result("loc") else if (exists($result("location"))) then $result("location") else "*"  :)
-(:let $result := map:put($result,"location",$location):)
-(::)
-(:let $channel:=if (exists($result("cha"))) then $result("cha") else if (exists($result("channel"))) then $result("channel") else "*"  :)
-(:let $result := map:put($result,"channel",$channel):)
-(::)
-(:let $starttime:=if (exists($result("start"))) then $result("start") else if (exists($result("starttime"))) then $result("starttime") else $stationutil:default_past_time  :)
-(:let $result := map:put($result,"starttime",$starttime):)
-(::)
-(:let $endtime:=if (exists($result("end"))) then $result("end") else if (exists($result("endtime"))) then $result("endtime") else $stationutil:default_future_time:)
-(:let $result := map:put($result,"endtime",$endtime):)
-(::)
-(: Fine temporaneo :)
 
 (: Manage 6 parameters with alias, preferred short version:)
 
@@ -817,152 +586,6 @@ catch err:* {true()}
 } ;
 
 
-declare function stationutil:syntax_longitude() as xs:string{
-try 
-{
-let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
-let $maxlongitude := xs:decimal(stationutil:get-parameter("maxlongitude"))
-let $longitude := xs:decimal(stationutil:get-parameter("longitude"))
- 
-return 
-    if ($minlongitude>180.0 or $maxlongitude > 180.0 or $minlongitude<-180.0 or $maxlongitude <-180.0 or $longitude>180.0 or $longitude <-180.0) then 
-" 
-Must be -180 < longitude < 180
-"
-else ""     
-}
-     catch err:* {
-"
-Syntax error in longitude parameter
-"        
-    } 
-};
-
-declare function stationutil:syntax_latitude() as xs:string{
-try 
-{
-let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
-let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
-let $latitude := xs:decimal(stationutil:get-parameter("latitude"))
-
-return 
-    if ( $minlatitude>90.0 or $maxlatitude > 90.0 or $minlatitude<-90.0 or $maxlatitude <-90.0 or $latitude> 90.0 or $latitude < -90.0) 
-    then
-        "
-Must be -90 < latitude < 90
-"
-    else ""
-}
-    catch err:* {
-"
-Syntax error in latitude parameter
-"        
-    }
-};
-
-
-declare function stationutil:syntax_radius() as xs:string{
-try {
-let $minradius := xs:decimal(stationutil:get-parameter("minradius"))
-let $maxradius := xs:decimal(stationutil:get-parameter("maxradius"))
-
-return 
-    if (  ($maxradius - $minradius) <=0  or $maxradius<0 or $minradius<0  or $maxradius >180.0) 
-    then
-        "
-Must be 0<minradius<maxradius<=180
-"
-    else
-    ""
-}
-catch err:* {
-"
-Syntax Error in radius parameters
-"
-    
-}
-};
-
-
-declare function stationutil:syntax_location() as xs:string{
-try {
-let $location := xs:string(stationutil:get-parameter("location"))
-
-return 
-if (contains(stationutil:location_pattern_translate($location), "NEVERMATCH")) 
-    then
-        "
-Check location parameter
-"
-    else  ""
-}
-    catch err:* {
-"
-Syntax error in location parameter
-"        
-}
-
-};
-
-declare function stationutil:syntax_channel() as xs:string{
-try {    
-let $channel := xs:string(stationutil:get-parameter("channel"))
-
-return 
-if (contains(stationutil:channel_pattern_translate($channel), "NEVERMATCH")) 
-    then
-        "
-Check channel parameter
-"
-    else  ""
-}
-    catch err:* {
-"
-Syntax error in channel parameter
-"        
-    }
-};
-
-
-declare function stationutil:syntax_station() as xs:string{
-try {        
-let $station := xs:string(stationutil:get-parameter("station"))
-
-return 
-if (contains(stationutil:station_pattern_translate($station), "NEVERMATCH")) 
-    then
-        "
-Check station parameter
-"
-    else  ""
-}
-catch err:* {
-"
-Syntax error in station parameter
-"        
-    }
-};
-
-declare function stationutil:syntax_network() as xs:string{
-try {            
-let $network := xs:string(stationutil:get-parameter("network"))
-
-return 
-    if (contains(stationutil:network_pattern_translate($network), "NEVERMATCH")) 
-    then
-"
-Check network parameter" || $network ||
-"
-"
-    else  ""
-}
-catch err:* {
-"
-Syntax error in network parameter
-"        
-}
-};
-
 declare function stationutil:syntax_includerestricted() as xs:string{
     
 let $includerestricted := xs:string(stationutil:get-parameter("includerestricted"))
@@ -1027,7 +650,7 @@ return
 if (contains(stationutil:channel_pattern_translate($channel), "NEVERMATCH")) 
     then
         "
-Check channel parameter" || $channel || 
+Check channel parameter, found " || $channel || 
 "
 "
     else  ""
@@ -1311,51 +934,6 @@ catch err:* {"Error checking parameters in debug_parameter_error"}
 } ;
 
 
-
-declare function stationutil:syntax_times() as xs:string {
-try 
-{    
-let $startbefore := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("startbefore")))
-let $startafter := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("startafter")))
-let $endbefore := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("endbefore")))   
-let $endafter := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("endafter")))
-let $starttime := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("starttime")))
-let $endtime := xs:dateTime(stationutil:time_adjust(stationutil:get-parameter("endtime")))   
-return ""
-}
-catch err:FORG0001 {
-"
-Check time related parameters syntax
-
-Valid syntax: YYYY-MM-DD, YYYY-MM-DDTHH:MM:SS, YYY-MM-DDTHH:MM:SS.ssssss
-"
-}
-
-};
-
-declare function stationutil:empty_parameter_error() as xs:string
-{
-try {
-(:let $params_map:=stationutil:set_parameters_row_from_GET():)
-(:let $dummy :=stationutil:adiust_map_params():)
-let $params_map:=$stationutil:parameters
-return string-join(
-for $key in map:keys($params_map) 
-
-return if ( $params_map($key)="" ) 
-           then 
-"
-Parameter " || $key || " cannot be empty
-" 
-            else ""
-   
-)
-
-}
-catch err:* {"Error checking parameters"}
-} ;
-
-
 declare function stationutil:debug_parameter_error() as xs:string
 {
 (:try {:)
@@ -1380,53 +958,21 @@ Parameter " || $key || " cannot be empty
 (:catch err:* {"Error checking parameters"}:)
 } ;
 
-(:declare function stationutil:post_error() as xs:string {:)
-(::)
-(:if ( request:get-method() eq "POST" ) then    :)
-(:    util:base64-decode(request:get-data()):)
-(:else :)
-(:    "":)
-(: :)
-(:};:)
 
-
-declare function stationutil:badrequest_error() {
+declare function stationutil:nodata_error() {
 (: declare output method locally to override default xml   :)
-    util:declare-option("exist:serialize","method=text media-type=text/plain indent=yes")  ,  
-     response:set-status-code(400) , 
-     "Error 400: Bad request 
-     
-Syntax Error in Request
-
-" ||
-stationutil:syntax_network() ||
-stationutil:syntax_station() ||
-stationutil:syntax_channel() ||
-stationutil:syntax_location() ||
-stationutil:syntax_latitude() ||
-stationutil:syntax_longitude() ||
-stationutil:syntax_times() ||
-stationutil:syntax_radius() ||
-stationutil:syntax_includerestricted() ||
-stationutil:empty_parameter_error() ||
-stationutil:syntax_format() ||
-(:stationutil:debug_parameter_error() ||:)
-"
-
-Usage details are available from <SERVICE DOCUMENTATION URI>
-
-Request: " || request:get-query-string()||
-"
-
-Request Submitted: " || current-dateTime() ||  
-"
-
-Service version: 1.1.50"
-
-(: response:set-status-code(404) , transform:transform(<Error>Error 404 - no matching inventory found</Error>, doc("error-translation.xsl"), ()) :)
-              
-
+    util:declare-option("exist:serialize","method=text media-type=text/plain indent=no")  ,  
+    if (matches(request:get-parameter("nodata", "204"),"404")) 
+    then
+        (
+             response:set-status-code(404) , "Error 404 - no matching inventory found"
+        )
+    else if (matches(request:get-parameter("nodata", "204"),"204")) then
+        response:set-status-code(204) 
+    else 
+        response:set-status-code(400) 
 };
+
 
 declare function stationutil:badrequest_error($parameters as map()*) {
 (: declare output method locally to override default xml   :)
@@ -1436,30 +982,20 @@ declare function stationutil:badrequest_error($parameters as map()*) {
      
 Syntax Error in Request
 
-" ||
-stationutil:syntax_network($parameters) 
+" 
 ||
-stationutil:syntax_station($parameters) 
-||
-stationutil:syntax_channel($parameters) 
-||
-stationutil:syntax_location($parameters) 
-||
-stationutil:syntax_latitude($parameters) 
-||
-stationutil:syntax_longitude($parameters) 
-||
-stationutil:syntax_times($parameters) 
-||
-stationutil:syntax_radius($parameters) 
-||
-stationutil:syntax_includerestricted($parameters) 
-||
+stationutil:syntax_network($parameters) ||
+stationutil:syntax_station($parameters) ||
+stationutil:syntax_channel($parameters) ||
+stationutil:syntax_location($parameters) ||
+stationutil:syntax_latitude($parameters) ||
+stationutil:syntax_longitude($parameters) ||
+stationutil:syntax_times($parameters) ||
+stationutil:syntax_radius($parameters) ||
+stationutil:syntax_includerestricted($parameters) ||
 stationutil:empty_parameter_error($parameters) ||
-stationutil:syntax_format($parameters) 
-||
-stationutil:syntax_level($parameters) 
-||
+stationutil:syntax_format($parameters) ||
+stationutil:syntax_level($parameters) ||
 (:stationutil:$stationutil:parameters_table($parameters) :)
 (:||:)
 "
@@ -1523,23 +1059,10 @@ declare function stationutil:lines
    
  } ;
 
-(:declare function stationutil:map_post() {:)
-(:    let $POST_DATA:= util:base64-decode(request:get-data()):)
-(:    let $sequenceoflines :=stationutil:lines($POST_DATA):)
-(:    for $line in $sequenceoflines:)
-(:    return:)
-(:    if (matches($line,"=")) :)
-(:        then ( :)
-(:            let $key_val := tokenize($line,"="):)
-(:            let $stationutil:parameters := map:put($stationutil:parameters, $key_val[0], $key_val[1]):)
-(:            return "":)
-(:        ):)
-(:        else let $NSLCSE := tokenize($line," ") :)
-(:        return "":)
-(:};:)
 
-declare function stationutil:test() {
-
+declare function stationutil:run() {
+if (stationutil:check_parameters_limits($stationutil:parameters_table))
+then 
 if (stationutil:get-parameter($stationutil:parameters_table[1], "format") = "xml") 
     then 
         stationutil:query_join_main()
@@ -1551,678 +1074,22 @@ if (stationutil:get-parameter($stationutil:parameters_table[1], "format") = "xml
     case "network" return transform:transform(stationutil:query_join_main(), doc("network.xsl"), ()) 
     case "station" return transform:transform(stationutil:query_join_main(), doc("station.xsl"), ())
     case "channel" return transform:transform(stationutil:query_join_main(), doc("channel.xsl"), ())
-(:    case "response" return transform:transform(stationutil:query_join_main(), doc("response.xsl"), ()):)
-    default return transform:transform(stationutil:query_join_main(), doc("network.xsl"), ()) 
+    default return ()
     )
+else 
+    stationutil:badrequest_error($stationutil:parameters_table)    
 
-
-(:    switch (stationutil:get-parameter($stationutil:parameters_table[1], "level")):)
-(:    case "network" return stationutil:query_join_network_main($stationutil:parameters_table):)
-(:    case "station" return stationutil:query_join_station_main($stationutil:parameters_table)  :)
-(:    default return stationutil:query_join_network_main($stationutil:parameters_table):)
 };
 
+(: TODO apply to POST if possible :)
+declare function stationutil:use_shortcut() as xs:boolean {
+  not( matches(string-join(request:get-parameter-names()) ,"station|sta|channel|cha|location|loc|minlatitude|minlat|maxlatitude|maxlat|minlongitude|minlon|maxlongitude|maxlon|starttime|start|endtime|end|startbefore|endbefore|startafter|endafter|latitude|lat|longitude|lon|maxradius|minradius|includerestricted" ))  
+};
  
-(: TODO cicle for all_lines making a file, then reorder, remove scnl duplicates, then incapsulate in network tag  :) 
-declare function stationutil:compose()  {
-(:DEBUG:)
-(:let $dummy0:=:)
-(:for $NSLCSE in $stationutil:parameters_table:)
-(:    let $keys := map:keys($NSLCSE):)
-(:    for $k in $keys :)
-(:  let $p:= util:log("error", "PARAMS in all_lines: " || $k || " = " || $NSLCSE($k) ):)
-(:  :)
-(:return "":)
-(:return :)
-(:DEBUG:)
-
-for $NSLCSE in $stationutil:parameters_table
-
-return  
-
-if ($NSLCSE("format")="xml")  then 
-    if ($NSLCSE("level")="response")
-        then 
-            ( 
-            if ( matches(string-join(stationutil:get-parameter-names($NSLCSE)) ,"station|sta|channel|cha|location|loc|minlatitude|minlat|maxlatitude|maxlat|minlongitude|minlon|maxlongitude|maxlon|xs:decimal(|start|endtime|end|startbefore|endbefore|startafter|endafter|latitude|lat|longitude|lon|maxradius|minradius|includerestricted" )) 
-            then stationutil:query_response_main($NSLCSE)
-            else stationutil:query_network_shortcut_main($NSLCSE)
-            )
-        else if ($NSLCSE("level")="channel") 
-            then  ( 
-            if ( matches(string-join(stationutil:get-parameter-names($NSLCSE)) ,"station|sta|channel|cha|location|loc|minlatitude|minlat|maxlatitude|maxlat|minlongitude|minlon|maxlongitude|maxlon|starttime|start|endtime|end|startbefore|endbefore|startafter|endafter|latitude|lat|longitude|lon|maxradius|minradius|includerestricted" )) 
-            then stationutil:query_channel_main($NSLCSE) 
-            else stationutil:query_network_shortcut_main($NSLCSE) 
-            ) 
-            else if ($NSLCSE("level")="station") 
-                then stationutil:query_station_main($NSLCSE)
-                else if ($NSLCSE("level")="network") 
-                    then stationutil:query_network_main($NSLCSE) 
-                    else ()
-else if ($NSLCSE("format")="text") then (        
-    let $dummy := util:declare-option("exist:serialize","method=text media-type=text/plain indent=yes") 
-    return 
-        if ($NSLCSE("level")="channel") 
-            then  ( 
-            if ( matches(string-join(stationutil:get-parameter-names($NSLCSE)) ,"station|sta|channel|cha|location|loc|minlatitude|minlat|maxlatitude|maxlat|minlongitude|minlon|maxlongitude|maxlon|starttime|start|endtime|end|startbefore|endbefore|startafter|endafter|latitude|lat|longitude|lon|maxradius|minradius|includerestricted" )) 
-            then ( transform:transform(stationutil:query_channel_main($NSLCSE), doc("channel.xsl"), ()) )
-            else ( transform:transform(stationutil:query_network_shortcut_main($NSLCSE), doc("channel.xsl"), ()) )
-            )    
-            else if ($NSLCSE("level")="station") 
-                then ( transform:transform( stationutil:query_station_main($NSLCSE), doc("station.xsl"), ()) )
-                else if ($NSLCSE("level")="network") 
-                    then (transform:transform(stationutil:query_network_main($NSLCSE), doc("network.xsl"), ()) )
-                    else ()
-)
-    else 
-        ()
-    
-}; 
-
 
 (: TODO gestire restrictedStatus :)
-
-(:locationCode:)
- 
-
-declare function stationutil:query_network_shortcut_main() as element() {
-if (stationutil:check_parameters_limits()) then 
-    if (stationutil:channel_exists()) then 
-<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
-  <Source>eXistDB</Source>
-  <Sender>INGV-ONT</Sender>
-  <Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
-  <ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
-  <Created>{current-dateTime()}</Created>
-  <TEST>query_network_shortcut_main</TEST>
-{
-
-for $item in collection("/db/apps/fdsn-station/Station/")
-
-for $network in $item//Network  
-
-    let $network_param := stationutil:get-parameter("network")
-    let $networkcode := $network/@code
-    let $startDate := $network/@startDate
-    let $endDate := $network/@endDate
-    let $restrictedStatus:=$network/@restrictedStatus
-    let $Description := $network/Description
-    let $ingv_identifier := $network/ingv:Identifier
-    let $network_pattern:=stationutil:network_pattern_translate($network_param)
-    where
-        matches($networkcode,  $network_pattern)
-        group by $networkcode, $startDate, $endDate, $restrictedStatus, $Description, $ingv_identifier
-        order by $networkcode
-    return 
-        <Network>
-        {$networkcode}  
-        {$startDate}  
-        {$endDate}
-        {$restrictedStatus}
-        {$Description}    
-        {$ingv_identifier}
-        <TotalNumberStations> {stationutil:stationcount($networkcode)} </TotalNumberStations>
-        <SelectedNumberStations> {count($network/Station)} </SelectedNumberStations>
-        {
-        for $station in $network/Station
-        order by $station/@code
-        return
-        if ( matches(stationutil:get-parameter("level"),"channel")) 
-            then stationutil:remove-elements($station,"Stage")
-            else $station
-}
-</Network>        
-        
-
-}   
-</FDSNStationXML>
-else
-    stationutil:nodata_error()
-else 
-    stationutil:badrequest_error()
-};
-
-
-
-(:  :)
- 
- 
-declare function stationutil:query_network_main()  {
-    
-if (stationutil:check_parameters_limits()) then 
-    if (stationutil:channel_exists()) then 
-<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
-<Source>eXistDB</Source>
-<Sender>INGV-ONT</Sender>
-<Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
-<ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
-<Created>{current-dateTime()}</Created>
-  <TEST>query_network_main</TEST>
-{
-
-let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
-let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
-let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
-let $maxlongitude := xs:decimal(stationutil:get-parameter("maxlongitude"))   
-
-let $network_param := stationutil:get-parameter("network")
-let $station_param := stationutil:get-parameter("station")
-let $channel_param := stationutil:get-parameter("channel")
-let $location_param := stationutil:get-parameter("location")
-
-let $network_pattern:=stationutil:network_pattern_translate($network_param)
-let $station_pattern:=stationutil:station_pattern_translate($station_param)
-let $channel_pattern:=stationutil:channel_pattern_translate($channel_param)    
-let $location_pattern:=stationutil:location_pattern_translate($location_param)
-
-for $item in collection("/db/apps/fdsn-station/Station/")
-
-let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
-let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
-
-where $Latitude  > $minlatitude and  
-      $Latitude  < $maxlatitude and 
-      $Longitude > $minlongitude and 
-      $Longitude < $maxlongitude 
-
-for $network in $item//Network  
-    let $networkcode := $network/@code
-    let $station:=$network/Station
-    let $stationcode:=$station/@code
-    let $channel:=$station/Channel
-    let $lat := $station/Latitude
-    let $lon := $station/Longitude    
-    let $CreationDate:= $channel/@startDate
-    let $TerminationDate:= $channel/@endDate
-    let $channelcode:=$channel/@code
-    let $channellocationcode:=$channel/@locationCode
-    let $startDate := $network/@startDate
-    let $endDate := $network/@endDate
-    let $restrictedStatus:=$network/@restrictedStatus
-    let $Description := $network/Description
-    let $ingv_identifier := $network/ingv:Identifier
-    where
-        stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) 
-        and stationutil:check_radius($lat,$lon) 
-        and matches($networkcode,  $network_pattern ) 
-        and matches($stationcode,  $station_pattern )
-        and matches ($channelcode,  $channel_pattern) 
-        and matches($channellocationcode,$location_pattern)
-        group by $networkcode, $startDate, $endDate, $restrictedStatus, $Description, $ingv_identifier
-        order by $networkcode
-    return
-        <Network>
-        {$networkcode}  
-        {$startDate}  
-        {$endDate}
-        {$restrictedStatus}
-        {$Description}    
-        {$ingv_identifier}
-        <TotalNumberStations> {stationutil:stationcount($networkcode)} </TotalNumberStations>
-        <SelectedNumberStations> {count($network/Station)} </SelectedNumberStations>
-</Network>
-}   
-</FDSNStationXML>
-else
-    stationutil:nodata_error()
-else 
-    stationutil:badrequest_error()
-};
- 
- 
-(: :)
-
-
-declare function stationutil:query_station_main() as element() {
-if (stationutil:check_parameters_limits()) then 
-    if (stationutil:channel_exists()) then  
-<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
-
-<Source>eXistDB</Source>
-<Sender>INGV-ONT</Sender>
-<Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
-<ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
-<Created>{current-dateTime()}</Created>
-<TEST>query_station_main</TEST>
-{
-
-let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
-let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
-let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
-let $maxlongitude := xs:decimal(stationutil:get-parameter("maxlongitude"))
-
-let $network_param := stationutil:get-parameter("network")
-let $station_param := stationutil:get-parameter("station")
-let $channel_param := stationutil:get-parameter("channel")
-let $location_param := stationutil:get-parameter("location")
-
-let $network_pattern:=stationutil:network_pattern_translate($network_param)
-let $station_pattern:=stationutil:station_pattern_translate($station_param)
-let $channel_pattern:=stationutil:channel_pattern_translate($channel_param) 
-let $location_pattern:=stationutil:location_pattern_translate($location_param)
-    
-for $item in collection("/db/apps/fdsn-station/Station/")
-
-let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
-let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
-
-where $Latitude  > $minlatitude and  
-      $Latitude  < $maxlatitude and 
-      $Longitude > $minlongitude and 
-      $Longitude < $maxlongitude 
-(: TODO ????  and stationutil:check_radius($Latitude,$Longitude):)
+(:POST  locationCode -- :)
 (: TODO includerestricted :)
-for $network in $item//Network  
-    let $networkcode := $network/@code
-    let $station:=$network/Station
-    let $stationcode:=$network/Station/@code    
-    let $channel:=$station/Channel
-    let $lat := $station/Latitude
-    let $lon := $station/Longitude
-    let $CreationDate:= $channel/@startDate
-    let $TerminationDate:= $channel/@endDate
-    let $channelcode:=$channel/@code
-    let $channellocationcode:=$channel/@locationCode
-    let $startDate := $network/@startDate
-    let $endDate := $network/@endDate
-    let $restrictedStatus:=$network/@restrictedStatus
-    let $Description := $network/Description
-    let $ingv_identifier := $network/ingv:Identifier
-
-    where
-        stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and
-        stationutil:check_radius($lat,$lon) and 
-        matches($networkcode,  $network_pattern ) 
-        and matches($stationcode,  $station_pattern )
-        and matches ($channelcode,  $channel_pattern) 
-        and matches($channellocationcode,$location_pattern)        
-        group by $networkcode, $startDate, $endDate, $restrictedStatus, $Description, $ingv_identifier
-        order by $networkcode
-    return
-        <Network>
-        {$networkcode}  
-        {$startDate}  
-        {$endDate}
-        {$restrictedStatus}
-        {$Description}    
-        {$ingv_identifier}
-        <TotalNumberStations> {stationutil:stationcount($networkcode)} </TotalNumberStations>
-        <SelectedNumberStations> {count($network/Station)} </SelectedNumberStations>
-        {
-        for $station in $network/Station
-            let $stationcode:=$station/@code
-            let $stationstartDate := $station/@startDate
-            let $stationendDate := $station/@endDate
-            let $stationrestrictedStatus := $station/@restrictedStatus
-            let $channel :=$station/Channel
-            let $channelcode:=$channel/@code
-            let $channellocationcode:=$channel/@locationCode
-            
-            let $Latitude:=  $station/Latitude
-            let $Longitude:= $station/Longitude 
-            let $CreationDate:= $channel/@startDate
-            let $TerminationDate:= $channel/@endDate 
-            let $networkcode:=$network/@code
-            let $pattern:=stationutil:channel_pattern_translate($channel_param)
-            let $location_pattern:=stationutil:location_pattern_translate($location_param)    
-        where 
-            xs:decimal($Latitude)  > $minlatitude and  
-            xs:decimal($Latitude)  < $maxlatitude and 
-            xs:decimal($Longitude) > $minlongitude and 
-            xs:decimal($Longitude) < $maxlongitude and 
-            stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and          
-            matches ($channelcode,  $pattern ) and
-            matches($channellocationcode,$location_pattern) 
-            and 
-            stationutil:check_radius($Latitude,$Longitude) 
-            order by $station/@code
-        return
-            <Station>
-            {$stationcode}  
-            {$stationstartDate}  
-            {$stationendDate}   
-            {$stationrestrictedStatus}
-            {$station/ingv:Identifier}
-            {$station/Latitude}
-            {$station/Longitude}
-            {$station/Elevation}
-            {$station/Site}
-            {$station/CreationDate}
-            </Station>
-}
-</Network>
-}   
-</FDSNStationXML>
-else
-    stationutil:nodata_error()
-else 
-    stationutil:badrequest_error()
-};
-
-(::)
-
-
-(: TODO includerestricted :)
-declare function stationutil:query_channel_main() as element() {
-if (stationutil:check_parameters_limits()) then 
-    if (stationutil:channel_exists()) then 
-
-<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
-
-  <Source>eXistDB</Source>
-  <Sender>INGV-ONT</Sender>
-  <Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
-  <ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
-  <Created>{current-dateTime()}</Created>
-  <TEST>query_channel_main</TEST>
-{
-
-let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
-let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
-let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
-let $maxlongitude := xs:decimal(stationutil:get-parameter("maxlongitude"))   
-
-let $network_param := stationutil:get-parameter("network")
-let $station_param := stationutil:get-parameter("station")
-let $channel_param := stationutil:get-parameter("channel")
-let $location_param := stationutil:get-parameter("location")    
-
-let $network_pattern:=stationutil:network_pattern_translate($network_param)
-let $station_pattern:=stationutil:station_pattern_translate($station_param)
-let $channel_pattern:=stationutil:channel_pattern_translate($channel_param)    
-let $location_pattern:=stationutil:location_pattern_translate($location_param)
-
-for $item in collection("/db/apps/fdsn-station/Station/")
-    let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
-    let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
-    let $CreationDate:= $item/FDSNStationXML/Network/Station/Channel/@startDate
-    let $TerminationDate:= $item/FDSNStationXML/Network/Station/Channel/@endDate
-where   
-    $Latitude  > $minlatitude and  
-    $Latitude  < $maxlatitude and 
-    $Longitude > $minlongitude and 
-    $Longitude < $maxlongitude and
-    stationutil:constraints_onchannel($CreationDate, $TerminationDate ) 
-    
-for $network in $item//Network  
-    let $networkcode := $network/@code
-    let $station:=$network/Station
-    let $stationcode:=$station/@code
-    let $lat := $station/Latitude
-    let $lon := $station/Longitude       
-    let $channel:=$station/Channel
-    let $channelcode:=$channel/@code
-    let $channellocationcode:=$channel/@locationCode
-    let $startDate := $network/@startDate
-    let $endDate := $network/@endDate
-    let $restrictedStatus:=$network/@restrictedStatus
-    let $Description := $network/Description
-    let $ingv_identifier := $network/ingv:Identifier
-    where
-        stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and    
-        stationutil:check_radius($lat,$lon) and            
-        matches($networkcode,  $network_pattern ) 
-        and matches($stationcode,  $station_pattern )
-        and matches ($channelcode,  $channel_pattern)
-        and matches ($channellocationcode, $location_pattern)
-        group by $networkcode, $startDate, $endDate, $restrictedStatus, $Description, $ingv_identifier
-        order by $networkcode
-    return
-        <Network>
-        {$networkcode}  
-        {$startDate}  
-        {$endDate}
-        {$restrictedStatus}
-        {$Description}    
-        {$ingv_identifier}
-        <TotalNumberStations> {stationutil:stationcount($networkcode)} </TotalNumberStations>
-        <SelectedNumberStations> {count($network/Station)} </SelectedNumberStations>
-        {
-        for $station in $network/Station
-            let $stationcode:=$station/@code
-            let $stationstartDate := $station/@startDate
-            let $stationendDate := $station/@endDate
-            let $stationrestrictedStatus := $station/@restrictedStatus
-            let $channel:=$station/Channel
-            let $channelcode:=$channel/@code
-            let $channellocationcode := $channel/@locationCode
-            let $Latitude:=  xs:decimal($station/Latitude)
-            let $Longitude:= xs:decimal($station/Longitude) 
-            let $lat := $station/Latitude
-            let $lon := $station/Longitude               
-            let $CreationDate:= $channel/@startDate
-            let $TerminationDate:= $channel/@endDate 
-            let $networkcode:=$network/@code
-            let $pattern:=stationutil:channel_pattern_translate($channel_param)
-            let $location_pattern:=stationutil:location_pattern_translate($location_param)
-        where 
-            $Latitude  > $minlatitude and  
-            $Latitude  < $maxlatitude and 
-            $Longitude > $minlongitude and 
-            $Longitude < $maxlongitude and 
-            stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and          
-            stationutil:check_radius($lat,$lon) and            
-            matches ($channelcode,  $pattern) and
-            matches ($channellocationcode,  $location_pattern)
-            order by $station/@code
-        return
-            <Station>
-            {$stationcode}  
-            {$stationstartDate}  
-            {$stationendDate}   
-            {$stationrestrictedStatus}
-            {$station/ingv:Identifier}
-            {$station/Latitude}
-            {$station/Longitude}
-            {$station/Elevation}
-            {$station/Site}
-            {$station/CreationDate}
-            <TotalNumberChannels>{count($station/Channel)}</TotalNumberChannels>
-            <SelectedNumberChannels>
-            {
-                count (for $channel in $station/Channel
-                let $selchannelcode:=$channel/@code
-                let $channellocationcode:=$channel/@locationCode
-                let $pattern:=stationutil:channel_pattern_translate($channel_param)
-                let $location_pattern:=stationutil:location_pattern_translate($location_param)
-                let $CreationDate:= $channel/@startDate
-                let $TerminationDate:= $channel/@endDate                                  
-                where 
-                    stationutil:constraints_onchannel($CreationDate, $TerminationDate ) and
-                    stationutil:check_radius($lat,$lon) and            
-                    matches ($selchannelcode,  $pattern ) and
-                    matches ($channellocationcode,  $location_pattern)
-                return $selchannelcode)
-            }
-            </SelectedNumberChannels>
-            {
-                for $channel in $station/Channel
-                let $selchannelcode:=$channel/@code
-                let $channellocationcode:=$channel/@locationCode
-                let $pattern:=stationutil:channel_pattern_translate($channel_param)
-                let $location_pattern:=stationutil:location_pattern_translate($location_param)  
-                let $CreationDate:= $channel/@startDate
-                let $TerminationDate:= $channel/@endDate                  
-                where
-                    stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and
-                    stationutil:check_radius($lat,$lon) and            
-                    matches ($selchannelcode,  $pattern )and
-                    matches ($channellocationcode,  $location_pattern)
-                return stationutil:remove-elements($channel,"Stage")
-            }
-            </Station>
-}
-</Network>
-}   
-</FDSNStationXML>
-else
-    stationutil:nodata_error()
-else 
-    stationutil:badrequest_error()
-};    
- 
-(: :)
- 
-(: TODO includerestricted :)
-
-declare function stationutil:query_response_main() as element() { 
-if (stationutil:check_parameters_limits()) then 
-    if (stationutil:channel_exists()) then 
-(:if (stationutil:check_parameters_limits() ) then     :)
-<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
-<Source>eXistDB</Source>
-<Sender>INGV-ONT</Sender>
-<Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
-<ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
-<Created>{current-dateTime()}</Created>
-<TEST>query_response_main</TEST>
-{
-
-let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
-let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
-let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
-let $maxlongitude := xs:decimal(stationutil:get-parameter("maxlongitude"))
-
-let $network_param := stationutil:get-parameter("network")
-let $station_param := stationutil:get-parameter("station")
-let $channel_param := stationutil:get-parameter("channel")
-let $location_param := stationutil:get-parameter("location") 
-let $network_pattern:=stationutil:network_pattern_translate($network_param)
-let $station_pattern:=stationutil:station_pattern_translate($station_param)
-let $channel_pattern:=stationutil:channel_pattern_translate($channel_param)    
-let $location_pattern:=stationutil:location_pattern_translate($location_param)
-    
-for $item in collection("/db/apps/fdsn-station/Station/")
-
-let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
-let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
-let $CreationDate:= $item/FDSNStationXML/Network/Station/Channel/@startDate
-let $TerminationDate:= $item/FDSNStationXML/Network/Station/Channel/@endDate
-
-where 
-    stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and
-    $Latitude  > $minlatitude and  
-    $Latitude  < $maxlatitude and 
-    $Longitude > $minlongitude and 
-    $Longitude < $maxlongitude 
-
-for $network in $item//Network  
-    let $networkcode := $network/@code
-    let $stationcode:=$network/Station/@code
-    let $station:=$network/Station
-    let $lat := $station/Latitude
-    let $lon := $station/Longitude    
-    let $channel:=$station/Channel
-    let $channelcode:=$channel/@code
-    let $channellocationcode:=$channel/@locationCode
-    let $startDate := $network/@startDate
-    let $endDate := $network/@endDate
-    let $restrictedStatus:=$network/@restrictedStatus
-    let $Description := $network/Description
-    let $ingv_identifier := $network/ingv:Identifier
-    where
-        stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and
-        stationutil:check_radius($lat,$lon) and     
-        matches($networkcode,  $network_pattern ) 
-        and matches($stationcode,  $station_pattern )
-        and matches ($channelcode,  $channel_pattern)
-        and matches ($channellocationcode, $location_pattern)        
-        group by $networkcode, $startDate, $endDate, $restrictedStatus, $Description, $ingv_identifier
-        order by $networkcode
-    return
-        <Network>
-        {$networkcode}  
-        {$startDate}  
-        {$endDate}
-        {$restrictedStatus}
-        {$Description}    
-        {$ingv_identifier}
-        <TotalNumberStations> {stationutil:stationcount($networkcode)} </TotalNumberStations>
-        <SelectedNumberStations> {count($network/Station)} </SelectedNumberStations>
-        {
-        for $station in $network/Station
-            let $stationcode:=$station/@code
-            let $stationstartDate := $station/@startDate
-            let $stationendDate := $station/@endDate
-            let $stationrestrictedStatus := $station/@restrictedStatus
-            let $channel:=$station/Channel
-            let $channelcode:=$channel/@code
-            let $channellocationcode := $channel/@locationCode          
-            let $Latitude:=  xs:decimal($station/Latitude)
-            let $Longitude:= xs:decimal($station/Longitude) 
-            let $lat := $station/Latitude
-            let $lon := $station/Longitude
-            let $CreationDate:= $channel/@startDate
-            let $TerminationDate:= $channel/@endDate 
-            let $networkcode:=$network/@code
-            let $pattern:=stationutil:channel_pattern_translate($channel_param)
-            let $location_pattern:=stationutil:location_pattern_translate($location_param)
-        where 
-            $Latitude  > $minlatitude and  
-            $Latitude  < $maxlatitude and 
-            $Longitude > $minlongitude and 
-            $Longitude < $maxlongitude and
-            stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and  
-            stationutil:check_radius($lat,$lon) and
-            matches ($channelcode,  $pattern ) and
-            matches ($channellocationcode,  $location_pattern)
-            order by $station/@code
-        return
-            <Station>
-            {$stationcode}  
-            {$stationstartDate}  
-            {$stationendDate}   
-            {$stationrestrictedStatus}
-            {$station/ingv:Identifier}
-            {$station/Latitude}
-            {$station/Longitude}
-            {$station/Elevation}
-            {$station/Site}
-            {$station/CreationDate}
-            <TotalNumberChannels>{count($station/Channel)}</TotalNumberChannels>
-            <SelectedNumberChannels>
-            {
-                count (for $channel in $station/Channel
-                let $selchannelcode:=$channel/@code
-                let $channellocationcode:=$channel/@locationCode
-                let $pattern:=stationutil:channel_pattern_translate($channel_param)
-                let $location_pattern:=stationutil:location_pattern_translate($location_param)
-                let $CreationDate:= $channel/@startDate
-                let $TerminationDate:= $channel/@endDate                
-                where 
-                    stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and
-                    stationutil:check_radius($lat,$lon) and    
-                    matches ($selchannelcode,  $pattern ) and
-                    matches ($channellocationcode,  $location_pattern)
-                return $selchannelcode)
-            }
-            </SelectedNumberChannels>
-            {
-                for $channel in $station/Channel
-                let $selchannelcode:=$channel/@code
-                let $channellocationcode:=$channel/@locationCode
-                let $pattern:=stationutil:channel_pattern_translate($channel_param)
-                let $location_pattern:=stationutil:location_pattern_translate($location_param)
-                let $CreationDate:= $channel/@startDate
-                let $TerminationDate:= $channel/@endDate  
-                where 
-                    stationutil:constraints_onchannel( $CreationDate, $TerminationDate ) and                    
-                    stationutil:check_radius($lat,$lon) and
-                    matches ($selchannelcode,  $pattern )and
-                    matches ($channellocationcode,  $location_pattern)
-                return $channel
-            }
-            </Station>
-}
-</Network>
-}   
-</FDSNStationXML>
-else
-    stationutil:nodata_error()
-else 
-    stationutil:badrequest_error()
-}; 
-
 
 (:  ALL NEW functions  :)
  
@@ -2264,9 +1131,7 @@ else
     
 };
 
-declare function stationutil:use_shortcut() as xs:boolean {
-  not( matches(string-join(request:get-parameter-names()) ,"station|sta|channel|cha|location|loc|minlatitude|minlat|maxlatitude|maxlat|minlongitude|minlon|maxlongitude|maxlon|starttime|start|endtime|end|startbefore|endbefore|startafter|endafter|latitude|lat|longitude|lon|maxradius|minradius|includerestricted" ))  
-};
+
 
 
 declare function stationutil:query_core_network($NSLCSE as map()*) {
@@ -2281,12 +1146,18 @@ declare function stationutil:query_core_network($NSLCSE as map()*) {
     let $network_pattern:=stationutil:network_pattern_translate($network_param)
     let $station_pattern:=stationutil:station_pattern_translate($station_param)
     let $channel_pattern:=stationutil:channel_pattern_translate($channel_param)    
-    let $location_pattern:=stationutil:location_pattern_translate($location_param)    
+    let $location_pattern:=stationutil:location_pattern_translate($location_param)   
+    let $minlatitude := xs:decimal($condition("minlatitude"))
+    let $maxlatitude := xs:decimal($condition("maxlatitude"))
+    let $minlongitude := xs:decimal($condition("minlongitude"))
+    let $maxlongitude := xs:decimal($condition("maxlongitude"))       
+    
 
-where $Latitude  > $condition("minlatitude") and  
-      $Latitude  < $condition("maxlatitude") and 
-      $Longitude > $condition("minlongitude") and 
-      $Longitude < $condition("maxlongitude") 
+where 
+        $Latitude  > $minlatitude and  
+        $Latitude  < $maxlatitude and 
+        $Longitude > $minlongitude and 
+        $Longitude < $maxlongitude 
 
 for $network in $item//Network  
     let $networkcode := $network/@code
@@ -2725,7 +1596,6 @@ for $network in $item//Network
     
 };
  
- 
 
 declare function stationutil:query_core_channel_response_shortcut($NSLCSE as map()*) { 
 for $item in collection("/db/apps/fdsn-station/Station/") , $condition in $NSLCSE  
@@ -2769,833 +1639,3 @@ for $network in $item//Network
  
 }; 
  
-declare function stationutil:query_join_network_main_old($NSLCSE as map()*) {
-(:DEBUG:)
-(:let $dummy0:=:)
-(:for $N in $NSLCSE:)
-(:    let $keys := map:keys($N):)
-(:    for $k in $keys :)
-(:  let $p:= util:log("error", "In Query join, all_lines: " || $k || " = " || $N($k) ):)
-(:  :)
-(:return "":)
-(:return :)
-(:DEBUG:)
-(:TODO check errors in parameters :)
-
-if (stationutil:check_parameters_limits($NSLCSE))
-then
-
-let $content := 
-for $item in collection("/db/apps/fdsn-station/Station/"), $condition in $NSLCSE
-    
-    let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
-    let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
-    let $network_param := $condition("network")
-    let $station_param := $condition("station")
-    let $channel_param := $condition("channel")
-    let $location_param := $condition("location")
-    let $network_pattern:=stationutil:network_pattern_translate($network_param)
-    let $station_pattern:=stationutil:station_pattern_translate($station_param)
-    let $channel_pattern:=stationutil:channel_pattern_translate($channel_param)    
-    let $location_pattern:=stationutil:location_pattern_translate($location_param)    
-
-where $Latitude  > $condition("minlatitude") and  
-      $Latitude  < $condition("maxlatitude") and 
-      $Longitude > $condition("minlongitude") and 
-      $Longitude < $condition("maxlongitude") 
-
-for $network in $item//Network  
-    let $networkcode := $network/@code
-    let $station:=$network/Station
-    let $stationcode:=$station/@code
-    let $channel:=$station/Channel
-    let $lat := $station/Latitude
-    let $lon := $station/Longitude    
-    let $CreationDate:= $channel/@startDate
-    let $TerminationDate:= $channel/@endDate
-    let $channelcode:=$channel/@code
-    let $channellocationcode:=$channel/@locationCode
-    let $startDate := $network/@startDate
-    let $endDate := $network/@endDate
-    let $restrictedStatus:=$network/@restrictedStatus
-    let $Description := $network/Description
-    let $ingv_identifier := $network/ingv:Identifier
-    where
-        stationutil:constraints_onchannel($condition, $CreationDate, $TerminationDate ) and
-        stationutil:check_radius($condition,$lat,$lon) and 
-        matches($networkcode,  $network_pattern ) and
-        matches($stationcode,  $station_pattern ) and
-        matches ($channelcode,  $channel_pattern) and
-        matches($channellocationcode,$location_pattern)
-        group by $networkcode, $startDate, $endDate, $restrictedStatus, $Description, $ingv_identifier
-        order by $networkcode
-    return
-        <Network>
-        {$networkcode}  
-        {$startDate}  
-        {$endDate}
-        {$restrictedStatus}
-        {$Description}    
-        {$ingv_identifier}
-        <TotalNumberStations> {stationutil:stationcount($networkcode)} </TotalNumberStations>
-        <SelectedNumberStations> {count($network/Station)} </SelectedNumberStations>
-</Network>
-
-return
-if (not(empty($content))) then
-<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
-<Source>eXistDB</Source>
-<Sender>INGV-ONT</Sender>
-<Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
-<ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
-<Created>{current-dateTime()}</Created>
-<TEST>query_join_network_main</TEST>
-{$content}
-</FDSNStationXML>
-else
-    stationutil:nodata_error()
-else 
-    stationutil:badrequest_error($NSLCSE)    
-    
-};
- 
-declare function stationutil:query_join_station_main($NSLCSE as map()*) {
-
-if (stationutil:check_parameters_limits($NSLCSE))
-then
-
-let $content := 
-for $item in collection("/db/apps/fdsn-station/Station/"), $condition in $NSLCSE
-    
-    let $Latitude:=  $item/FDSNStationXML/Network/Station/Latitude
-    let $Longitude:=  $item/FDSNStationXML/Network/Station/Longitude
-    let $network_param := $condition("network")
-    let $station_param := $condition("station")
-    let $channel_param := $condition("channel")
-    let $location_param := $condition("location")
-    let $minlatitude := xs:decimal($condition("minlatitude"))
-    let $maxlatitude := xs:decimal($condition("maxlatitude"))
-    let $minlongitude := xs:decimal($condition("minlongitude"))
-    let $maxlongitude := xs:decimal($condition("maxlongitude"))       
-    
-    let $network_pattern:=stationutil:network_pattern_translate($network_param)
-    let $station_pattern:=stationutil:station_pattern_translate($station_param)
-    let $channel_pattern:=stationutil:channel_pattern_translate($channel_param)    
-    let $location_pattern:=stationutil:location_pattern_translate($location_param)    
-
-where $Latitude  > $minlatitude and  
-      $Latitude < $maxlatitude and 
-      $Longitude > $minlongitude and 
-      $Longitude < $maxlongitude 
-
-for $network in $item//Network  
-    let $networkcode := $network/@code
-    let $station:=$network/Station
-    let $stationcode:=$network/Station/@code    
-    let $channel:=$station/Channel
-    let $lat := $station/Latitude
-    let $lon := $station/Longitude
-    let $CreationDate:= $channel/@startDate
-    let $TerminationDate:= $channel/@endDate
-    let $channelcode:=$channel/@code
-    let $channellocationcode:=$channel/@locationCode
-    let $startDate := $network/@startDate
-    let $endDate := $network/@endDate
-    let $restrictedStatus:=$network/@restrictedStatus
-    let $Description := $network/Description
-    let $ingv_identifier := $network/ingv:Identifier
-
-    where
-        stationutil:constraints_onchannel($condition, $CreationDate, $TerminationDate ) and
-        stationutil:check_radius($condition,$lat,$lon) and 
-        matches($networkcode,  $network_pattern ) 
-        and matches($stationcode,  $station_pattern )
-        and matches ($channelcode,  $channel_pattern) 
-        and matches($channellocationcode,$location_pattern)        
-        group by $networkcode, $startDate, $endDate, $restrictedStatus, $Description, $ingv_identifier
-        order by $networkcode
-    return
-        <Network>
-        {$networkcode}  
-        {$startDate}  
-        {$endDate}
-        {$restrictedStatus}
-        {$Description}    
-        {$ingv_identifier}
-        <TotalNumberStations> {stationutil:stationcount($networkcode)} </TotalNumberStations>
-        <SelectedNumberStations> {count($network/Station)} </SelectedNumberStations>
-        {
-        for $station in $network/Station
-            let $stationcode:=$station/@code
-            let $stationstartDate := $station/@startDate
-            let $stationendDate := $station/@endDate
-            let $stationrestrictedStatus := $station/@restrictedStatus
-            let $channel :=$station/Channel
-            let $channelcode:=$channel/@code
-            let $channellocationcode:=$channel/@locationCode
-            
-            let $Latitude:=  $station/Latitude
-            let $Longitude:= $station/Longitude 
-            let $CreationDate:= $channel/@startDate
-            let $TerminationDate:= $channel/@endDate 
-            let $networkcode:=$network/@code
-            let $pattern:=stationutil:channel_pattern_translate($channel_param)
-            let $location_pattern:=stationutil:location_pattern_translate($location_param)    
-        where 
-            xs:decimal($Latitude)  > $minlatitude and  
-            xs:decimal($Latitude)  < $maxlatitude and 
-            xs:decimal($Longitude) > $minlongitude and 
-            xs:decimal($Longitude) < $maxlongitude and 
-            stationutil:constraints_onchannel($condition, $CreationDate, $TerminationDate ) and          
-
-            matches ($channelcode,  $pattern ) and
-            matches($channellocationcode,$location_pattern) 
-            and 
-            stationutil:check_radius($condition,$Latitude,$Longitude) 
-            order by $station/@code
-        return
-            <Station>
-            {$stationcode}  
-            {$stationstartDate}  
-            {$stationendDate}   
-            {$stationrestrictedStatus}
-            {$station/ingv:Identifier}
-            {$station/Latitude}
-            {$station/Longitude}
-            {$station/Elevation}
-            {$station/Site}
-            {$station/CreationDate}
-            </Station>
-}
-</Network>
-return
-    
-if (not(empty($content))) then
-<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
-<Source>eXistDB</Source>
-<Sender>INGV-ONT</Sender>
-<Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
-<ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
-<Created>{current-dateTime()}</Created>
-<TEST>query_join_network_main</TEST>
-{$content}
-</FDSNStationXML>
-else
-    stationutil:nodata_error()
-else 
-    stationutil:badrequest_error($NSLCSE)
-};
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-declare function stationutil:query_network_main($NSLCSE as map()) as element() {
-    
-if (stationutil:check_parameters_limits($NSLCSE)) then 
-    if (stationutil:channel_exists($NSLCSE)) then 
-<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
-<Source>eXistDB</Source>
-<Sender>INGV-ONT</Sender>
-<Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
-<ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
-<Created>{current-dateTime()}</Created>
-  <TEST>query_network_main</TEST>
-{
-
-let $minlatitude := xs:decimal($NSLCSE("minlatitude"))
-let $maxlatitude := xs:decimal($NSLCSE("maxlatitude"))
-let $minlongitude := xs:decimal($NSLCSE("minlongitude"))
-let $maxlongitude := xs:decimal($NSLCSE("maxlongitude"))   
-
-let $network_param := $NSLCSE("network")
-let $station_param := $NSLCSE("station")
-let $channel_param := $NSLCSE("channel")
-let $location_param := $NSLCSE("location")
-
-let $network_pattern:=stationutil:network_pattern_translate($network_param)
-let $station_pattern:=stationutil:station_pattern_translate($station_param)
-let $channel_pattern:=stationutil:channel_pattern_translate($channel_param)    
-let $location_pattern:=stationutil:location_pattern_translate($location_param)
-
-for $item in collection("/db/apps/fdsn-station/Station/")
-
-let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
-let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
-
-where $Latitude  > $minlatitude and  
-      $Latitude  < $maxlatitude and 
-      $Longitude > $minlongitude and 
-      $Longitude < $maxlongitude 
-
-for $network in $item//Network  
-    let $networkcode := $network/@code
-    let $station:=$network/Station
-    let $stationcode:=$station/@code
-    let $channel:=$station/Channel
-    let $lat := $station/Latitude
-    let $lon := $station/Longitude    
-    let $CreationDate:= $channel/@startDate
-    let $TerminationDate:= $channel/@endDate
-    let $channelcode:=$channel/@code
-    let $channellocationcode:=$channel/@locationCode
-    let $startDate := $network/@startDate
-    let $endDate := $network/@endDate
-    let $restrictedStatus:=$network/@restrictedStatus
-    let $Description := $network/Description
-    let $ingv_identifier := $network/ingv:Identifier
-    where
-        stationutil:constraints_onchannel($NSLCSE, $CreationDate, $TerminationDate ) 
-        and stationutil:check_radius($NSLCSE,$lat,$lon) 
-        and matches($networkcode,  $network_pattern ) 
-        and matches($stationcode,  $station_pattern )
-        and matches ($channelcode,  $channel_pattern) 
-        and matches($channellocationcode,$location_pattern)
-        group by $networkcode, $startDate, $endDate, $restrictedStatus, $Description, $ingv_identifier
-        order by $networkcode
-    return
-        <Network>
-        {$networkcode}  
-        {$startDate}  
-        {$endDate}
-        {$restrictedStatus}
-        {$Description}    
-        {$ingv_identifier}
-        <TotalNumberStations> {stationutil:stationcount($networkcode)} </TotalNumberStations>
-        <SelectedNumberStations> {count($network/Station)} </SelectedNumberStations>
-</Network>
-}   
-</FDSNStationXML>
-else
-    stationutil:nodata_error()
-else 
-    stationutil:badrequest_error()
-};
- 
- 
- 
-declare function stationutil:query_station_main($NSLCSE as map()) as element() {
-if (stationutil:check_parameters_limits($NSLCSE)) then 
-    if (stationutil:channel_exists($NSLCSE)) then  
-<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
-
-<Source>eXistDB</Source>
-<Sender>INGV-ONT</Sender>
-<Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
-<ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
-<Created>{current-dateTime()}</Created>
-<TEST>query_station_main</TEST>
-{
-
-let $minlatitude := xs:decimal($NSLCSE("minlatitude"))
-let $maxlatitude := xs:decimal($NSLCSE("maxlatitude"))
-let $minlongitude := xs:decimal($NSLCSE("minlongitude"))
-let $maxlongitude := xs:decimal($NSLCSE("maxlongitude"))
-
-let $network_param := $NSLCSE("network")
-let $station_param := $NSLCSE("station")
-let $channel_param := $NSLCSE("channel")
-let $location_param := $NSLCSE("location")
-
-let $network_pattern:=stationutil:network_pattern_translate($network_param)
-let $station_pattern:=stationutil:station_pattern_translate($station_param)
-let $channel_pattern:=stationutil:channel_pattern_translate($channel_param) 
-let $location_pattern:=stationutil:location_pattern_translate($location_param)
-    
-for $item in collection("/db/apps/fdsn-station/Station/")
-
-let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
-let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
-
-where $Latitude  > $minlatitude and  
-      $Latitude  < $maxlatitude and 
-      $Longitude > $minlongitude and 
-      $Longitude < $maxlongitude 
-(: TODO ????  and stationutil:check_radius($Latitude,$Longitude):)
-(: TODO includerestricted :)
-for $network in $item//Network  
-    let $networkcode := $network/@code
-    let $station:=$network/Station
-    let $stationcode:=$network/Station/@code    
-    let $channel:=$station/Channel
-    let $lat := $station/Latitude
-    let $lon := $station/Longitude
-    let $CreationDate:= $channel/@startDate
-    let $TerminationDate:= $channel/@endDate
-    let $channelcode:=$channel/@code
-    let $channellocationcode:=$channel/@locationCode
-    let $startDate := $network/@startDate
-    let $endDate := $network/@endDate
-    let $restrictedStatus:=$network/@restrictedStatus
-    let $Description := $network/Description
-    let $ingv_identifier := $network/ingv:Identifier
-
-    where
-        stationutil:constraints_onchannel($NSLCSE, $CreationDate, $TerminationDate ) and
-        stationutil:check_radius($NSLCSE,$lat,$lon) and 
-        matches($networkcode,  $network_pattern ) 
-        and matches($stationcode,  $station_pattern )
-        and matches ($channelcode,  $channel_pattern) 
-        and matches($channellocationcode,$location_pattern)        
-        group by $networkcode, $startDate, $endDate, $restrictedStatus, $Description, $ingv_identifier
-        order by $networkcode
-    return
-        <Network>
-        {$networkcode}  
-        {$startDate}  
-        {$endDate}
-        {$restrictedStatus}
-        {$Description}    
-        {$ingv_identifier}
-        <TotalNumberStations> {stationutil:stationcount($networkcode)} </TotalNumberStations>
-        <SelectedNumberStations> {count($network/Station)} </SelectedNumberStations>
-        {
-        for $station in $network/Station
-            let $stationcode:=$station/@code
-            let $stationstartDate := $station/@startDate
-            let $stationendDate := $station/@endDate
-            let $stationrestrictedStatus := $station/@restrictedStatus
-            let $channel :=$station/Channel
-            let $channelcode:=$channel/@code
-            let $channellocationcode:=$channel/@locationCode
-            
-            let $Latitude:=  $station/Latitude
-            let $Longitude:= $station/Longitude 
-            let $CreationDate:= $channel/@startDate
-            let $TerminationDate:= $channel/@endDate 
-            let $networkcode:=$network/@code
-            let $pattern:=stationutil:channel_pattern_translate($channel_param)
-            let $location_pattern:=stationutil:location_pattern_translate($location_param)    
-        where 
-            xs:decimal($Latitude)  > $minlatitude and  
-            xs:decimal($Latitude)  < $maxlatitude and 
-            xs:decimal($Longitude) > $minlongitude and 
-            xs:decimal($Longitude) < $maxlongitude and 
-            stationutil:constraints_onchannel($NSLCSE, $CreationDate, $TerminationDate ) and          
-            matches ($channelcode,  $pattern ) and
-            matches($channellocationcode,$location_pattern) 
-            and 
-            stationutil:check_radius($NSLCSE,$Latitude,$Longitude) 
-            order by $station/@code
-        return
-            <Station>
-            {$stationcode}  
-            {$stationstartDate}  
-            {$stationendDate}   
-            {$stationrestrictedStatus}
-            {$station/ingv:Identifier}
-            {$station/Latitude}
-            {$station/Longitude}
-            {$station/Elevation}
-            {$station/Site}
-            {$station/CreationDate}
-            </Station>
-}
-</Network>
-}   
-</FDSNStationXML>
-else
-    stationutil:nodata_error()
-else 
-    stationutil:badrequest_error()
-};
-
-
-declare function stationutil:query_channel_main($NSLCSE as map()) as element() {
-if (stationutil:check_parameters_limits($NSLCSE)) then 
-    if (stationutil:channel_exists($NSLCSE)) then 
-
-<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
-
-  <Source>eXistDB</Source>
-  <Sender>INGV-ONT</Sender>
-  <Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
-  <ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
-  <Created>{current-dateTime()}</Created>
-  <TEST>query_channel_main</TEST>
-{
-
-let $minlatitude := xs:decimal($NSLCSE("minlatitude"))
-let $maxlatitude := xs:decimal($NSLCSE("maxlatitude"))
-let $minlongitude := xs:decimal($NSLCSE("minlongitude"))
-let $maxlongitude := xs:decimal($NSLCSE("maxlongitude"))   
-
-let $network_param := $NSLCSE("network")
-let $station_param := $NSLCSE("station")
-let $channel_param := $NSLCSE("channel")
-let $location_param := $NSLCSE("location")    
-
-let $network_pattern:=stationutil:network_pattern_translate($network_param)
-let $station_pattern:=stationutil:station_pattern_translate($station_param)
-let $channel_pattern:=stationutil:channel_pattern_translate($channel_param)    
-let $location_pattern:=stationutil:location_pattern_translate($location_param)
-
-for $item in collection("/db/apps/fdsn-station/Station/")
-    let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
-    let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
-    let $CreationDate:= $item/FDSNStationXML/Network/Station/Channel/@startDate
-    let $TerminationDate:= $item/FDSNStationXML/Network/Station/Channel/@endDate
-where   
-    $Latitude  > $minlatitude and  
-    $Latitude  < $maxlatitude and 
-    $Longitude > $minlongitude and 
-    $Longitude < $maxlongitude and
-    stationutil:constraints_onchannel($NSLCSE,$CreationDate, $TerminationDate ) 
-    
-for $network in $item//Network  
-    let $networkcode := $network/@code
-    let $station:=$network/Station
-    let $stationcode:=$station/@code
-    let $lat := $station/Latitude
-    let $lon := $station/Longitude       
-    let $channel:=$station/Channel
-    let $channelcode:=$channel/@code
-    let $channellocationcode:=$channel/@locationCode
-    let $startDate := $network/@startDate
-    let $endDate := $network/@endDate
-    let $restrictedStatus:=$network/@restrictedStatus
-    let $Description := $network/Description
-    let $ingv_identifier := $network/ingv:Identifier
-    where
-        stationutil:constraints_onchannel($NSLCSE, $CreationDate, $TerminationDate ) and    
-        stationutil:check_radius($NSLCSE,$lat,$lon) and            
-        matches($networkcode,  $network_pattern ) 
-        and matches($stationcode,  $station_pattern )
-        and matches ($channelcode,  $channel_pattern)
-        and matches ($channellocationcode, $location_pattern)
-        group by $networkcode, $startDate, $endDate, $restrictedStatus, $Description, $ingv_identifier
-        order by $networkcode
-    return
-        <Network>
-        {$networkcode}  
-        {$startDate}  
-        {$endDate}
-        {$restrictedStatus}
-        {$Description}    
-        {$ingv_identifier}
-        <TotalNumberStations> {stationutil:stationcount($networkcode)} </TotalNumberStations>
-        <SelectedNumberStations> {count($network/Station)} </SelectedNumberStations>
-        {
-        for $station in $network/Station
-            let $stationcode:=$station/@code
-            let $stationstartDate := $station/@startDate
-            let $stationendDate := $station/@endDate
-            let $stationrestrictedStatus := $station/@restrictedStatus
-            let $channel:=$station/Channel
-            let $channelcode:=$channel/@code
-            let $channellocationcode := $channel/@locationCode
-            let $Latitude:=  xs:decimal($station/Latitude)
-            let $Longitude:= xs:decimal($station/Longitude) 
-            let $lat := $station/Latitude
-            let $lon := $station/Longitude               
-            let $CreationDate:= $channel/@startDate
-            let $TerminationDate:= $channel/@endDate 
-            let $networkcode:=$network/@code
-            let $pattern:=stationutil:channel_pattern_translate($channel_param)
-            let $location_pattern:=stationutil:location_pattern_translate($location_param)
-        where 
-            $Latitude  > $minlatitude and  
-            $Latitude  < $maxlatitude and 
-            $Longitude > $minlongitude and 
-            $Longitude < $maxlongitude and 
-            stationutil:constraints_onchannel($NSLCSE, $CreationDate, $TerminationDate ) and          
-            stationutil:check_radius($NSLCSE,$lat,$lon) and            
-            matches ($channelcode,  $pattern) and
-            matches ($channellocationcode,  $location_pattern)
-            order by $station/@code
-        return
-            <Station>
-            {$stationcode}  
-            {$stationstartDate}  
-            {$stationendDate}   
-            {$stationrestrictedStatus}
-            {$station/ingv:Identifier}
-            {$station/Latitude}
-            {$station/Longitude}
-            {$station/Elevation}
-            {$station/Site}
-            {$station/CreationDate}
-            <TotalNumberChannels>{count($station/Channel)}</TotalNumberChannels>
-            <SelectedNumberChannels>
-            {
-                count (for $channel in $station/Channel
-                let $selchannelcode:=$channel/@code
-                let $channellocationcode:=$channel/@locationCode
-                let $pattern:=stationutil:channel_pattern_translate($channel_param)
-                let $location_pattern:=stationutil:location_pattern_translate($location_param)
-                let $CreationDate:= $channel/@startDate
-                let $TerminationDate:= $channel/@endDate                                  
-                where 
-                    stationutil:constraints_onchannel($NSLCSE,$CreationDate, $TerminationDate ) and
-                    stationutil:check_radius($NSLCSE,$lat,$lon) and            
-                    matches ($selchannelcode,  $pattern ) and
-                    matches ($channellocationcode,  $location_pattern)
-                return $selchannelcode)
-            }
-            </SelectedNumberChannels>
-            {
-                for $channel in $station/Channel
-                let $selchannelcode:=$channel/@code
-                let $channellocationcode:=$channel/@locationCode
-                let $pattern:=stationutil:channel_pattern_translate($channel_param)
-                let $location_pattern:=stationutil:location_pattern_translate($location_param)  
-                let $CreationDate:= $channel/@startDate
-                let $TerminationDate:= $channel/@endDate                  
-                where
-                    stationutil:constraints_onchannel($NSLCSE, $CreationDate, $TerminationDate ) and
-                    stationutil:check_radius($NSLCSE,$lat,$lon) and            
-                    matches ($selchannelcode,  $pattern )and
-                    matches ($channellocationcode,  $location_pattern)
-                return stationutil:remove-elements($channel,"Stage")
-            }
-            </Station>
-}
-</Network>
-}   
-</FDSNStationXML>
-else
-    stationutil:nodata_error()
-else 
-    stationutil:badrequest_error()
-};    
-
-
-
-
-
-declare function stationutil:query_network_shortcut_main($NSLCSE as map()) as element() {
-if (stationutil:check_parameters_limits($NSLCSE )) then 
-    if (stationutil:channel_exists($NSLCSE )) then 
-<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
-  <Source>eXistDB</Source>
-  <Sender>INGV-ONT</Sender>
-  <Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
-  <ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
-  <Created>{current-dateTime()}</Created>
-  <TEST>query_network_shortcut_main</TEST>
-{
-
-for $item in collection("/db/apps/fdsn-station/Station/")
-
-for $network in $item//Network  
-
-    let $network_param := stationutil:get-parameter($NSLCSE ,"network")
-    let $networkcode := $network/@code
-    let $startDate := $network/@startDate
-    let $endDate := $network/@endDate
-    let $restrictedStatus:=$network/@restrictedStatus
-    let $Description := $network/Description
-    let $ingv_identifier := $network/ingv:Identifier
-    let $network_pattern:=stationutil:network_pattern_translate($network_param)
-    where
-        matches($networkcode,  $network_pattern)
-        group by $networkcode, $startDate, $endDate, $restrictedStatus, $Description, $ingv_identifier
-        order by $networkcode
-    return 
-        <Network>
-        {$networkcode}  
-        {$startDate}  
-        {$endDate}
-        {$restrictedStatus}
-        {$Description}    
-        {$ingv_identifier}
-        <TotalNumberStations> {stationutil:stationcount($networkcode)} </TotalNumberStations>
-        <SelectedNumberStations> {count($network/Station)} </SelectedNumberStations>
-        {
-        for $station in $network/Station
-        order by $station/@code
-        return
-        if ( matches(stationutil:get-parameter($NSLCSE ,"level"),"channel")) 
-            then stationutil:remove-elements($station,"Stage")
-            else $station
-}
-</Network>        
-        
-
-}   
-</FDSNStationXML>
-else
-    stationutil:nodata_error()
-else 
-    stationutil:badrequest_error()
-};
-
-
-
-
-declare function stationutil:query_response_main($NSLCSE as map()) as element() { 
-if (stationutil:check_parameters_limits($NSLCSE)) then 
-    if (stationutil:channel_exists($NSLCSE)) then 
-(:if (stationutil:check_parameters_limits() ) then     :)
-<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.0.xsd">
-<Source>eXistDB</Source>
-<Sender>INGV-ONT</Sender>
-<Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
-<ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
-<Created>{current-dateTime()}</Created>
-<TEST>query_response_main</TEST>
-{
-
-let $minlatitude := xs:decimal($NSLCSE("minlatitude"))
-let $maxlatitude := xs:decimal($NSLCSE("maxlatitude"))
-let $minlongitude := xs:decimal($NSLCSE("minlongitude"))
-let $maxlongitude := xs:decimal($NSLCSE("maxlongitude"))
-
-let $network_param := $NSLCSE("network")
-let $station_param := $NSLCSE("station")
-let $channel_param := $NSLCSE("channel")
-let $location_param := $NSLCSE("location") 
-let $network_pattern:=stationutil:network_pattern_translate($network_param)
-let $station_pattern:=stationutil:station_pattern_translate($station_param)
-let $channel_pattern:=stationutil:channel_pattern_translate($channel_param)    
-let $location_pattern:=stationutil:location_pattern_translate($location_param)
-    
-for $item in collection("/db/apps/fdsn-station/Station/")
-
-let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
-let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
-let $CreationDate:= $item/FDSNStationXML/Network/Station/Channel/@startDate
-let $TerminationDate:= $item/FDSNStationXML/Network/Station/Channel/@endDate
-
-where 
-    stationutil:constraints_onchannel( $NSLCSE,  $CreationDate, $TerminationDate ) and
-    $Latitude  > $minlatitude and  
-    $Latitude  < $maxlatitude and 
-    $Longitude > $minlongitude and 
-    $Longitude < $maxlongitude 
-
-for $network in $item//Network  
-    let $networkcode := $network/@code
-    let $stationcode:=$network/Station/@code
-    let $station:=$network/Station
-    let $lat := $station/Latitude
-    let $lon := $station/Longitude    
-    let $channel:=$station/Channel
-    let $channelcode:=$channel/@code
-    let $channellocationcode:=$channel/@locationCode
-    let $startDate := $network/@startDate
-    let $endDate := $network/@endDate
-    let $restrictedStatus:=$network/@restrictedStatus
-    let $Description := $network/Description
-    let $ingv_identifier := $network/ingv:Identifier
-    where
-        stationutil:constraints_onchannel( $NSLCSE, $CreationDate, $TerminationDate ) and
-        stationutil:check_radius($NSLCSE, $lat,$lon) and     
-        matches($networkcode,  $network_pattern ) 
-        and matches($stationcode,  $station_pattern )
-        and matches ($channelcode,  $channel_pattern)
-        and matches ($channellocationcode, $location_pattern)        
-        group by $networkcode, $startDate, $endDate, $restrictedStatus, $Description, $ingv_identifier
-        order by $networkcode
-    return
-        <Network>
-        {$networkcode}  
-        {$startDate}  
-        {$endDate}
-        {$restrictedStatus}
-        {$Description}    
-        {$ingv_identifier}
-        <TotalNumberStations> {stationutil:stationcount($networkcode)} </TotalNumberStations>
-        <SelectedNumberStations> {count($network/Station)} </SelectedNumberStations>
-        {
-        for $station in $network/Station
-            let $stationcode:=$station/@code
-            let $stationstartDate := $station/@startDate
-            let $stationendDate := $station/@endDate
-            let $stationrestrictedStatus := $station/@restrictedStatus
-            let $channel:=$station/Channel
-            let $channelcode:=$channel/@code
-            let $channellocationcode := $channel/@locationCode          
-            let $Latitude:=  xs:decimal($station/Latitude)
-            let $Longitude:= xs:decimal($station/Longitude) 
-            let $lat := $station/Latitude
-            let $lon := $station/Longitude
-            let $CreationDate:= $channel/@startDate
-            let $TerminationDate:= $channel/@endDate 
-            let $networkcode:=$network/@code
-            let $pattern:=stationutil:channel_pattern_translate($channel_param)
-            let $location_pattern:=stationutil:location_pattern_translate($location_param)
-        where 
-            $Latitude  > $minlatitude and  
-            $Latitude  < $maxlatitude and 
-            $Longitude > $minlongitude and 
-            $Longitude < $maxlongitude and
-            stationutil:constraints_onchannel( $NSLCSE, $CreationDate, $TerminationDate ) and  
-            stationutil:check_radius($NSLCSE, $lat,$lon) and
-            matches ($channelcode,  $pattern ) and
-            matches ($channellocationcode,  $location_pattern)
-            order by $station/@code
-        return
-            <Station>
-            {$stationcode}  
-            {$stationstartDate}  
-            {$stationendDate}   
-            {$stationrestrictedStatus}
-            {$station/ingv:Identifier}
-            {$station/Latitude}
-            {$station/Longitude}
-            {$station/Elevation}
-            {$station/Site}
-            {$station/CreationDate}
-            <TotalNumberChannels>{count($station/Channel)}</TotalNumberChannels>
-            <SelectedNumberChannels>
-            {
-                count (for $channel in $station/Channel
-                let $selchannelcode:=$channel/@code
-                let $channellocationcode:=$channel/@locationCode
-                let $pattern:=stationutil:channel_pattern_translate($channel_param)
-                let $location_pattern:=stationutil:location_pattern_translate($location_param)
-                let $CreationDate:= $channel/@startDate
-                let $TerminationDate:= $channel/@endDate                
-                where 
-                    stationutil:constraints_onchannel( $NSLCSE, $CreationDate, $TerminationDate ) and
-                    stationutil:check_radius($NSLCSE, $lat,$lon) and    
-                    matches ($selchannelcode,  $pattern ) and
-                    matches ($channellocationcode,  $location_pattern)
-                return $selchannelcode)
-            }
-            </SelectedNumberChannels>
-            {
-                for $channel in $station/Channel
-                let $selchannelcode:=$channel/@code
-                let $channellocationcode:=$channel/@locationCode
-                let $pattern:=stationutil:channel_pattern_translate($channel_param)
-                let $location_pattern:=stationutil:location_pattern_translate($location_param)
-                let $CreationDate:= $channel/@startDate
-                let $TerminationDate:= $channel/@endDate  
-                where 
-                    stationutil:constraints_onchannel( $NSLCSE, $CreationDate, $TerminationDate ) and                    
-                    stationutil:check_radius($NSLCSE, $lat,$lon) and
-                    matches ($selchannelcode,  $pattern )and
-                    matches ($channellocationcode,  $location_pattern)
-                return $channel
-            }
-            </Station>
-}
-</Network>
-}   
-</FDSNStationXML>
-else
-    stationutil:nodata_error()
-else 
-    stationutil:badrequest_error()
-}; 
