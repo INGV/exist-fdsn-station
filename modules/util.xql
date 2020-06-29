@@ -1547,20 +1547,23 @@ declare function stationutil:lines
 (:};:)
 
 declare function stationutil:test() {
-(:let $dummy0:=:)
-(:for $NSLCSE in $stationutil:parameters_table:)
-(:    let $keys := map:keys($NSLCSE):)
-(:    for $k in $keys :)
-(:  let $p:= util:log("error", "Debugging test: " || $k || " = " || $NSLCSE($k) ):)
-(:  :)
-(:return "":)
-(:return     :)
-(: $stationutil:parameters_table contains one row for a GET, one or more for a POST request :)
-(: if (stationutil:get-parameter($stationutil:parameters_table[1], "level") = "network"):)
-(: then stationutil:query_join_network_main($stationutil:parameters_table)  :)
-(: else stationutil:query_join_station_main($stationutil:parameters_table)  :)
-(: :)
-stationutil:query_join_main()
+
+if (stationutil:get-parameter($stationutil:parameters_table[1], "format") = "xml") 
+    then 
+        stationutil:query_join_main()
+    else
+    (
+    let $dummy := util:declare-option("exist:serialize","method=text media-type=text/plain indent=yes")
+    return
+    switch (stationutil:get-parameter($stationutil:parameters_table[1], "level"))
+    case "network" return transform:transform(stationutil:query_join_main(), doc("network.xsl"), ()) 
+    case "station" return transform:transform(stationutil:query_join_main(), doc("station.xsl"), ())
+    case "channel" return transform:transform(stationutil:query_join_main(), doc("channel.xsl"), ())
+    case "response" return transform:transform(stationutil:query_join_main(), doc("response.xsl"), ())
+    default return transform:transform(stationutil:query_join_main(), doc("network.xsl"), ()) 
+    )
+
+
 (:    switch (stationutil:get-parameter($stationutil:parameters_table[1], "level")):)
 (:    case "network" return stationutil:query_join_network_main($stationutil:parameters_table):)
 (:    case "station" return stationutil:query_join_station_main($stationutil:parameters_table)  :)
