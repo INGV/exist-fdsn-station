@@ -20,7 +20,7 @@ declare %public variable $stationutil:postdata as xs:string* := if (request:get-
 
 declare %public variable $stationutil:parameters as map() := if (request:get-method() eq "POST")  then stationutil:alternate_parameters()  else stationutil:get_params_map(); 
 
-declare %public variable $stationutil:all_lines as map()* := if (request:get-method() eq "POST")  then stationutil:post_lines()  else map{}; 
+declare %public variable $stationutil:all_lines as map()* := if (request:get-method() eq "POST")  then stationutil:post_lines()  else stationutil:get_params_map(); 
 
 
 (: Functions declarations  :)
@@ -560,7 +560,7 @@ declare function stationutil:nodata_error() {
 
 
 (: Here we map the request params in stationutil:parameters  :)
-declare function stationutil:get_params_map() as map(*) {
+declare function stationutil:get_params_map() as map()* {
 
 let $nodata := request:get-parameter("nodata", $stationutil:default_nodata)
 let $startbefore := request:get-parameter("startbefore", $stationutil:default_future_time)
@@ -1285,11 +1285,11 @@ catch err:* {"Error checking parameters in empty_parameter_error"}
 
 declare function stationutil:debug_parameter_error($parameters as map()*) as xs:string
 {
-(:try {:)
+try {
 (:let $params_map:=stationutil:get_params_map():)
 (:let $dummy :=stationutil:adiust_map_params():)
 
-string-join(
+string-join( 
 for $p in $parameters     
 for $key in map:keys($p) 
 
@@ -1302,10 +1302,22 @@ Parameter " || $key || " cannot be empty
             
 "
    
+(:):)
+(:for $p in $parameters:)
+(:return :)
+(:string-join( :)
+(::)
+(:for $key in map:keys($p) :)
+(::)
+(:return  $key || " : " || $p($key) || ":)
+(:            :)
+(:":)
+  
 )
 
-(:}:)
-(:catch err:* {"Error checking parameters in debug_parameter_error"}:)
+
+}
+catch err:* {"Error checking parameters in debug_parameter_error"}
 } ;
 
 
@@ -1479,7 +1491,7 @@ Request Submitted: " || current-dateTime() ||
 Service version: 1.1.50"
 
 (: response:set-status-code(404) , transform:transform(<Error>Error 404 - no matching inventory found</Error>, doc("error-translation.xsl"), ()) :)
-              
+
 
 };
 

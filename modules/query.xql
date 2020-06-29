@@ -22,7 +22,7 @@ declare option output:indent "yes";
 (: TODO change functions to adapt to POST  :)
     
 (:try {:)
-if (request:get-method() eq "POST")  then stationutil:test()
+if (request:get-method() eq "GET" or request:get-method() eq "POST" )  then stationutil:test()
 else
 if (stationutil:get-parameter("format")="xml")  then 
     if (stationutil:get-parameter("level")="response")
