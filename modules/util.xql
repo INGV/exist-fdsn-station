@@ -1505,8 +1505,8 @@ declare function stationutil:get-parameter($k as xs:string) as xs:string
 
 declare function stationutil:get-parameter($m as map(), $k as xs:string) as xs:string
 {
-      let $p:= util:log("error", "looking for " || $k || " = " || $m($k) ) 
-      return
+(:      let $p:= util:log("error", "looking for " || $k || " = " || $m($k) ) :)
+(:      return:)
       if ( empty($m($k))  ) then  "EMPTY" else  $m($k) 
 };
 
@@ -1555,10 +1555,10 @@ declare function stationutil:test() {
 (:  :)
 (:return "":)
 (:return     :)
-
- 
-(: TEST OK  stationutil:query_join_network_main($stationutil:parameters_table)  :)
-  stationutil:query_join_station_main($stationutil:parameters_table)  
+(: $stationutil:parameters_table contains one row for a GET, one or more for a POST request :)
+ if (stationutil:get-parameter($stationutil:parameters_table[1], "level") = "network")
+ then stationutil:query_join_network_main($stationutil:parameters_table)  
+ else stationutil:query_join_station_main($stationutil:parameters_table)  
   
 };
 
