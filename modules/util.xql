@@ -309,7 +309,7 @@ satisfies
 
 declare function stationutil:channel_exists_test() as xs:boolean
 {
-(:try {    :)
+try {    
 let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
 let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
 let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
@@ -341,8 +341,8 @@ return
         and matches($item//Network/Station/Channel/@locationCode,stationutil:location_pattern_translate($location_param))
     )
 
-(:}:)
-(:catch err:* {false()}    :)
+}
+catch err:* {false()}    
 };
 
 
@@ -403,7 +403,7 @@ catch err:* {false()}
 declare function stationutil:check_parameters_limits( $parameters as map()*) as xs:boolean 
 {
 
-(:try {:)
+try {
 (:let $stationutil:parameters  := stationutil:get_params_map():)
 
 (:for  $NSLCSE in $parameters:)
@@ -439,40 +439,41 @@ declare function stationutil:check_parameters_limits( $parameters as map()*) as 
 (:  :)
 (:return "":)
 (:return :)
-true()
-(:some $NSLCSE in $parameters :)
-(:satisfies:)
-(: ( :)
+(:true():)
+not( 
+some $NSLCSE in $parameters 
+satisfies
+ ( 
 (:          not(stationutil:empty_parameter_check()) :)
-(:           xs:decimal($NSLCSE("minlatitude"))>90.0 :)
-(:           or xs:decimal($NSLCSE("maxlatitude")) > 90.0 :)
-(:           or xs:decimal($NSLCSE("minlatitude"))<-90.0 :)
-(:           or xs:decimal($NSLCSE("maxlatitude")) <-90.0:)
-(:           or xs:decimal($NSLCSE("minlatitude")) > xs:decimal($NSLCSE("maxlatitude")) :)
-(:           or xs:decimal($NSLCSE("minlongitude"))>180.0 :)
-(:           or xs:decimal($NSLCSE("maxlongitude")) > 180.0 :)
-(:           or xs:decimal($NSLCSE("minlongitude"))<-180.0 :)
-(:           or xs:decimal($NSLCSE("maxlongitude")) <-180.0:)
-(:           or xs:decimal($NSLCSE("minlongitude")) > xs:decimal($NSLCSE("maxlongitude")) :)
-(:           or xs:decimal($NSLCSE("latitude"))  >90.0  or xs:decimal($NSLCSE("latitude"))  <  -90.0 :)
-(:           or xs:decimal($NSLCSE("longitude")) >180.0 or xs:decimal($NSLCSE("longitude")) < -180.0:)
-(:           or xs:decimal($NSLCSE("minradius")) <0 or xs:decimal($NSLCSE("minradius")) >= xs:decimal($NSLCSE("maxradius")):)
-(:           or xs:decimal($NSLCSE("maxradius")) <0 or xs:decimal($NSLCSE("maxradius")) > 180.0 :)
-(:           or xs:dateTime(stationutil:time_adjust($NSLCSE("startbefore"))) < xs:dateTime(stationutil:time_adjust($NSLCSE("startafter"))):)
-(:           or xs:dateTime(stationutil:time_adjust($NSLCSE("endbefore"))) < xs:dateTime(stationutil:time_adjust($NSLCSE("endafter"))):)
-(:           or xs:dateTime(stationutil:time_adjust($NSLCSE("starttime"))) > xs:dateTime(stationutil:time_adjust($NSLCSE("endtime"))):)
-(:           or not(matches($NSLCSE("level"),"network|station|channel|response")):)
-(:           or not(xs:string($NSLCSE("includerestricted"))="TRUE" or xs:string($NSLCSE("includerestricted"))="FALSE"):)
-(:           or not( $NSLCSE("format") ="xml" or $NSLCSE("format")="text")           :)
-(:           or (contains(stationutil:network_pattern_translate($NSLCSE("network")), "NEVERMATCH")) :)
-(:           or (contains(stationutil:station_pattern_translate($NSLCSE("station")), "NEVERMATCH")) :)
-(:           or (contains(stationutil:channel_pattern_translate($NSLCSE("channel")), "NEVERMATCH")) :)
-(:           or (contains(stationutil:location_pattern_translate($NSLCSE("location")), "NEVERMATCH")):)
-(:           ) :)
-           
+           xs:decimal($NSLCSE("minlatitude"))>90.0 
+           or xs:decimal($NSLCSE("maxlatitude")) > 90.0 
+           or xs:decimal($NSLCSE("minlatitude"))<-90.0 
+           or xs:decimal($NSLCSE("maxlatitude")) <-90.0
+           or xs:decimal($NSLCSE("minlatitude")) > xs:decimal($NSLCSE("maxlatitude")) 
+           or xs:decimal($NSLCSE("minlongitude"))>180.0 
+           or xs:decimal($NSLCSE("maxlongitude")) > 180.0 
+           or xs:decimal($NSLCSE("minlongitude"))<-180.0 
+           or xs:decimal($NSLCSE("maxlongitude")) <-180.0
+           or xs:decimal($NSLCSE("minlongitude")) > xs:decimal($NSLCSE("maxlongitude")) 
+           or xs:decimal($NSLCSE("latitude"))  >90.0  or xs:decimal($NSLCSE("latitude"))  <  -90.0 
+           or xs:decimal($NSLCSE("longitude")) >180.0 or xs:decimal($NSLCSE("longitude")) < -180.0
+           or xs:decimal($NSLCSE("minradius")) <0 or xs:decimal($NSLCSE("minradius")) >= xs:decimal($NSLCSE("maxradius"))
+           or xs:decimal($NSLCSE("maxradius")) <0 or xs:decimal($NSLCSE("maxradius")) > 180.0 
+           or xs:dateTime(stationutil:time_adjust($NSLCSE("startbefore"))) < xs:dateTime(stationutil:time_adjust($NSLCSE("startafter")))
+           or xs:dateTime(stationutil:time_adjust($NSLCSE("endbefore"))) < xs:dateTime(stationutil:time_adjust($NSLCSE("endafter")))
+           or xs:dateTime(stationutil:time_adjust($NSLCSE("starttime"))) > xs:dateTime(stationutil:time_adjust($NSLCSE("endtime")))
+           or not(matches($NSLCSE("level"),"network|station|channel|response"))
+           or not(xs:string($NSLCSE("includerestricted"))="TRUE" or xs:string($NSLCSE("includerestricted"))="FALSE")
+           or not( $NSLCSE("format") ="xml" or $NSLCSE("format")="text")           
+           or (contains(stationutil:network_pattern_translate($NSLCSE("network")), "NEVERMATCH")) 
+           or (contains(stationutil:station_pattern_translate($NSLCSE("station")), "NEVERMATCH")) 
+           or (contains(stationutil:channel_pattern_translate($NSLCSE("channel")), "NEVERMATCH")) 
+           or (contains(stationutil:location_pattern_translate($NSLCSE("location")), "NEVERMATCH"))
+           ) 
+)           
 (:           then false() else true():)
-(:}:)
-(:catch err:* {false()}:)
+}
+catch err:* {false()}
 
 } ;
 
@@ -673,6 +674,11 @@ return $result
 declare function stationutil:setpostdata() as xs:string* {
 util:base64-decode(request:get-data())    
 };
+
+declare function stationutil:getpostdata() as xs:string {
+ string-join($stationutil:postdata)
+};
+
 
 declare function stationutil:sequenceoflines() as xs:string* {
 let $sequenceoflines :=stationutil:lines($stationutil:postdata)
@@ -1101,7 +1107,7 @@ return
     if (contains(stationutil:network_pattern_translate($network), "NEVERMATCH")) 
     then
 "
-Check network parameter" || $network ||
+Check network parameter, found " || $network ||
 "
 "
     else  ""
@@ -1182,7 +1188,7 @@ let $endtime := xs:dateTime(stationutil:time_adjust($p("endtime")))
 return ""
 )
 }
-catch err:FORG0001 {
+catch err:* {
 "
 Check time related parameters syntax
 
@@ -1372,14 +1378,14 @@ Parameter " || $key || " cannot be empty
 (:catch err:* {"Error checking parameters"}:)
 } ;
 
-declare function stationutil:post_error() as xs:string {
-
-if ( request:get-method() eq "POST" ) then    
-    util:base64-decode(request:get-data())
-else 
-    ""
- 
-};
+(:declare function stationutil:post_error() as xs:string {:)
+(::)
+(:if ( request:get-method() eq "POST" ) then    :)
+(:    util:base64-decode(request:get-data()):)
+(:else :)
+(:    "":)
+(: :)
+(:};:)
 
 
 declare function stationutil:badrequest_error() {
@@ -1402,7 +1408,6 @@ stationutil:syntax_radius() ||
 stationutil:syntax_includerestricted() ||
 stationutil:empty_parameter_error() ||
 stationutil:syntax_format() ||
-stationutil:post_error() ||
 (:stationutil:debug_parameter_error() ||:)
 "
 
@@ -1451,15 +1456,21 @@ stationutil:syntax_includerestricted($parameters)
 stationutil:empty_parameter_error($parameters) ||
 stationutil:syntax_format($parameters) 
 ||
-stationutil:post_error() 
-|| 
 (:stationutil:debug_parameter_error($parameters) :)
 (:||:)
 "
 
 Usage details are available from <SERVICE DOCUMENTATION URI>
 
-Request: " || request:get-query-string() || 
+Request:
+
+" 
+
+|| request:get-query-string() || 
+
+stationutil:getpostdata()
+
+||
 "
 
 Request Submitted: " || current-dateTime() ||  
@@ -1477,7 +1488,7 @@ Service version: 1.1.50"
 
 declare function stationutil:get-parameter($k as xs:string) as xs:string
 {
-      if ( empty($stationutil:parameters($k))  ) then  "EMPTY " || $k  else  $stationutil:parameters($k) 
+      if ( empty($stationutil:parameters($k))  ) then  "" || $k  else  $stationutil:parameters($k) 
 };
 
 declare function stationutil:get-parameter($m as map(), $k as xs:string) as xs:string
@@ -2215,6 +2226,10 @@ declare function stationutil:query_join_network_main($NSLCSE as map()*) {
 (:return :)
 (:DEBUG:)
 (:TODO check errors in parameters :)
+
+if (stationutil:check_parameters_limits($NSLCSE))
+then
+
 let $content := 
 for $item in collection("/db/apps/fdsn-station/Station/"), $condition in $NSLCSE
     
@@ -2284,6 +2299,9 @@ if (not(empty($content))) then
 </FDSNStationXML>
 else
     stationutil:nodata_error()
+else 
+    stationutil:badrequest_error($NSLCSE)    
+    
 };
  
 declare function stationutil:query_join_station_main($NSLCSE as map()*) {
@@ -2298,6 +2316,10 @@ declare function stationutil:query_join_station_main($NSLCSE as map()*) {
 (:return :)
 (:DEBUG:)
 (:TODO check errors in parameters :)
+
+if (stationutil:check_parameters_limits($NSLCSE))
+then
+
 let $content := 
 for $item in collection("/db/apps/fdsn-station/Station/"), $condition in $NSLCSE
     
@@ -2415,6 +2437,8 @@ if (not(empty($content))) then
 </FDSNStationXML>
 else
     stationutil:nodata_error()
+else 
+    stationutil:badrequest_error($NSLCSE)
 };
  
  
