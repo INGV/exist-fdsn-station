@@ -1152,7 +1152,6 @@ declare function stationutil:query_core_network($NSLCSE as map()*) {
     let $minlongitude := xs:decimal($condition("minlongitude"))
     let $maxlongitude := xs:decimal($condition("maxlongitude"))       
     
-
 where 
         $Latitude  > $minlatitude and  
         $Latitude  < $maxlatitude and 
