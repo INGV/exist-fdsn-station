@@ -1559,7 +1559,7 @@ if (stationutil:get-parameter($stationutil:parameters_table[1], "format") = "xml
     case "network" return transform:transform(stationutil:query_join_main(), doc("network.xsl"), ()) 
     case "station" return transform:transform(stationutil:query_join_main(), doc("station.xsl"), ())
     case "channel" return transform:transform(stationutil:query_join_main(), doc("channel.xsl"), ())
-    case "response" return transform:transform(stationutil:query_join_main(), doc("response.xsl"), ())
+(:    case "response" return transform:transform(stationutil:query_join_main(), doc("response.xsl"), ()):)
     default return transform:transform(stationutil:query_join_main(), doc("network.xsl"), ()) 
     )
 
