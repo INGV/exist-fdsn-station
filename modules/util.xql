@@ -18,9 +18,9 @@ declare %public variable $stationutil:default_nodata as xs:string := "204";
 
 declare %public variable $stationutil:postdata as xs:string* := if (request:get-method() eq "POST") then stationutil:setpostdata() else "";
 
-declare %public variable $stationutil:parameters as map() := if (request:get-method() eq "POST")  then stationutil:alternate_parameters()  else stationutil:get_params_map(); 
+declare %public variable $stationutil:parameters as map() := if (request:get-method() eq "POST")  then stationutil:set_parameters_row_from_POST()  else stationutil:set_parameters_row_from_GET(); 
 
-declare %public variable $stationutil:all_lines as map()* := if (request:get-method() eq "POST")  then stationutil:post_lines()  else stationutil:get_params_map(); 
+declare %public variable $stationutil:parameters_table as map()* := if (request:get-method() eq "POST")  then stationutil:set_parameters_table()  else stationutil:set_parameters_row_from_GET(); 
 
 
 (: Functions declarations  :)
@@ -350,7 +350,7 @@ declare function stationutil:check_parameters_limits() as xs:boolean
 {
 
 try {
-(:let $stationutil:parameters  := stationutil:get_params_map():)
+(:let $stationutil:parameters  := stationutil:set_parameters_row_from_GET():)
 let $minlatitude := xs:decimal(stationutil:get-parameter("minlatitude"))
 let $maxlatitude := xs:decimal(stationutil:get-parameter("maxlatitude"))
 let $minlongitude := xs:decimal(stationutil:get-parameter("minlongitude"))
@@ -404,7 +404,7 @@ declare function stationutil:check_parameters_limits( $parameters as map()*) as 
 {
 
 try {
-(:let $stationutil:parameters  := stationutil:get_params_map():)
+(:let $stationutil:parameters  := stationutil:set_parameters_row_from_GET():)
 
 (:for  $NSLCSE in $parameters:)
 (:let $minlatitude := xs:decimal($NSLCSE("minlatitude")):)
@@ -560,7 +560,7 @@ declare function stationutil:nodata_error() {
 
 
 (: Here we map the request params in stationutil:parameters  :)
-declare function stationutil:get_params_map() as map()* {
+declare function stationutil:set_parameters_row_from_GET() as map()* {
 
 let $nodata := request:get-parameter("nodata", $stationutil:default_nodata)
 let $startbefore := request:get-parameter("startbefore", $stationutil:default_future_time)
@@ -685,7 +685,7 @@ let $sequenceoflines :=stationutil:lines($stationutil:postdata)
 return $sequenceoflines     
 };
 
-declare function stationutil:post_lines() as map()* {
+declare function stationutil:set_parameters_table() as map()* {
 
 let $p:= util:log("error", "POST: " )
 let $sequenceoflines :=stationutil:lines($stationutil:postdata)
@@ -699,7 +699,7 @@ let $NSLC :=
             then ()
             else (
                 let $key_val := tokenize($line,"\s+")
-                let $p:= util:log("error", "Matched in post_lines" || $key_val[1] || "," || $key_val[2] || "," || $key_val[3] || "," || $key_val[4]|| "," || $key_val[5] || "," || $key_val[6])
+                let $p:= util:log("error", "Matched in set_parameters_table" || $key_val[1] || "," || $key_val[2] || "," || $key_val[3] || "," || $key_val[4]|| "," || $key_val[5] || "," || $key_val[6])
                 return map:merge((map:entry("net", $key_val[1]), map:entry("network", $key_val[1]),  map:entry("sta", $key_val[2]), map:entry("station", $key_val[2]), map:entry("loc", $key_val[3]), map:entry("location", $key_val[3]), map:entry( "cha", $key_val[4]) , map:entry( "channel", $key_val[4]),map:entry("start", $key_val[5]), map:entry("starttime", $key_val[5]), map:entry( "end", $key_val[6]), map:entry( "endtime", $key_val[6])  , $stationutil:parameters) ) 
 (: , $stationutil:parameters) )                 :)
             )
@@ -711,7 +711,7 @@ return $NSLC
 };
 
 (: This function read parameters from POST values:)
-declare function stationutil:alternate_parameters() as map(*) {
+declare function stationutil:set_parameters_row_from_POST() as map(*) {
 try
 {
 (: SET defaults for 10 non alias parameters :)
@@ -819,7 +819,7 @@ let $result := map:put($result,"maxlon",$maxlon)
 (:let $result := map:put($result,"endtime",$endtime):)
 (:let $result := map:put($result,"end",$end):)
 
-(:let $dummy:=$stationutil:all_lines:)
+(:let $dummy:=$stationutil:parameters_table:)
  
  return $result
 }
@@ -836,7 +836,7 @@ catch err:* {
 declare function stationutil:empty_parameter_check() as xs:boolean
 {
 try {
-let $params_map:=stationutil:get_params_map()
+let $params_map:=stationutil:set_parameters_row_from_GET()
 return if (
 count(
 for $key in map:keys($params_map) 
@@ -1262,7 +1262,7 @@ The format parameter must be xml or text
 declare function stationutil:empty_parameter_error($parameters as map()*) as xs:string
 {
 try {
-(:let $params_map:=stationutil:get_params_map():)
+(:let $params_map:=stationutil:set_parameters_row_from_GET():)
 (:let $dummy :=stationutil:adiust_map_params():)
 string-join(
 for $p in $parameters     
@@ -1286,7 +1286,7 @@ catch err:* {"Error checking parameters in empty_parameter_error"}
 declare function stationutil:debug_parameter_error($parameters as map()*) as xs:string
 {
 try {
-(:let $params_map:=stationutil:get_params_map():)
+(:let $params_map:=stationutil:set_parameters_row_from_GET():)
 (:let $dummy :=stationutil:adiust_map_params():)
 
 string-join( 
@@ -1346,7 +1346,7 @@ Valid syntax: YYYY-MM-DD, YYYY-MM-DDTHH:MM:SS, YYY-MM-DDTHH:MM:SS.ssssss
 declare function stationutil:empty_parameter_error() as xs:string
 {
 try {
-(:let $params_map:=stationutil:get_params_map():)
+(:let $params_map:=stationutil:set_parameters_row_from_GET():)
 (:let $dummy :=stationutil:adiust_map_params():)
 let $params_map:=$stationutil:parameters
 return string-join(
@@ -1369,7 +1369,7 @@ catch err:* {"Error checking parameters"}
 declare function stationutil:debug_parameter_error() as xs:string
 {
 (:try {:)
-(:let $params_map:=stationutil:get_params_map():)
+(:let $params_map:=stationutil:set_parameters_row_from_GET():)
 (:let $dummy :=stationutil:adiust_map_params():)
 let $params_map:=$stationutil:parameters
 return string-join(
@@ -1468,7 +1468,7 @@ stationutil:syntax_includerestricted($parameters)
 stationutil:empty_parameter_error($parameters) ||
 stationutil:syntax_format($parameters) 
 ||
-(:stationutil:debug_parameter_error($parameters) :)
+(:stationutil:$stationutil:parameters_table($parameters) :)
 (:||:)
 "
 
@@ -1548,16 +1548,17 @@ declare function stationutil:lines
 
 declare function stationutil:test() {
 (:let $dummy0:=:)
-(:for $NSLCSE in $stationutil:all_lines:)
+(:for $NSLCSE in $stationutil:parameters_table:)
 (:    let $keys := map:keys($NSLCSE):)
 (:    for $k in $keys :)
 (:  let $p:= util:log("error", "Debugging test: " || $k || " = " || $NSLCSE($k) ):)
 (:  :)
 (:return "":)
 (:return     :)
+
  
-(: TEST OK  stationutil:query_join_network_main($stationutil:all_lines)  :)
-  stationutil:query_join_station_main($stationutil:all_lines)  
+(: TEST OK  stationutil:query_join_network_main($stationutil:parameters_table)  :)
+  stationutil:query_join_station_main($stationutil:parameters_table)  
   
 };
 
@@ -1566,7 +1567,7 @@ declare function stationutil:test() {
 declare function stationutil:compose()  {
 (:DEBUG:)
 (:let $dummy0:=:)
-(:for $NSLCSE in $stationutil:all_lines:)
+(:for $NSLCSE in $stationutil:parameters_table:)
 (:    let $keys := map:keys($NSLCSE):)
 (:    for $k in $keys :)
 (:  let $p:= util:log("error", "PARAMS in all_lines: " || $k || " = " || $NSLCSE($k) ):)
@@ -1575,7 +1576,7 @@ declare function stationutil:compose()  {
 (:return :)
 (:DEBUG:)
 
-for $NSLCSE in $stationutil:all_lines
+for $NSLCSE in $stationutil:parameters_table
 
 return  
 
