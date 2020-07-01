@@ -161,14 +161,14 @@ else if (ends-with($exist:path, "version")) then
         <forward url="{$exist:controller}/Static/version.xql"/>
         <set-header Content-Type="text/plain; charset=UTF-8" />
     </dispatch>
-else if (contains($exist:path, "/query/") and matches(request:get-parameter("level", "test"),"test")) then		
-    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-        <forward url="{$exist:controller}/modules/test.xql">
-            <set-header Content-Type="text/plain; charset=UTF-8" name="Cache-Control" value="max-age=3600, must-revalidate"/>
-            <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>
-        </forward>
-    </dispatch>
-    
+(:else if (contains($exist:path, "/query/") and matches(request:get-parameter("level", "test"),"test")) then		:)
+(:    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">:)
+(:        <forward url="{$exist:controller}/modules/test.xql">:)
+(:            <set-header Content-Type="text/plain; charset=UTF-8" name="Cache-Control" value="max-age=3600, must-revalidate"/>:)
+(:            <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>:)
+(:        </forward>:)
+(:    </dispatch>:)
+(:    :)
     
     
 (:else if (ends-with($exist:resource, "query.xql")) then:)

@@ -1,0 +1,25 @@
+curl -X POST "http://127.0.0.1:8080/exist/apps/fdsn-station/query/" -H  "accept: application/xml" -H  "Content-Type: text/plain" --data-binary @POST.txt -o POST.txt-local.txt
+curl -X POST "http://webservices.ingv.it/fdsnws/station/1/query" -H  "accept: application/xml" -H  "Content-Type: text/plain" --data-binary @POST.txt -o POST.txt-official.txt
+
+curl -X GET "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=network&net=MN,IV" -H  "accept: application/xml" -H  "Content-Type: text/plain" -o MN-IV-network.xml
+curl -X GET "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=network&net=MN,IV&format=text" -H  "accept: application/xml" -H  "Content-Type: text/plain" -o MN-IV-network.txt
+
+curl -X POST "http://127.0.0.1:8080/exist/apps/fdsn-station/query/" -H  "accept: application/xml" -H  "Content-Type: text/plain" --data-binary @POST-ERROR.txt -o error.txt
+
+
+time wget "http://webservices.ingv.it/fdsnws/station/1/query/?level=station&net=MN&format=text&minlatitude=45&nodata=404" -H  -O MN-station-minlat45-official.txt
+curl -X GET "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=network&net=MN&format=text&minlatitude=45&nodata=404" -H  "accept: application/xml" -H  "Content-Type: text/plain" -o MN-network-minlat45.txt
+curl -X GET "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=station&net=MN&format=text&minlatitude=45&nodata=404" -H  "accept: application/xml" -H  "Content-Type: text/plain" -o MN-station-minlat45.txt
+curl -X GET "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=channel&net=MN&format=text&minlatitude=45&nodata=404" -H  "accept: application/xml" -H  "Content-Type: text/plain" -o MN-channel-minlat45.txt
+curl -X GET "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=response&net=MN&format=text&minlatitude=45&nodata=404" -H  "accept: application/xml" -H  "Content-Type: text/plain" -o MN-response-minlat45.txt
+
+time wget "http://webservices.ingv.it/fdsnws/station/1/query/?level=station&net=*&minlat=42&maxlat=44.3&minlongitude=12.5&format=text&maxlongitude=13.1&lat=42.1&lon=12.5&maxradius=0.5&minradius=0.001" -O official.txt
+time wget "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=station&net=*&minlat=42&maxlat=44.3&minlongitude=12.5&format=text&maxlongitude=13.1&lat=42.1&lon=12.5&maxradius=0.5&minradius=0.001" -O local.txt
+
+
+time wget "http://webservices.ingv.it/fdsnws/station/1/query/?level=station&format=text&lat=42.1&lon=12.5&maxradius=2.5&minradius=0.001" -O official.txt
+time wget "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=station&format=text&lat=42.1&lon=12.5&maxradius=2.5&minradius=0.001" -O local.txt
+
+time wget "http://webservices.ingv.it/fdsnws/station/1/query/?level=station&format=text&lat=42.1&lon=12.5&maxradius=2.5&minradius=0.001&includerestricted=false" -O official-unrestricted.txt
+time wget "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=station&format=text&lat=42.1&lon=12.5&maxradius=2.5&minradius=0.001&includerestricted=false" -O local-unrestricted.txt
+
