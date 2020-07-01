@@ -25,6 +25,7 @@ declare %public variable $stationutil:parameters_table as map()* := if (request:
 
 (: Functions declarations  :)
 
+(: Count the total number of stations of the network with code netcode :)
 declare function stationutil:stationcount($netcode as xs:string) as item()
 {
     for $item in collection("/db/apps/fdsn-station/Station/")
@@ -1022,15 +1023,15 @@ if (stationutil:check_parameters_limits($stationutil:parameters_table))
 then 
 if (stationutil:get-parameter($stationutil:parameters_table[1], "format") = "xml") 
     then 
-        stationutil:query_join_main()
+        stationutil:xml-producer()
     else
     (
     let $dummy := util:declare-option("exist:serialize","method=text media-type=text/plain indent=yes")
     return
     switch (stationutil:get-parameter($stationutil:parameters_table[1], "level"))
-    case "network" return transform:transform(stationutil:query_join_main(), doc("network.xsl"), ()) 
-    case "station" return transform:transform(stationutil:query_join_main(), doc("station.xsl"), ())
-    case "channel" return transform:transform(stationutil:query_join_main(), doc("channel.xsl"), ())
+    case "network" return transform:transform(stationutil:xml-producer(), doc("network.xsl"), ()) 
+    case "station" return transform:transform(stationutil:xml-producer(), doc("station.xsl"), ())
+    case "channel" return transform:transform(stationutil:xml-producer(), doc("channel.xsl"), ())
     default return ()
     )
 else 
@@ -1044,13 +1045,13 @@ declare function stationutil:use_shortcut() as xs:boolean {
 };
  
 
-(: TODO gestire restrictedStatus :)
-(:POST  locationCode -- :)
-(: TODO includerestricted :)
+(: TODO  :)
+(: POST  locationCode -- :)
+(: TODO :)
 
 (:  ALL NEW functions  :)
  
-declare function stationutil:query_join_main() {
+declare function stationutil:xml-producer() {
 
 if (stationutil:check_parameters_limits($stationutil:parameters_table))
 then 
@@ -1078,7 +1079,7 @@ if (not(empty($content))) then
 <Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
 <ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
 <Created>{current-dateTime()}</Created>
-<TEST>query_join_main</TEST>
+<TEST>xml-producer { stationutil:get-parameter($stationutil:parameters_table[1], "level")}  shortcut: {stationutil:use_shortcut()}</TEST>
 {$content}
 </FDSNStationXML>
 else
@@ -1090,7 +1091,7 @@ else
 
 
 
-
+(: query for level network :)
 declare function stationutil:query_core_network($NSLCSE as map()*) {
     for $item in collection("/db/apps/fdsn-station/Station/"), $condition in $NSLCSE
     
@@ -1155,12 +1156,13 @@ for $network in $item//Network
 
 }; 
  
- 
+(: query for level station :)
 declare function stationutil:query_core_station($NSLCSE as map()*){
 for $item in collection("/db/apps/fdsn-station/Station/"), $condition in $NSLCSE
     
     let $Latitude:=  $item/FDSNStationXML/Network/Station/Latitude
     let $Longitude:=  $item/FDSNStationXML/Network/Station/Longitude
+
     let $network_param := $condition("network")
     let $station_param := $condition("station")
     let $channel_param := $condition("channel")
@@ -1264,7 +1266,7 @@ for $network in $item//Network
 }; 
  
 
-
+(: query for level channel :)
 declare function stationutil:query_core_channel($NSLCSE as map()*){
 
 
@@ -1413,8 +1415,7 @@ for $network in $item//Network
 };
 
 
-(:TODO restrictedstatus:)
-
+(:query for level response:)
 declare function stationutil:query_core_response($NSLCSE as map()*){
 
 
@@ -1433,7 +1434,6 @@ let $network_pattern:=stationutil:network_pattern_translate($network_param)
 let $station_pattern:=stationutil:station_pattern_translate($station_param)
 let $channel_pattern:=stationutil:channel_pattern_translate($channel_param)    
 let $location_pattern:=stationutil:location_pattern_translate($location_param)
-
 
 let $Latitude:= $item/FDSNStationXML/Network/Station/Latitude
 let $Longitude:= $item/FDSNStationXML/Network/Station/Longitude
@@ -1566,7 +1566,9 @@ for $network in $item//Network
     
 };
  
-
+ 
+ 
+(: A function to call when no conditions are posed but network= :)
 declare function stationutil:query_core_channel_response_shortcut($NSLCSE as map()*) { 
 for $item in collection("/db/apps/fdsn-station/Station/") , $condition in $NSLCSE  
 
