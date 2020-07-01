@@ -12,6 +12,7 @@ declare namespace ingv="https://raw.githubusercontent.com/FDSN/StationXML/master
 (:declare option output:media-type "text/html";:)
 
 (:BEWARE the order matters !!! :)
+(:TODO update limits with javascript limits:)
 declare %public variable $stationutil:default_past_time := "0001-01-01T00:00:00";
 declare %public variable $stationutil:default_future_time := "10001-01-01T00:00:00";
 declare %public variable $stationutil:default_nodata as xs:string := "204";
