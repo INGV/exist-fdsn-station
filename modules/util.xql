@@ -1507,7 +1507,8 @@ for $network in $item//Network
             $Longitude < $maxlongitude and
             stationutil:constraints_onchannel( $condition, $CreationDate, $TerminationDate ) and  
             stationutil:check_radius($condition, $lat,$lon) and
-            stationutil:check_restricted($condition,stationrestrictedStatus) and              
+(:  FIXME if activate this condition we get no data and no error it could depend on database content :)
+(:            stationutil:check_restricted($condition,stationrestrictedStatus) and :)
             matches ($channelcode,  $pattern ) and
             matches ($channellocationcode,  $location_pattern)
             order by $station/@code
@@ -1553,7 +1554,7 @@ for $network in $item//Network
                 let $CreationDate:= $channel/@startDate
                 let $TerminationDate:= $channel/@endDate  
                 where 
-                    stationutil:constraints_onchannel( $condition, $CreationDate, $TerminationDate ) and                    
+                    stationutil:constraints_onchannel( $condition, $CreationDate, $TerminationDate ) and            
                     stationutil:check_radius($condition, $lat,$lon) and
                     stationutil:check_restricted($condition,$channelrestrictedStatus) and                                          
                     matches ($selchannelcode,  $pattern )and
