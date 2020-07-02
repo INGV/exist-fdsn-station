@@ -1117,9 +1117,10 @@ for $network in collection("/db/apps/fdsn-station/Station/")//Network , $conditi
         $Longitude < $maxlongitude and
         stationutil:constraints_onchannel( $condition, $CreationDate, $TerminationDate ) and
         stationutil:check_radius($condition, $lat,$lon) and 
+        stationutil:constraints_onchannel_patterns( $condition, $networkcode, $stationcode, $channelcode, $locationcode)  and
         stationutil:check_restricted($condition,$restrictedStatus) and          
-        stationutil:constraints_onchannel_patterns( $condition, $networkcode, $stationcode, $channelcode, $locationcode) 
-
+        stationutil:check_restricted($condition,$stationrestrictedStatus) and  
+        stationutil:check_restricted($condition,$channelrestrictedStatus)
         group by $networkcode, $startDate, $endDate, $restrictedStatus, $Description, $ingv_identifier
         order by $networkcode
     return
