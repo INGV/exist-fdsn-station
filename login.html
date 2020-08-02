@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<html>
-  <head>
-    <meta charset="utf-8"/>
-    <title>fdsn station manager</title>
-
-    <script src="bower_components/webcomponentsjs/webcomponents-lite.js"/>
-    <link rel="import" href="bower_components/existdb-login/existdb-login.html"/>
-
-  </head>
-  <body>
-    <h2>fdsn station manager Login</h2>
-    <div>
-      <form class="form" id="form" action="restricted.html" method="post">
-        <input type="hidden" name="origin" value="{$origin}" autocomplete="on"/>
-        <input label="User ID" id="user" name="user" autofocus="autofocus" required="required" error="Please input your username"/>
-        <input label="Password" type="password" id="password" name="password" error="Please input your password"/>
-        <button type="submit" on-click="_handleSubmit">Sign me in</button>
-      </form>
-    </div>
-  </body>
-</html>
+<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+        <div class="col-md-9">
+            <h1 data-template="config:app-title">Welcome user</h1>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Please <a href="restricted.html">Login </a>to edit stations
+                    </p>
+                </div>
+            </div>
+        </div>
+          <div class="col-md-6">
+                <div data-template="app:login"/>
+        </div>      
+        <div class="col-md-3">
+            <h2>Application Info</h2>
+            <div data-template="config:app-info"/>
+        </div>
+        <div class="col-md-3">
+            <a href="restricted.html?logout=true">logout here</a>
+        </div> 
+</div><!--  LOGIN.HTML -->
