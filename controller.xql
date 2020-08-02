@@ -1,6 +1,7 @@
 xquery version "3.0";
 import module namespace login="http://exist-db.org/xquery/login" at "resource:org/exist/xquery/modules/persistentlogin/login.xql";
 import module namespace console="http://exist-db.org/xquery/console";
+import module namespace templates="http://exist-db.org/xquery/templates";
 
 declare variable $exist:path external;
 declare variable $exist:resource external;
@@ -19,6 +20,21 @@ else if ($exist:path = "/") then(
         <redirect url="index.html"/>
     </dispatch>
 )
+
+
+(:else if (ends-with($exist:path, "restricted.html")) then ( :)
+(:    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">:)
+(:        <view>:)
+(:            <forward url="{$exist:controller}/modules/view.xql"/>:)
+(:        </view>:)
+(:		<error-handler>:)
+(:			<forward url="{$exist:controller}/error-page.html" method="get"/>:)
+(:			<forward url="{$exist:controller}/modules/view.xql"/>:)
+(:		</error-handler>:)
+(:    </dispatch>:)
+(:) :)
+
+
 (:
     restricted.html is secured by the following rules
 :)
@@ -60,7 +76,15 @@ else if (ends-with($exist:path, "restricted.html")) then (
                 page will get served from cache and not hit the controller any more.
                 :)
                 <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
+                
                     <cache-control cache="no"/>
+                        <view>
+                        <forward url="{$exist:controller}/modules/view.xql"/>
+                        </view>
+                		<error-handler>
+			                <forward url="{$exist:controller}/error-page.html" method="get"/>
+		                  	<forward url="{$exist:controller}/modules/view.xql"/>
+                		</error-handler>
                 </dispatch>
             else if(not(string($userParam) eq string($user))) then
                 (:
@@ -73,11 +97,17 @@ else if (ends-with($exist:path, "restricted.html")) then (
                 :)
                 <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
                     <forward url="fail.html"/>
+                        <view>
+                            <forward url="{$exist:controller}/modules/view.xql"/>
+                        </view>                    
                 </dispatch>
             else
                 (: if nothing of the above matched we got a login attempt. :)
                 <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
                     <forward url="login.html"/>
+                        <view>
+                            <forward url="{$exist:controller}/modules/view.xql"/>
+                        </view>
                 </dispatch>
 )
 else 
