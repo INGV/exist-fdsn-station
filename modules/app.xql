@@ -56,7 +56,7 @@ declare function app:show-station-list($node as node(), $model as map(*)) {
             <th><span class="text">Station</span>
 
             </th>
-            <th><span class="test">URI</span>
+            <th><span class="test">XML</span>
 
             </th>
             
@@ -69,8 +69,8 @@ for $network in collection("/db/apps/fdsn-station/Station/")//Network
     let $networkcode := $network/@code
     for $station in $network/Station
         let $stationcode:=$station/@code
-        let $uri := base-uri($station)
-        let $station_basename:=util:unescape-uri(replace(base-uri($station), '.+/(.+)$', '$1'),'UTF-8')
+        let $uri := replace(base-uri($station),'db','exist')
+        let $station_basename:= util:unescape-uri(replace(base-uri($station), '.+/(.+)$', '$1'),'UTF-8')
     group by $network
     order by $stationcode
     return
