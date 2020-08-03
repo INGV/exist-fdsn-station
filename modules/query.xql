@@ -11,6 +11,22 @@ declare option output:media-type "text/xml";
 (:TODO uncomment after debug:)
 declare option output:indent "no";
 
-stationutil:run()
 
-
+if ( request:get-method() eq "POST" or request:get-method() eq "GET") then 
+     stationutil:run()
+ else
+     
+     let $content := request:get-data()
+     let $decoded := util:base64-decode($content)
+(: TODO: verify the xml, extract station name, store the file    :)
+     
+     return
+         
+(: Next line store the file in station as is !!!!!       :)
+        xmldb:store("/db/apps/fdsn-station/Station/", "ACER.XML", $content)
+        
+(: 
+ This line for testing purposes
+ time curl -X PUT "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=response&net=*&format=xml&nodata=404" -H  "accept: application/xml" -H  "Content-Type: text/plain" -H  "accept: application/xml" -H  "Content-Type: text/xml" --data-binary @ACER.xml -o output.xml
+:)
+    
