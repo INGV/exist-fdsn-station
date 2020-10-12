@@ -20,6 +20,14 @@ time wget "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=station&ne
 time wget "http://webservices.ingv.it/fdsnws/station/1/query/?level=station&format=text&lat=42.1&lon=12.5&maxradius=2.5&minradius=0.001" -O official.txt
 time wget "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=station&format=text&lat=42.1&lon=12.5&maxradius=2.5&minradius=0.001" -O local.txt
 
-time wget "http://webservices.ingv.it/fdsnws/station/1/query/?level=station&format=text&lat=42.1&lon=12.5&maxradius=2.5&minradius=0.001&includerestricted=false" -O official-unrestricted.txt
-time wget "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=station&format=text&lat=42.1&lon=12.5&maxradius=2.5&minradius=0.001&includerestricted=false" -O local-unrestricted.txt
+time wget "http://webservices.ingv.it/fdsnws/station/1/query/?level=station&format=text&lat=42.1&lon=12.5&maxradius=2.5&minradius=0.001&includerestricted=false" -O official-norestricted.txt
+time wget "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=station&format=text&lat=42.1&lon=12.5&maxradius=2.5&minradius=0.001&includerestricted=false" -O local-norestricted.txt
+time wget "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=station&format=text&lat=42.1&lon=12.5&maxradius=2.5&minradius=0.001&includerestricted=true" -O local+restricted.txt
+
+time wget "http://10.140.0.205:8080/exist/apps/fdsn-station/query/?level=response&station=AMUR" -O exist-deploy.txt
+
+
+
+
+ time curl -X PUT "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=response&net=*&format=xml&nodata=404" -H  "accept: application/xml" -H  "Content-Type: text/plain" -H  "accept: application/xml" -H  "Content-Type: text/plain" --data-binary @ACER.xml -o output.xml
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+        <div class="col-md-9">
+            <h1 data-template="config:app-title">Page should not be shown unless authenticated as admin</h1>
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>Station List</h2>
+                    <div data-template="app:show-station-list"/>
+                </div>
+                <div class="col-md-6">
+                    <div data-template="app:search"/>
+                </div>
+                <div class="col-md-2">
+                    <div data-template="app:upload"/>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <h2>Application Info</h2>
+            <div data-template="config:app-info"/>
+        </div>
+        <div class="col-md-3">
+            <a href="restricted.html?logout=true">logout here</a>
+        </div> 
+</div><!--RESTRICTED.HTML-->
