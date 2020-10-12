@@ -18,7 +18,7 @@ if ( request:get-method() eq "POST" or request:get-method() eq "GET") then
      
      let $content := request:get-data()
      let $decoded := util:base64-decode($content)
-(: TODO: verify the xml, extract station name, store the file    :)
+(: TODO: verify permissions, verify the xml, extract station name, store the file,  try versioningtrigger pag 428 Siegel...   :)
      
      return
          
