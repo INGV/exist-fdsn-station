@@ -26,3 +26,8 @@ time wget "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=station&fo
 
 time wget "http://10.140.0.205:8080/exist/apps/fdsn-station/query/?level=response&station=AMUR" -O exist-deploy.txt
 
+
+
+
+ time curl -X PUT "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=response&net=*&format=xml&nodata=404" -H  "accept: application/xml" -H  "Content-Type: text/plain" -H  "accept: application/xml" -H  "Content-Type: text/plain" --data-binary @ACER.xml -o output.xml
+
