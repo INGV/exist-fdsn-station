@@ -27,6 +27,7 @@ RUN ant
 
 # START STAGE 2
 FROM existdb/existdb:release
+#ADD http://exist-db.org/exist/apps/public-repo/public/functx-1.0.1.xar /exist/autodeploy
 
 COPY --from=builder /tmp/build/*.xar /exist/autodeploy
 
