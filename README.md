@@ -22,6 +22,6 @@ sudo docker run --name exist-fdsn-station -it exist-fdsn-station
 ``` 
 
 
-Put in your Station directory all your station.xml files, one per station, before building the package, you will get your database right in eXist-db after package installation. It works even for the one shot deploy.
+Put all your station.xml files in the Station directory  (one file per station) before building the package. You will get your database right in eXist-db after package installation. It works even for the one shot deploy.
  
 
