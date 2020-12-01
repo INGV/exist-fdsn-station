@@ -13,7 +13,7 @@ sudo docker run -it -d -p 8080:8080 -p 8443:8443 --name exist existdb/existdb:la
 ```
 
 
-Alternatively fdsn-station and eXist-db can be buylt and deployed in one shot:
+Alternatively fdsn-station and eXist-db can be built and deployed in one shot:
 
 
 ```
