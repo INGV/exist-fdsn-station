@@ -1,0 +1,1 @@
+Stefano Pintore <stefano.pintore@ingv.it>
