@@ -3,7 +3,7 @@ and the corresponding FDSN webservice [fdsnws-station](https://www.fdsn.org/webs
 
 
 From the project directory invoke ``ant`` to build the package file ``fdsn-station-0.1.xar`` into the ``build`` directory.
-Install the package into your [eXist-db](ihttp://exist-db.org/exist/apps/homepage/index.html) using the package manager.
+Install the package into your [eXist-db](http://exist-db.org/exist/apps/homepage/index.html) using the package manager.
  
 eXist-db can be installed simply as a docker:
 
