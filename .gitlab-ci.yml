@@ -2,16 +2,16 @@
 
 stages:
   - build 
-  - test
-
+#  - test
+before_script:
+  - docker info    
 build:
   stage: build 
   image:  openjdk:8-jdk-slim
   artifacts:
           paths: 
             - /tmp
-before_script:
-  - docker info            
+        
   script:
         - echo "Building the app"
 
