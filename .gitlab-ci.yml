@@ -1,6 +1,4 @@
 #Start developing with CI
-services: 
-  - existdb 
 
 stages:
   - build 
@@ -17,7 +15,7 @@ build:
 
 test: 
   stage: test 
-  image: existdb/existdb:latest 
+  image: existdb/existdb:release 
   dependencies:
     - build  
   script:
