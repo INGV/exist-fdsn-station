@@ -1,0 +1,24 @@
+#Start developing with CI
+services: 
+  - existdb 
+
+stages:
+  - build 
+  - test
+
+build: 
+  image:  openjdk:8-jdk-slim
+  artifacts:
+          paths: 
+            - /tmp
+  script:
+        - echo "Building the app"
+
+test: 
+  image: existdb/existdb:latest 
+  dependencies:
+    - build  
+  script:
+        - echo "Testing the app"
+
+
