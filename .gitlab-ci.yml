@@ -17,7 +17,7 @@ build:
 test: 
   image: existdb/existdb:latest 
   dependencies:
-          - build:  
+    - build:  
   script:
         - echo "Testing the app"
 
