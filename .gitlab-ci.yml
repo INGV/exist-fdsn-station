@@ -6,7 +6,8 @@ stages:
   - build 
   - test
 
-build: 
+build:
+  stage: build 
   image:  openjdk:8-jdk-slim
   artifacts:
           paths: 
@@ -15,10 +16,9 @@ build:
         - echo "Building the app"
 
 test: 
+  stage: test 
   image: existdb/existdb:latest 
   dependencies:
-    - build:  
+    - build  
   script:
         - echo "Testing the app"
-
-
