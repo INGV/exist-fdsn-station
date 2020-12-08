@@ -1,4 +1,4 @@
-image: docker:19.03.12-dind
+image: docker:latest
 
 variables:
   # When using dind service, we need to instruct docker to talk with
@@ -21,7 +21,7 @@ variables:
   DOCKER_HOST: tcp://dind:2375
 
 services:
-  - docker:19.03.12-dind
+  - docker:latest-dind
 
 #before_script:
 #  - docker info
