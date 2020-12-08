@@ -16,6 +16,8 @@ variables:
   # `/certs/client` that will be shared between the service and job
   # container, thanks to volume mount from config.toml
   DOCKER_TLS_CERTDIR: ""
+  DOCKER_DRIVER: overlay2
+  DOCKER_HOST: tcp://localhost:2375
 
 services:
   - docker:19.03.12-dind
