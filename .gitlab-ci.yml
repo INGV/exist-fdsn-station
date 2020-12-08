@@ -20,8 +20,8 @@ variables:
 services:
   - docker:19.03.12-dind
 
-before_script:
-  - docker info
+#before_script:
+#  - docker info
 
 build:
   stage: build
