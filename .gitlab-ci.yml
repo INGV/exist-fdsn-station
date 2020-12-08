@@ -1,4 +1,4 @@
-image: docker:19.03.12
+image: docker:19.03.12-dind
 
 variables:
   # When using dind service, we need to instruct docker to talk with
