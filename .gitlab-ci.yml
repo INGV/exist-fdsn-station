@@ -17,8 +17,8 @@ variables:
   # container, thanks to volume mount from config.toml
   DOCKER_TLS_CERTDIR: ""
   #DOCKER_DRIVER: aufs
-  #DOCKER_HOST: tcp://localhost:2375
-  DOCKER_HOST: tcp://dind:2375
+  DOCKER_HOST: tcp://localhost:2375
+  #DOCKER_HOST: tcp://dind:2375
 
 services:
   - docker:dind
