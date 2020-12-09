@@ -1,6 +1,6 @@
 image: docker:latest
 
-###variables:
+variables:
   # When using dind service, we need to instruct docker to talk with
   # the daemon started inside of the service. The daemon is available
   # with a network connection instead of the default
@@ -15,10 +15,10 @@ image: docker:latest
   # create them automatically on boot, and will create
   # `/certs/client` that will be shared between the service and job
   # container, thanks to volume mount from config.toml
-  ###DOCKER_TLS_CERTDIR: ""
+  DOCKER_TLS_CERTDIR: ""
   #DOCKER_DRIVER: overlay2
   #DOCKER_HOST: tcp://localhost:2375
-  ###DOCKER_HOST: tcp://dind:2375
+  DOCKER_HOST: tcp://dind:2375
 
 services:
   - docker:dind
