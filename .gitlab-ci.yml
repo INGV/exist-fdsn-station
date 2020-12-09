@@ -16,7 +16,7 @@ variables:
   # `/certs/client` that will be shared between the service and job
   # container, thanks to volume mount from config.toml
   DOCKER_TLS_CERTDIR: ""
-  DOCKER_DRIVER: aufs
+  #DOCKER_DRIVER: aufs
   #DOCKER_HOST: tcp://localhost:2375
   DOCKER_HOST: tcp://dind:2375
 
@@ -29,5 +29,6 @@ services:
 build:
   stage: build
   script:
+    - docker info
     - docker build --rm . -t exist-fdsn-station
     - docker run --name exist-fdsn-station -it exist-fdsn-station
