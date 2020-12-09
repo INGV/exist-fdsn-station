@@ -34,3 +34,4 @@ Try this examples with the stations provided, or adapt to your stations set.
 wget "http://172.17.0.2:8080/exist/apps/fdsn-station/query/?level=station&format=text&lat=42.1&lon=12.5&maxradius=2.5&minradius=0.001&includerestricted=false" -O some-stations-norestricted.txt 
 ```
 
+[![DOI](https://zenodo.org/badge/317600375.svg)](https://zenodo.org/badge/latestdoi/317600375)
