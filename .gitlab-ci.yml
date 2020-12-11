@@ -26,11 +26,12 @@ services:
 #before_script:
 #  - docker info
 
-build:
-  stage: build
+test:
+  stage: test
   script:
     - docker info
     - docker build --rm . -t exist-fdsn-station
     - docker run  -d --name exist-fdsn-station exist-fdsn-station
-    - pip install pytest lovely-pytest-docker
+    - apt-get install -y python-dev python-pip
+    - pip install pytest
     - pytest --host docker TEST/test.py     
