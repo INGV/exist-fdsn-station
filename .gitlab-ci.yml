@@ -34,5 +34,5 @@ test:
     - docker inspect exist-fdsn-station
     - apk add --update py-pip
     - pip install pytest
-    - pytest TEST/test.py --host dind
+    - pytest TEST/test.py --host docker
     - docker stop exist-fdsn-station  
