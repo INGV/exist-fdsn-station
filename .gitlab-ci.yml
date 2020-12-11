@@ -26,8 +26,8 @@ services:
 #before_script:
 #  - docker info
 
-build:
-  stage: build
+test:
+  stage: test
   script:
     - docker info
     - docker build --rm . -t exist-fdsn-station
@@ -35,4 +35,3 @@ build:
     - apk add --update py-pip
     - pip install pytest
     - pytest TEST/test.py --host docker
-
