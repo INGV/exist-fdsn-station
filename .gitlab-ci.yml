@@ -32,3 +32,5 @@ build:
     - docker info
     - docker build --rm . -t exist-fdsn-station
     - docker run  -d --name exist-fdsn-station exist-fdsn-station
+    - pip install pytest lovely-pytest-docker
+    - pytest --host docker TEST/test.py     
