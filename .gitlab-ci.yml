@@ -30,12 +30,12 @@ test:
   stage: test
   script:
     - docker build --rm . -t exist-fdsn-station
-    - docker run  -d -p 8080:80 --name exist-fdsn-station exist-fdsn-station
+    - docker run  -d --network="host" -p 8080:8080 --name exist-fdsn-station exist-fdsn-station
     - docker port exist-fdsn-station
     - docker network ls
     - ip a
 #    - docker inspect exist-fdsn-station
-#    - apk add --update py-pip
-#    - pip install pytest
-#    - pytest TEST/test.py --host 172.17.0.2
+    - apk add --update py-pip
+    - pip install pytest
+    - pytest TEST/test.py --host 172.26.0.6
     - docker stop exist-fdsn-station  
