@@ -33,6 +33,7 @@ test:
     - docker run  -d -p 127.0.0.1:80:8080/tcp --name exist-fdsn-station exist-fdsn-station
     - sleep 90
     - docker port exist-fdsn-station
+    - docker ps
 #    - docker inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' $(docker ps -a)
     - docker network ls
     - ip a
