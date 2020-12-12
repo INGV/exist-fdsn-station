@@ -19,7 +19,7 @@ import conftest
 )
 
 def test_eval(url, expected,host):
-    response = requests.get( "http://"+host+":8080/exist/apps/fdsn-station/fdsnws/station/1/query/?" + url)
+    response = requests.get( "http://"+host+"/exist/apps/fdsn-station/fdsnws/station/1/query/?" + url)
     print (response.status_code)
     assert response.status_code == expected 
 
