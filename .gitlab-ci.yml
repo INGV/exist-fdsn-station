@@ -47,5 +47,5 @@ build:
     - sleep 60
 #    - pytest TEST/test.py --host 172.26.0.7
 #    - pytest TEST/test.py --host  tcp://docker:80
-    - pytest TEST/test.py --host 127.0.0.1
+    - pytest TEST/test.py --host docker:80
     - docker stop exist-fdsn-station  
