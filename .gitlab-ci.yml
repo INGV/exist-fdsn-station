@@ -32,7 +32,7 @@ build-image:
   stage: build
   # the tag 'dind' advices only GitLab runners using this tag to pick up that job
   tags: 
-    - dind
+    - build
   script:
     - docker build --rm . -t exist-fdsn-station
 
