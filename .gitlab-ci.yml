@@ -28,7 +28,7 @@ stages:
   - test
 
 
-build-image:
+build:
   stage: build
   # the tag 'dind' advices only GitLab runners using this tag to pick up that job
   tags: 
@@ -39,7 +39,7 @@ build-image:
 #before_script:
 #  - docker info
 
-test-image:
+test:
   stage: test
   tags: 
     - test
