@@ -31,7 +31,7 @@ test:
   script:
     - docker build --rm . -t exist-fdsn-station
     - docker run  -d -p 8080:8080 --name exist-fdsn-station exist-fdsn-station
-    - sleep 60
+    - sleep 90
     - docker port exist-fdsn-station
 #    - docker inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' $(docker ps -a)
     - docker network ls
@@ -40,7 +40,7 @@ test:
     - apk add --update py-pip
     - pip install pytest
     - sleep 60
-    - pytest TEST/test.py --host 172.26.0.6
-#    - pytest TEST/test.py --host 0.0.0.0
+#    - pytest TEST/test.py --host 172.26.0.6
+    - pytest TEST/test.py --host 0.0.0.0
 #    - pytest TEST/test.py --host 127.0.0.1
     - docker stop exist-fdsn-station  
