@@ -23,29 +23,19 @@ variables:
 services:
   - docker:dind
 
-stages:
-  - build
-  - test
-
-
-build:
-  stage: build
-  # the tag 'dind' advices only GitLab runners using this tag to pick up that job
-  tags: 
-    - build
-  script:
-    - docker build --rm . -t exist-fdsn-station
 
 #before_script:
 #  - docker info
 
-test:
-  stage: test
+build:
+  stage: build
   tags: 
-    - test
+    - build
   script: 
+    - docker build --rm . -t exist-fdsn-station
     - docker run  -d -p 127.0.0.1:80:8080/tcp --name exist-fdsn-station exist-fdsn-station
     - sleep 90
+    - netstat -ntlp
     - docker port exist-fdsn-station
     - docker ps
 #    - docker inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' $(docker ps -a)
