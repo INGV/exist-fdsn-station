@@ -34,13 +34,13 @@ build:
   script: 
     - docker build --rm . -t exist-fdsn-station
     - docker run  -d -p 80:8080/tcp --name exist-fdsn-station exist-fdsn-station
-    - sleep 30 
-    - netstat -ntlp
-    - docker port exist-fdsn-station
-    - docker ps
+    - sleep 60 
+      #    - netstat -ntlp
+      #    - docker port exist-fdsn-station
+#      - docker ps
 #    - docker inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' $(docker ps -a)
-    - docker network ls
-    - ip a
+#    - docker network ls
+#    - ip a
 #    - docker inspect exist-fdsn-station
     - apk add --update py-pip
     - pip install pytest
