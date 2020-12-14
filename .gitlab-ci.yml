@@ -1,5 +1,6 @@
 image: docker:latest
 
+
 variables:
   # When using dind service, we need to instruct docker to talk with
   # the daemon started inside of the service. The daemon is available
@@ -22,6 +23,7 @@ variables:
 
 services:
   - docker:dind
+  command: ["--registry-mirror", "https://mirror.gcr.io"]
 
 
 #before_script:
