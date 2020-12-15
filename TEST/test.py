@@ -8,46 +8,39 @@ import conftest
 import difflib
 
 
-@pytest.mark.parametrize(
-    "url,expected",
-    [
+############################################# DATA FOR TEST #############################################
+
+
+### Contains query string, expected response code
+testdataxml = [
         ("level=network&net=MN&format=xml&nodata=404",200),
         ("level=station&net=MN&format=xml&nodata=404",200),
         ("level=channel&net=MN&format=xml&nodata=404",200),
         ("level=response&net=MN&format=xml&nodata=404",200),
-##        ("level=network&net=MN&format=text&nodata=404",200),
-##        ("level=station&net=MN&format=text&nodata=404",200),        
-##        ("level=channel&net=MN&format=text&nodata=404",200),
-##        ("level=channel&starttime=2000-01-01T00:00:00.0&endtime=2020-01-02&net=MN&format=text&nodata=404",200),                 
-##        ("level=channel&starttime=2000-01-01T00:00:00.0&endtime=2001-01-02&net=MN&station=AQ?&format=text&nodata=404",200),        
-    ],
-)
+]
 
 
-def test_eval(url,expected,host):
-    response = requests.get( "http://"+host+"/exist/apps/fdsn-station/fdsnws/station/1/query/?" + url)
-##    print (response.status_code)
-    print (response.text)
-    assert response.status_code == expected 
+### Contains query string, expected response code, expected content
+testdatatxt = [
 
-@pytest.mark.parametrize(
-    "url,expected,content",
-    [
-##        ("level=network&net=MN&format=xml&nodata=404",200,""),
-        ("level=station&net=MN&format=text&nodata=404",200,"\
+(
+"level=station&net=MN&format=text&nodata=404",200,"\
 #Network | Station | Latitude | Longitude | Elevation | SiteName | StartTime | EndTime\n\
 MN|AQU|42.354|13.405|710|L'Aquila, Italy|1988-08-01T00:00:00|\n\
 MN|ARPR|39.09289|38.33557|1537|Arapgir, Turkey|2014-01-23T00:00:00|\n"),
 
-        ( "level=network&net=MN&format=text&nodata=404",200,"\
+( 
+"level=network&net=MN&format=text&nodata=404",200,"\
 #Network | Description | StartTime | EndTime | TotalStations\n\
 MN|Mediterranean Very Broadband Seismographic Network|1988-01-01T00:00:00||2\n"),
 
-        ( "level=network&net=IV&format=text&nodata=404",200,"\
+( 
+"level=network&net=IV&format=text&nodata=404",200,"\
 #Network | Description | StartTime | EndTime | TotalStations\n\
 IV|Italian Seismic Network|1988-01-01T00:00:00||6\n"),
         
-        ("level=channel&net=MN&format=text&nodata=404",200,"\
+(
+"level=channel&net=MN&format=text&nodata=404",200,"\
 #Network | Station | location | Channel | Latitude | Longitude | Elevation | Depth | Azimuth | Dip | SensorDescription | Scale | ScaleFreq | ScaleUnits | SampleRate | StartTime | EndTime\n\
 MN|AQU||BHE|42.354|13.405|710|15|90|0|STRECKEISEN STS-1H-VBB|-5250000000|0.02|M/S|20|1988-08-01T00:00:00|1991-07-31T23:59:59\n\
 MN|AQU||BHE|42.354|13.405|710|15|90|0|STRECKEISEN STS-1H-VBB|-1046640000|0.02|M/S|20|1991-08-01T00:00:00|1995-08-27T23:59:59\n\
@@ -210,7 +203,8 @@ MN|ARPR||VHE|39.09289|38.33557|1537|0|90|0|STRECKEISEN STS-2-3G|10066300000|0.02
 MN|ARPR||VHN|39.09289|38.33557|1537|0|0|0|STRECKEISEN STS-2-3G|10066300000|0.02|M/S|0.1|2014-01-23T00:00:00|\n\
 MN|ARPR||VHZ|39.09289|38.33557|1537|0|0|-90|STRECKEISEN STS-2-3G|10066300000|0.02|M/S|0.1|2014-01-23T00:00:00|\n"),
         
-        ("level=channel&starttime=2000-01-01T00:00:00.0&endtime=2020-01-02&net=MN&format=text&nodata=404",200,"\
+(
+"level=channel&starttime=2000-01-01T00:00:00.0&endtime=2020-01-02&net=MN&format=text&nodata=404",200,"\
 #Network | Station | location | Channel | Latitude | Longitude | Elevation | Depth | Azimuth | Dip | SensorDescription | Scale | ScaleFreq | ScaleUnits | SampleRate | StartTime | EndTime\n\
 MN|AQU||BHE|42.354|13.405|710|15|90|0|STRECKEISEN STS-1H-VBB|983662000|0.02|M/S|20|2000-09-26T10:00:01|2002-06-05T12:00:00\n\
 MN|AQU||BHE|42.354|13.405|710|15|90|0|STRECKEISEN STS-2-120S|592092000|0.02|M/S|20|2002-06-05T12:00:01|2008-02-18T23:59:59\n\
@@ -297,7 +291,8 @@ MN|ARPR||VHE|39.09289|38.33557|1537|0|90|0|STRECKEISEN STS-2-3G|10066300000|0.02
 MN|ARPR||VHN|39.09289|38.33557|1537|0|0|0|STRECKEISEN STS-2-3G|10066300000|0.02|M/S|0.1|2014-01-23T00:00:00|\n\
 MN|ARPR||VHZ|39.09289|38.33557|1537|0|0|-90|STRECKEISEN STS-2-3G|10066300000|0.02|M/S|0.1|2014-01-23T00:00:00|\n"),
         
-       ("level=channel&starttime=2000-01-01T00:00:00.0&endtime=2020-01-02&net=MN&format=text&minlat=41.0&maxlat=43.0&nodata=404",200,"\
+(
+"level=channel&starttime=2000-01-01T00:00:00.0&endtime=2020-01-02&net=MN&format=text&minlat=41.0&maxlat=43.0&nodata=404",200,"\
 #Network | Station | location | Channel | Latitude | Longitude | Elevation | Depth | Azimuth | Dip | SensorDescription | Scale | ScaleFreq | ScaleUnits | SampleRate | StartTime | EndTime\n\
 MN|AQU||BHE|42.354|13.405|710|15|90|0|STRECKEISEN STS-1H-VBB|983662000|0.02|M/S|20|2000-09-26T10:00:01|2002-06-05T12:00:00\n\
 MN|AQU||BHE|42.354|13.405|710|15|90|0|STRECKEISEN STS-2-120S|592092000|0.02|M/S|20|2002-06-05T12:00:01|2008-02-18T23:59:59\n\
@@ -375,7 +370,9 @@ MN|AQU||VHZ|42.354|13.405|710|15|0|-90|STRECKEISEN STS-2-120S|3114870000|0.02|M/
 MN|AQU||VHZ|42.354|13.405|710|15|0|-90|STRECKEISEN STS-2-120S|3120000000|0.02|M/S|0.1|2011-04-13T00:00:00|2017-12-31T07:56:00\n\
 MN|AQU||VHZ|42.354|13.405|710|0|0|-90|STRECKEISEN STS-2-120S|629145000|0.02|M/S|1|2019-03-01T00:00:00|\n"),
         
-    ("level=channel&starttime=2000-01-01T00:00:00.0&endtime=2001-01-02&net=MN&format=text&nodata=404",200, "\
+    
+(
+"level=channel&starttime=2000-01-01T00:00:00.0&endtime=2001-01-02&net=MN&format=text&nodata=404",200, "\
 #Network | Station | location | Channel | Latitude | Longitude | Elevation | Depth | Azimuth | Dip | SensorDescription | Scale | ScaleFreq | ScaleUnits | SampleRate | StartTime | EndTime\n\
 MN|AQU||BHE|42.354|13.405|710|0|90|0|STRECKEISEN STS-2-120S|629145000|0.02|M/S|20|2019-03-01T00:00:00|\n\
 MN|AQU||BHN|42.354|13.405|710|0|0|0|STRECKEISEN STS-2-120S|629145000|0.02|M/S|20|2019-03-01T00:00:00|\n\
@@ -405,7 +402,8 @@ MN|ARPR||VHE|39.09289|38.33557|1537|0|90|0|STRECKEISEN STS-2-3G|10066300000|0.02
 MN|ARPR||VHN|39.09289|38.33557|1537|0|0|0|STRECKEISEN STS-2-3G|10066300000|0.02|M/S|0.1|2014-01-23T00:00:00|\n\
 MN|ARPR||VHZ|39.09289|38.33557|1537|0|0|-90|STRECKEISEN STS-2-3G|10066300000|0.02|M/S|0.1|2014-01-23T00:00:00|\n"), 
 
-    ("level=channel&starttime=2000-01-01T00:00:00.0&endtime=2001-01-02&net=MN&station=AQ?&format=text&nodata=404", 200, "\
+(
+"level=channel&starttime=2000-01-01T00:00:00.0&endtime=2001-01-02&net=MN&station=AQ?&format=text&nodata=404", 200, "\
 #Network | Station | location | Channel | Latitude | Longitude | Elevation | Depth | Azimuth | Dip | SensorDescription | Scale | ScaleFreq | ScaleUnits | SampleRate | StartTime | EndTime\n\
 MN|AQU||BHE|42.354|13.405|710|0|90|0|STRECKEISEN STS-2-120S|629145000|0.02|M/S|20|2019-03-01T00:00:00|\n\
 MN|AQU||BHN|42.354|13.405|710|0|0|0|STRECKEISEN STS-2-120S|629145000|0.02|M/S|20|2019-03-01T00:00:00|\n\
@@ -425,17 +423,41 @@ MN|AQU||UHZ|42.354|13.405|710|15|0|-90|STRECKEISEN STS-2-120S|3114870000|0.003|M
 MN|AQU||VHE|42.354|13.405|710|0|90|0|STRECKEISEN STS-2-120S|629145000|0.02|M/S|1|2019-03-01T00:00:00|\n\
 MN|AQU||VHN|42.354|13.405|710|0|0|0|STRECKEISEN STS-2-120S|629145000|0.02|M/S|1|2019-03-01T00:00:00|\n\
 MN|AQU||VHZ|42.354|13.405|710|0|0|-90|STRECKEISEN STS-2-120S|629145000|0.02|M/S|1|2019-03-01T00:00:00|\n"),
-    ],    
+    ]    
     
+############################################# END DATA FOR TEST #############################################
+
+#############################################################################################################
+
+@pytest.mark.parametrize(
+    "query,expected_status_code", testdataxml
 )
 
+def test_eval(query,expected_status_code,host):
+    response = requests.get( "http://"+host+"/exist/apps/fdsn-station/fdsnws/station/1/query/?" + query)
+##    print (response.status_code)
+    print (response.text)
+    assert response.status_code == expected_status_code 
+
+#############################################################################################################
 
 
-def test_content(url,expected,content,host):
-    response = requests.get( "http://"+host+"/exist/apps/fdsn-station/fdsnws/station/1/query/?" + url)
-    assert (response.status_code == expected) and (response.text == content)
+#############################################################################################################
+
+@pytest.mark.parametrize(
+    "query,expected_status_code,expected_content", testdatatxt
+   
+)
+
+def test_content(query,expected_status_code,expected_content,host):
+    response = requests.get( "http://"+host+"/exist/apps/fdsn-station/fdsnws/station/1/query/?" + query)
+    assert (response.status_code == expected_status_code) 
+    assert (response.text == expected_content)
+
+############################################################################################################
 
 
+## List parameters to test
 ##starttime=
 ##endtime=
 ##startbefore=
@@ -501,4 +523,3 @@ def test_content(url,expected,content,host):
 ##authoritative
 
 
-##
