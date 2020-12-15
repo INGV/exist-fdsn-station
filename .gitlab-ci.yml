@@ -1,0 +1,53 @@
+image: docker:latest
+
+
+variables:
+  # When using dind service, we need to instruct docker to talk with
+  # the daemon started inside of the service. The daemon is available
+  # with a network connection instead of the default
+  # /var/run/docker.sock socket. Docker 19.03 does this automatically
+  # by setting the DOCKER_HOST in
+  # https://github.com/docker-library/docker/blob/d45051476babc297257df490d22cbd806f1b11e4/19.03/docker-entrypoint.sh#L23-L29
+  #
+  # The 'docker' hostname is the alias of the service container as described at
+  # https://docs.gitlab.com/ee/ci/docker/using_docker_images.html#accessing-the-services.
+  #
+  # Specify to Docker where to create the certificates, Docker will
+  # create them automatically on boot, and will create
+  # `/certs/client` that will be shared between the service and job
+  # container, thanks to volume mount from config.toml
+  DOCKER_TLS_CERTDIR: ""
+  #DOCKER_DRIVER: aufs
+  DOCKER_HOST: tcp://docker:2375
+  #DOCKER_HOST: tcp://dind:2375
+
+services:
+  - docker:dind
+  - command:["--registry-mirror", "https://mirror.gcr.io"]
+
+
+#before_script:
+#  - docker info
+
+build:
+  stage: build
+  tags: 
+    - build
+  script: 
+    - docker build --rm . -t exist-fdsn-station
+    - docker run  -d -p 80:8080/tcp --name exist-fdsn-station exist-fdsn-station
+    - sleep 60 
+      #    - netstat -ntlp
+      #    - docker port exist-fdsn-station
+#      - docker ps
+#    - docker inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' $(docker ps -a)
+#    - docker network ls
+#    - ip a
+#    - docker inspect exist-fdsn-station
+    - apk add --update py-pip
+    - pip install pytest
+#    - sleep 5
+#    - pytest TEST/test.py --host 172.26.0.7
+#    - pytest TEST/test.py --host  tcp://docker:80
+    - pytest TEST/test.py --host docker:80
+    - docker stop exist-fdsn-station  
