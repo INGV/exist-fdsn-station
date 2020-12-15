@@ -22,7 +22,7 @@ variables:
   #DOCKER_HOST: tcp://dind:2375
 
 services:
-  - docker:dind
+  - docker: dind
   - command: ["--registry-mirror", "https://mirror.gcr.io"]
 
 
