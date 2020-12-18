@@ -190,28 +190,6 @@ declare function stationutil:constraints_onchannel(
 
 
 (: Introduced to avoid call to pattern translate:)
-(:OK:)
-(:declare function stationutil:constraints_onchannel_patterns(  :)
-(:    $parameters as map()*,:)
-(:    $networkcode as xs:string*, :)
-(:    $stationcode as xs:string*,:)
-(:    $channelcode as xs:string*, :)
-(:    $locationcode as xs:string*:)
-(:    ) as xs:boolean :)
-(:    {:)
-(:    try {    :)
-(:    some $NSLCSE in $parameters:)
-(:    satisfies    :)
-(:            matches($networkcode,  $NSLCSE("network_pattern")) :)
-(:     and    matches($stationcode,  $NSLCSE("station_pattern")) :)
-(:     and    matches($channelcode,  $NSLCSE("channel_pattern")) :)
-(:     and    matches($locationcode, $NSLCSE("location_pattern")) :)
-(:        :)
-(:    }:)
-(:    catch err:* {false()}:)
-(:};:)
-
-
 declare function stationutil:constraints_onchannel_patterns(
     $parameters as map()*,
     $networkcode as xs:string*, 
@@ -231,53 +209,6 @@ declare function stationutil:constraints_onchannel_patterns(
     }
     catch err:* {false()}
 };
-
-
-(:OK:)
-(:declare function stationutil:constraints_onstation_patterns(  :)
-(:    $parameters as map()*,:)
-(:    $networkcode as xs:string*, :)
-(:    $stationcode as xs:string*,:)
-(:    $channelcode as xs:string*, :)
-(:    $locationcode as xs:string*:)
-(:    ) as xs:boolean :)
-(:    {:)
-(:    try {:)
-(:       :)
-(:    exists ( :)
-(:    for $NSLCSE in $parameters, $n in $networkcode, $s in $stationcode, $c in $channelcode, $l in $locationcode:)
-(:    where    :)
-(:            matches($n,  $NSLCSE("network_pattern")) :)
-(:     and    matches($s,  $NSLCSE("station_pattern")) :)
-(:     and    matches($c,  $NSLCSE("channel_pattern")) :)
-(:     and    matches($l, $NSLCSE("location_pattern")) :)
-(:     return 1:)
-(:    )    :)
-(:    }:)
-(:    catch err:* {false()}:)
-(:};:)
-
-
-(:declare function stationutil:constraints_onstation_patterns( :)
-(:    $parameters as map()*,:)
-(:    $networkcode as xs:string*, :)
-(:    $stationcode as xs:string*,:)
-(:    $channelcode as xs:string*, :)
-(:    $locationcode as xs:string*:)
-(:    ) as xs:boolean :)
-(:    {:)
-(::)
-(:    try {    :)
-(:    some $NSLCSE in $parameters , $n in $networkcode, $s in $stationcode, $c in $channelcode, $l in $locationcode:)
-(:    satisfies    :)
-(:            matches($n, $NSLCSE("network_pattern")) :)
-(:     and    matches($s, $NSLCSE("station_pattern")) :)
-(:     and    matches($c, $NSLCSE("channel_pattern")) :)
-(:     and    matches($l, $NSLCSE("location_pattern")) :)
-(:        :)
-(:    }:)
-(:    catch err:* {false()}:)
-(:};:)
 
 
 (: TODO or DONE? change check_radius for AQU like station: two networks, single station :)
@@ -1188,7 +1119,6 @@ for $network in collection("/db/apps/fdsn-station/Station/")//Network , $conditi
         stationutil:constraints_onchannel( $condition, $CreationDate, $TerminationDate ) and
         stationutil:check_radius($condition, $lat,$lon) and 
         stationutil:constraints_onchannel_patterns( $condition, $networkcode, $stationcode, $channelcode, $locationcode)  and
-(:        stationutil:constraints_onstation_patterns( $condition, $networkcode, $stationcode, $channelcode, $locationcode) and :)
         stationutil:check_restricted($condition,$restrictedStatus) and          
         stationutil:check_restricted($condition,$stationrestrictedStatus) and  
         stationutil:check_restricted($condition,$channelrestrictedStatus)
@@ -1232,7 +1162,6 @@ for $network in collection("/db/apps/fdsn-station/Station/")//Network , $conditi
             stationutil:constraints_onchannel( $condition, $CreationDate, $TerminationDate ) and  
             stationutil:check_radius($condition, $lat,$lon) and
             stationutil:constraints_onchannel_patterns( $condition, $networkcode, $stationcode, $channelcode, $locationcode) and 
-(:            stationutil:constraints_onstation_patterns( $condition, $networkcode, $stationcode, $channelcode, $locationcode) and :)
             stationutil:check_restricted($condition,$stationrestrictedStatus) 
 
             order by $station/@code
