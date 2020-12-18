@@ -44,11 +44,11 @@ build:
 #    - docker network ls
 #    - ip a
 #    - docker inspect exist-fdsn-station
-    - apk add --update py-pip
-    - pip install pytest
+    - apk add --update py3-pip
+    - pip3 install pytest
     - apk add --no-cache --virtual .build-deps gcc libc-dev libxslt-dev 
     - apk add --no-cache libxslt 
-    - pip install --no-cache-dir lxml>=3.5.0 
+    - pip3 install --no-cache-dir lxml 
     - apk del .build-deps
 #    - sleep 5
 #    - pytest TEST/test.py --host 172.26.0.7
