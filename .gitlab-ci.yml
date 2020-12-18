@@ -46,7 +46,7 @@ build:
 #    - docker inspect exist-fdsn-station
     - apk add --update py3-pip
     - pip3 install pytest
-    - apk add --no-cache --virtual .build-deps gcc libc-dev libxslt-dev libxml2-dev python-dev 
+    - apk add --no-cache --virtual .build-deps gcc libc-dev libxslt-dev libxml2-dev python3-dev 
     - apk add --no-cache libxslt 
     - pip3 install --no-cache-dir lxml 
     - apk del .build-deps
