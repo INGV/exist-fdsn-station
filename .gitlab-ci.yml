@@ -46,6 +46,7 @@ build:
 #    - docker inspect exist-fdsn-station
     - apk add --update py-pip
     - pip install pytest
+    - pip install lxml
 #    - sleep 5
 #    - pytest TEST/test.py --host 172.26.0.7
 #    - pytest TEST/test.py --host  tcp://docker:80
