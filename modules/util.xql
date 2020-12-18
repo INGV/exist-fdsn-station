@@ -199,17 +199,16 @@ declare function stationutil:constraints_onchannel_patterns(
     ) as xs:boolean 
     {
     try {    
-    some $NSLCSE in $parameters
+    some $NSLCSE in $parameters , $n in $networkcode, $s in $stationcode, $c in $channelcode, $l in $locationcode
     satisfies    
-            matches($networkcode,  $NSLCSE("network_pattern")) 
-     and    matches($stationcode,  $NSLCSE("station_pattern")) 
-     and    matches($channelcode,  $NSLCSE("channel_pattern")) 
-     and    matches($locationcode, $NSLCSE("location_pattern")) 
+            matches($n, $NSLCSE("network_pattern")) 
+     and    matches($s, $NSLCSE("station_pattern")) 
+     and    matches($c, $NSLCSE("channel_pattern")) 
+     and    matches($l, $NSLCSE("location_pattern")) 
         
     }
     catch err:* {false()}
 };
-
 
 
 (: TODO or DONE? change check_radius for AQU like station: two networks, single station :)
@@ -1012,6 +1011,9 @@ declare function stationutil:lines
  } ;
 
 
+
+(:Possible FIX treat level response in switch returning badrequest_error :)
+
 declare function stationutil:run() {
 
 if (stationutil:check_parameters_limits($stationutil:parameters_table))
@@ -1071,7 +1073,6 @@ if (not(empty($content))) then
 <Module>INGV-ONT WEB SERVICE: fdsnws-station | version: 1.1.50.0</Module>
 <ModuleURI>"{request:get-uri()}?{request:get-query-string()}"</ModuleURI>
 <Created>{current-dateTime()}</Created>
-<TEST>xml-producer { stationutil:get-parameter($stationutil:parameters_table[1], "level")}  shortcut: {stationutil:use_shortcut()}</TEST>
 {$content}
 </FDSNStationXML>
 else
@@ -1264,3 +1265,4 @@ for $network in collection("/db/apps/fdsn-station/Station/")//Network , $conditi
  
 }; 
  
+
