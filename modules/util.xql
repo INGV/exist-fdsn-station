@@ -1037,10 +1037,6 @@ declare function stationutil:use_shortcut() as xs:boolean {
   not( matches(string-join(request:get-parameter-names()) ,"channel|cha|location|loc|minlatitude|minlat|maxlatitude|maxlat|minlongitude|minlon|maxlongitude|maxlon|starttime|start|endtime|end|startbefore|endbefore|startafter|endafter|latitude|lat|longitude|lon|maxradius|minradius|includerestricted" ))  
 };
  
-declare function stationutil:use_station_shortcut() as xs:boolean {
-  not( matches(string-join(request:get-parameter-names()) ,"network|net|channel|cha|location|loc|minlatitude|minlat|maxlatitude|maxlat|minlongitude|minlon|maxlongitude|maxlon|starttime|start|endtime|end|startbefore|endbefore|startafter|endafter|latitude|lat|longitude|lon|maxradius|minradius|includerestricted" ))  
-};
-
 
 (: TODO  :)
 (: POST  locationCode -- :)
