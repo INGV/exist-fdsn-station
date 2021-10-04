@@ -31,3 +31,14 @@ time wget "http://10.140.0.205:8080/exist/apps/fdsn-station/query/?level=respons
 
  time curl -X PUT "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=response&net=*&format=xml&nodata=404" -H  "accept: application/xml" -H  "Content-Type: text/plain" -H  "accept: application/xml" -H  "Content-Type: text/plain" --data-binary @ACER.xml -o output.xml
 
+
+#TEST con server fdsn-station-seisnet
+time wget "http://exist-dev.int.ingv.it:9876/fdsnws/station/1/query/?level=response&station=*" -O ACER-station.xml
+time wget "http://exist-dev.int.ingv.it:9876/fdsnws/station/1/query/?level=response&net=MN" -O MN-response.xml
+time wget "http://10.140.0.205:8080/exist/apps/fdsn-station/query/?level=response&net=MN" -O ACER-exist-deploy.xml
+time wget "http://10.140.0.205:8080/exist/apps/fdsn-station/query/?level=response&net=MN" -O MN-exist-deploy.xml
+time wget "http://10.140.0.205:8080/exist/apps/fdsn-station/query/?level=response&net=IV" -O IV-exist-deploy.xml
+time wget "http://10.140.0.205:8080/exist/apps/fdsn-station/query/?level=response&net=IV" -O IV-exist-deploy.xml
+time wget "http://exist-dev.int.ingv.it:9876/fdsnws/station/1/query/?level=response&net=MN" -O MN-response.xml
+
+
