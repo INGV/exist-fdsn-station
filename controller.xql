@@ -154,7 +154,7 @@ else if (contains($exist:path, "/$shared/")) then
         </forward>
     </dispatch>
     
-  else if ( contains($exist:path, "/query/") )  then 
+  else if ( contains($exist:path, "/query") )  then 
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
         <forward url="{$exist:controller}/modules/query.xql">
             <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>
@@ -179,5 +179,6 @@ else
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
         <cache-control cache="yes"/>
     </dispatch>
+
 
 

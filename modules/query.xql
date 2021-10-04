@@ -10,20 +10,22 @@ declare option output:method "xml";
 declare option output:media-type "text/xml";
 (:TODO uncomment after debug:)
 declare option output:indent "no";
+declare option output:omit-xml-declaration "no";
 
 
 if ( request:get-method() eq "POST" or request:get-method() eq "GET") then 
      stationutil:run()
      
  else
-     
+
      let $content := request:get-data()
      let $decoded := util:base64-decode($content)
 (:Hardly get filenames:)
 (:     let $filename2 := util:binary-to-string(request:get-uploaded-file-name('file')) :)
 (:     let $filename1 := util:base64-decode(request:get-uploaded-file-name('filename')):)
 (:Explicitly pass the filename in a custom http header           :)
-     let $filename := request:get-header('file')
+(:     let $station := request:get-parameter("station", "AAA") || ".xml":)
+     let $filename := request:get-header('filename')
                         
                     
 
@@ -53,3 +55,4 @@ if ( request:get-method() eq "POST" or request:get-method() eq "GET") then
  
 :)
     
+

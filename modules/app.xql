@@ -5,6 +5,26 @@ declare default element namespace "http://www.fdsn.org/xml/station/1" ;
 import module namespace templates="http://exist-db.org/xquery/templates" ;
 import module namespace config="http://fdsn-station/config" at "config.xqm";
 import module namespace console="http://exist-db.org/xquery/console";
+declare namespace functx = "http://www.functx.com";
+declare namespace v = "http://exist-db.org/versioning";
+
+(:import module namespace f="http://exist-db.org/fakemodule";:)
+(:Comment out if versioning module not installed:)
+(:import module namespace v="http://exist-db.org/versioning";:)
+(:Set to 0 to hide columns related to versioning:)
+
+
+
+
+declare function functx:if-empty
+  ( $arg as item()? ,
+    $value as item()* )  as item()* {
+
+  if (string($arg) != '')
+  then data($arg)
+  else $value
+ } ;
+
 
 (:~
  : This is a sample templating function. It will be called by the templating module if
@@ -44,27 +64,76 @@ declare function app:login($node as node(), $model as map(*)) {
 
 declare function app:show-station-list($node as node(), $model as map(*)) {
 
+(:    console:log("Entered show-station-list function"),:)
+try {
+let $versioning_module := fn:load-xquery-module("http://exist-db.org/versioning")
+let $variables :=  $versioning_module("variables")
+let $functions :=  $versioning_module("functions")
+let $history := $versioning_module?functions?(xs:QName("v:history"))?1
+let $revisions := $versioning_module?functions?(xs:QName("v:revisions"))?1
+let $dates:=$versioning_module?functions?(xs:QName("v:dates"))?1 
+let $loaded:=true()
 
-    console:log("Entered show-station-list function"),
-
+return
 <table class="tableSection">
     <thead>
         <tr>
-            <th><span class="text">Network</span>
-
-            </th>
-            <th><span class="text">Station</span>
-
-            </th>
-            <th><span class="test">XML</span>
-
-            </th>
-            
+            <th>Network</th>
+            <th>Station</th>
+            <th>XML</th>
+{
+                for $col in ("Revisions", "Date") 
+                return <th>{$col}</th>
+}   
         </tr>
     </thead>
     <tbody>
 {
+
 for $network in collection("/db/apps/fdsn-station/Station/")//Network
+(:       let $uri := base-uri($station):)
+    let $networkcode := $network/@code
+    for $station in $network/Station
+        let $stationcode:=$station/@code
+        let $uri := replace(base-uri($station),'db','exist')
+        let $station_basename:= util:unescape-uri(replace(base-uri($station), '.+/(.+)$', '$1'),'UTF-8')
+        (:Comment out if versioning module not installed:)
+        let $station_history:= parse-xml-fragment( $history(doc("/db/apps/fdsn-station/Station/" || $stationcode || ".xml")) )
+        let $revisions := $revisions(doc("/db/apps/fdsn-station/Station/" || $stationcode || ".xml"))
+        let $dates := $dates(doc("/db/apps/fdsn-station/Station/" || $stationcode || ".xml"))
+(:                let $dates := v:dates(doc("/db/apps/fdsn-station/Station/" || $stationcode || ".xml")):)
+        (:Comment out if versioning module not installed:)
+    group by $network
+    order by $stationcode
+    return
+(:Comment out revisions and dates if versioning module is missing :)
+<tr>    
+    <td>{string($networkcode)}</td>
+    <td>{string($stationcode)}</td>
+    <td><a href= "{string($uri)}">"{$station_basename}"</a></td>
+    <td>{functx:if-empty(max($revisions),"0")}</td>
+    <td>{functx:if-empty(max($dates),"2021-01-01T00:00:00.0000")}</td>
+</tr>
+
+}
+</tbody>
+</table>
+    
+}
+catch err:* {
+    
+<table class="tableSection">
+    <thead>
+        <tr>
+            <th>Network</th>
+            <th>Station</th>
+            <th>XML</th>
+        </tr>
+    </thead>
+    <tbody>
+{
+
+    for $network in collection("/db/apps/fdsn-station/Station/")//Network
 (:       let $uri := base-uri($station):)
     let $networkcode := $network/@code
     for $station in $network/Station
@@ -75,15 +144,19 @@ for $network in collection("/db/apps/fdsn-station/Station/")//Network
     order by $stationcode
     return
 <tr>    
-    <td> {string($networkcode)}  </td>
-    <td> {string($stationcode)}  </td>
-    <td> <a href= "{string($uri)}"> "{$station_basename}" </a> </td>
+    <td>{string($networkcode)}</td>
+    <td>{string($stationcode)}</td>
+    <td><a href= "{string($uri)}">"{$station_basename}"</a></td>
+
 </tr>
 
 }
 </tbody>
 </table>
-};
+}
+
+    
+};    
 
 
 declare function app:search($node as node(), $model as map(*)) {
@@ -101,3 +174,18 @@ declare function app:search($node as node(), $model as map(*)) {
 (:            $resource//Station/text() :)
 (:        } :)
 (:        </div> :)
+
+declare function app:last_modify($node as node(), $model as map(*)) {
+    <p>
+        Now {current-dateTime()} 
+        Database last modified on {
+            let $resources := xmldb:get-child-resources("/db/apps/fdsn-station/Station/")    
+            return max(
+                for $resource in $resources
+                return xmldb:last-modified("/db/apps/fdsn-station/Station",$resource)
+            )
+        }
+    </p>
+        
+        
+};
