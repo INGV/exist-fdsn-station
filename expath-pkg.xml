@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://expath.org/ns/pkg" name="http://fdsn-station" abbrev="fdsn-station" version="0.1" spec="1.0">
-	<title>fdsn station implementation</title>
+<package xmlns="http://expath.org/ns/pkg" name="http://fdsn-station" abbrev="fdsn-station" version="1.1.55.12" spec="1.0">
+	<title>fdsn station</title>
+	    <dependency package="http://fdsn-station-data"/>
 	    <!--<dependency package="http://exist-db.org/apps/shared"/>-->
 	    <!--<dependency package="http://exist-db.org/apps/xquery-versioning-module"/>-->
 </package>

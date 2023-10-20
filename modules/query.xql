@@ -2,8 +2,6 @@ xquery version "3.1";
 
 declare default element namespace "http://www.fdsn.org/xml/station/1" ;
 declare namespace ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd";
-import module namespace stationutil="http://exist-db.org/apps/fdsn-station/modules/stationutil"  at "util.xql";
-
 declare namespace request="http://exist-db.org/xquery/request";
 declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 declare option output:method "xml";
@@ -12,47 +10,60 @@ declare option output:media-type "text/xml";
 declare option output:indent "no";
 declare option output:omit-xml-declaration "no";
 
+import module namespace login="http://exist-db.org/xquery/login" at "resource:org/exist/xquery/modules/persistentlogin/login.xql";
+import module namespace stationutil="http://exist-db.org/apps/fdsn-station/modules/stationutil"  at "util.xql";
+(:import module namespace config = "http://exist-db.org/xquery/apps/config" at "modules/config.xqm";:)
 
-if ( request:get-method() eq "POST" or request:get-method() eq "GET") then 
-     stationutil:run()
-     
- else
 
-     let $content := request:get-data()
-     let $decoded := util:base64-decode($content)
-(:Hardly get filenames:)
-(:     let $filename2 := util:binary-to-string(request:get-uploaded-file-name('file')) :)
-(:     let $filename1 := util:base64-decode(request:get-uploaded-file-name('filename')):)
-(:Explicitly pass the filename in a custom http header           :)
-(:     let $station := request:get-parameter("station", "AAA") || ".xml":)
-     let $filename := request:get-header('filename')
-                        
-                    
 
-     return
-         
-         xmldb:store("/db/apps/fdsn-station/Station/", $filename, $decoded)
+let $log:= if ($stationutil:settings("enable_query_log")) then util:log("info",  stationutil:get_caller() || " [" || request:get-method() || "] "  || request:get-query-string() || " [START]") else ()
 
-     
-(: TODO: verify permissions, verify the xml, extract station name, store the file,  try versioningtrigger pag 428 Siegel...   :)         
-(: Next line store the file in station as is !!!!!       :)
-        
-     
-(:        ,        xmldb:store("/db/apps/fdsn-station/Station/", $filename1, $content):)
-        
-(: 
- This lines for testing purposes
- 
- time curl -X PUT "http://127.0.0.1:8080/exist/apps/fdsn-station/query/?level=response&net=*&format=xml&nodata=404" -H  "accept: application/xml" -H  "Content-Type: text/plain" -H  "accept: application/xml" -H  "Content-Type: text/xml" --data-binary @ACER.xml -o output.xml
- 
- time curl -T "Station/CP02.xml" "http://127.0.0.1:80/exist/apps/fdsn-station/query/?level=response&net=*&format=xml&nodata=404" -H  "accept: application/xml" -H  "Content-Type: text/plain" -o output.xml
- 
- Place the file
- Use a header to get control on filename:
- time curl -X PUT "http://127.0.0.1:80/exist/apps/fdsn-station/query/?level=response&net=*&format=xml&nodata=404" -H  "accept: application/xml" -H  "Content-Type: text/plain" -H  "accept: application/xml" -H  "Content-Type: text/xml" --data-binary @Station/MNS.xml  -H "file: MNS.xml" -o output.xml
 
- 
- 
+return
+try {
+    let $user:=sm:id()
+    let $log:=if ($user!="guestguest") then util:log("info", "User: " || $user  ) else ()
+    return
+    (
+    if ( request:get-method() eq "POST" or request:get-method() eq "GET") then
+        stationutil:run() 
+     else
+        if ( request:get-method() eq "PUT") then
+            if ($user="fdsndba") then stationutil:put() else stationutil:other_error()
+        else
+            if ( request:get-method() eq "DELETE" and (request:get-parameter("net","None") = "None")) then
+             if ($user="fdsndba") then stationutil:delete() else stationutil:other_error()
+            else 
+                if ( $user="fdsndba" and request:get-method() eq "DELETE" and (request:get-parameter("net","None") != "None")) then
+                    stationutil:delete_selected()
+                else  stationutil:other_error()
+    ,if ($stationutil:settings("enable_query_log")) then util:log("info",  stationutil:get_caller() || " [" || request:get-method() || "] " || request:get-query-string() || " [END]" ) else ()
+    )           
+                
+    }
+catch err:* {
+     let $error := stationutil:internal_error($err:code || " " || $err:description )
+     return $error || "
+" || $err:code || " " || $err:description
+}
+
+(: TODO:  verify the xml,  try versioningtrigger :)
+
+
+(:
+ This lines for testing purposes:
+
+  Use a header to get control on filename:
+
+ EXAMPLE TO PUT:
+ curl -X PUT "http://172.17.0.2:8080/exist/apps/fdsn-station/fdsnws/station/1/query?" -H  "accept: application/xml"  -H "Content-Type: application/octet-stream" -H "Expect:" -H "filename: INGV_ABSI.xml"  --data-binary @Station/INGV_ABSI.xml -o output.xml -i -v -uadmin:
+
+ EXAMPLE TO DELETE:
+ curl -v  -H "Content-Type: text/plain"  -H "accept: application/xml" -H "filename: GIZZ.xml" -o output.xml -X DELETE "http://172.17.0.2:8080/exist/apps/fdsn-station/query/?"
+
+ EXAMPLE TO POST:
+ curl -X POST "http://172.17.0.2:8080/exist/apps/fdsn-station/fdsnws/station/1/query" -H  "Content-Type: application/octet-stream" --data-binary @test-post-request.txt -o error.txt -H  "accept: application/xml" --trace-ascii /dev/stdout
+
 :)
-    
+
 

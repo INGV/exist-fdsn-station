@@ -1,0 +1,35 @@
+<div xmlns="http://www.w3.org/1999/xhtml" class="templates:surround?with=templates/page.html&amp;at=content">
+    <h1>FDSNWS Station Web Service</h1>
+    <h2>exist-fdsn-station</h2>
+  <p>
+  The station Web service provides access to network, station, channel and response metadata in
+  <a href="http://www.fdsn.org/xml/station">FDSN Station XML</a> format.
+  The metadata may be filtered e.g. by geographic region and time, also the information depth level is selectable.
+  The <em>HTTP-GET</em> and <em>HTTP-POST</em> request type are supported . Please refer to
+  <a href="http://www.fdsn.org/webservices">http://www.fdsn.org/webservice</a>
+  for a complete service description.</p>
+
+  <h2>Available URLs</h2>
+  <ul>
+    <li><a href="query">query</a></li>
+    <li><a href="version">version</a></li>
+    <li><a href="application.wadl">application.wadl</a></li>
+  </ul>
+
+
+  <h2>Feature Notes</h2>
+  <ul>
+    <li>back-end software: <a href="https://zenodo.org/badge/latestdoi/317600375">exist-fdsn-station</a></li>
+    <li><em>updatedafter parameter:</em> the service implements the updateafter query parameter.
+    Metadata updates in the application database are made in the station file as a whole.
+    Therefore, the response corresponding to updateafter = datetime concerns stations updated after that datetime,
+    regardless of the level at which the change occurred.
+    </li>
+  </ul>
+
+
+    <pre class="error templates:error-description"/>
+    <div class="source-links">
+        <p>View source: <a href="" class="templates:load-source">this page</a>.</p>
+    </div>
+</div>

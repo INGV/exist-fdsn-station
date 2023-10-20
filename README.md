@@ -25,13 +25,13 @@ Replace the files in the Station directory with your station.xml files (one file
 Query the webservice version as for the FDSN Station standard, assuming 172.17.0.2:8080 the docker network:port exposed:
 
 ```
-wget "http://172.17.0.2:8080/exist/apps/fdsn-station/version -O version.text" 
+wget "http://172.17.0.2:8080/exist/apps/fdsn-station/fdsnws/station/1/version -O version.text" 
 
 ```
 Try this examples with the stations provided, or adapt to your stations set.
 
 ```
-wget "http://172.17.0.2:8080/exist/apps/fdsn-station/query/?level=station&format=text&lat=42.1&lon=12.5&maxradius=2.5&minradius=0.001&includerestricted=false" -O some-stations-norestricted.txt 
+wget "http://172.17.0.2:8080/exist/apps/fdsn-station/fdsnws/station/1/query?level=station&format=text&lat=42.1&lon=12.5&maxradius=2.5&minradius=0.001&includerestricted=false" -O some-stations-norestricted.txt 
 ```
 
 [![DOI](https://zenodo.org/badge/317600375.svg)](https://zenodo.org/badge/latestdoi/317600375)

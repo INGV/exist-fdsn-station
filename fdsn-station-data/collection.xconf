@@ -1,0 +1,46 @@
+<collection xmlns="http://exist-db.org/collection-config/1.0">
+
+
+<!-- Full indexes, still some strange characters at Latitude/Longitude but apparently works-->
+<!-- New Range indexes -->
+
+    <index xmlns:fsx="http://www.fdsn.org/xml/station/1" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <range>
+            <create qname="fsx:Latitude" type="xs:decimal"/>
+            <create qname="fsx:Longitude" type="xs:decimal"/>
+            <create qname="fsx:CreationDate" type="xs:string"/>
+            <create qname="fsx:TerminationDate" type="xs:string"/>
+            <create qname="@startDate" type="xs:dateTime"/>
+            <create qname="@endDate" type="xs:dateTime"/>
+            <create qname="@code" type="xs:string"/>
+            <create qname="@locationCode" type="xs:string"/>
+
+            <create qname="fsx:Network">
+                <field name="NetworkCode" match="fsx:Network/@code" type="xs:string"/>
+                <field name="StaCode" match="fsx:Station/@code" type="xs:string"/>
+            </create>
+            <create qname="fsx:Station">
+                <field name="StationCode" match="fsx:Station/@code" type="xs:string"/>
+                <field name="StationLatitude" match="fsx:Latitude" type="xs:decimal"/>
+                <field name="StationLongitude" match="fsx:Longtitude" type="xs:decimal"/>
+                <field name="ChannelstartDate" match="fsx:Channel/@startDate" type="xs:dateTime"/>
+                <field name="ChannelendDate" match="fsx:Channel/@endDate" type="xs:dateTime"/>
+                <field name="ChannelCode" match="fsx:Channel/@code" type="xs:string"/>
+            </create>
+            <create qname="fsx:Channel">
+                <field name="ChannelLatitude" match="fsx:Latitude" type="xs:decimal"/>
+                <field name="ChannelLongitude" match="fsx:Longtitude" type="xs:decimal"/>
+                <field name="ChannelCode" match="fsx:Channel/@code" type="xs:string"/>
+                <field name="Channellocation" match="fsx:Channel/@locationCode" type="xs:string"/>
+                <field name="ChannelstartDate" match="fsx:Channel/@startDate" type="xs:dateTime"/>
+                <field name="ChannelendDate" match="fsx:Channel/@endDate" type="xs:dateTime"/>
+            </create>
+
+        </range>
+
+    </index>
+
+
+
+
+</collection>
