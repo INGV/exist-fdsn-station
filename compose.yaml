@@ -19,7 +19,7 @@ services:
 
   exist-fdsn-station:
     restart: "unless-stopped"      
-    container_name: exist-fdsn-station-eida
+    container_name: exist-fdsn-station
     build:
       context: .
       target: deploy
