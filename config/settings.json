@@ -1,0 +1,8 @@
+{
+    "enable_log": true,
+    "enable_debug": false,
+    "enable_query_log": false,
+    "post_limit_rows": 1000,
+    "translate_units": true,
+    "remove_tz": true
+}
