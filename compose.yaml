@@ -1,0 +1,39 @@
+services:
+
+  proxy:
+    restart: "unless-stopped"      
+    image: nginx
+    volumes:
+      - type: bind
+        source: ./proxy/nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
+    ports:
+      - 80:80
+    depends_on:
+      - exist-fdsn-station
+    networks:
+            - station-net
+
+
+
+  exist-fdsn-station:
+    restart: "unless-stopped"      
+    container_name: exist-fdsn-station-eida
+    build:
+      context: .
+      target: deploy
+      # No ports, only proxy or backup can see them
+    #To avoid docker-compose close the service
+    tty: true
+    # Persistent volume on data dir
+    volumes:
+            - type: bind
+              source: ./data
+              target: /exist/data
+    networks:
+            - station-net
+
+ 
+networks:
+          station-net:
