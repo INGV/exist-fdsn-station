@@ -86,7 +86,7 @@ declare %public variable $stationutil:endtimes as xs:dateTime* :=if (request:get
 (:~ @return the current module version:)
 declare function stationutil:version() as xs:string
 {
-    "1.1.55"
+    "1.1.56"
 };
 
 (:~ Output debug messages :)
@@ -1869,6 +1869,26 @@ return  $err_param_list <1 and $stationutil:parameters_table("includerestricted"
 
 };
 
+
+declare function stationutil:use_net_sta_box($includerestricted as xs:string) as xs:boolean {
+(:    let $log := util:log("info", "use_shortcut(" ||$includerestricted||")"):)
+    let $param_list := request:get-parameter-names()
+(:    let $alternate_network  := stationutil:get-parameter($stationutil:parameters_table[1], "alternate_network_pattern" ):)
+    let $err_param_list := sum(for $param in $param_list
+    return
+
+      if (matches($param ,"^channel$|^cha$|^location$|^loc$|^starttime$|^start$|^endtime$|^end$|^startbefore$|^endbefore$|^startafter$|^endafter$|^latitude$|^lat$|^longitude$|^lon$|^maxradius$|^minradius$|^maxradiuskm$|^minradiuskm$|^updatedafter$" ))
+      then 1
+      else 0
+      )
+
+
+return  $err_param_list <1 and $stationutil:parameters_table("includerestricted")="true"
+(:and  ($alternate_network = ('(^.*$)')):)
+
+};
+
+
 declare function stationutil:use_no_restricted_radius() as xs:boolean {
 (:    let $log := util:log("info", "use_no_restricted_radius")    :)
     let $includerestricted:=$stationutil:parameters_table("includerestricted")
@@ -2108,6 +2128,9 @@ let $content :=
             if (stationutil:use_shortcut($stationutil:parameters_table("includerestricted"))) then
                 stationutil:query_core_channel_shortcut($stationutil:parameters_table)
             else
+            if (stationutil:use_net_sta_box($stationutil:parameters_table("includerestricted"))) then
+                stationutil:query_core_box_shortcut($stationutil:parameters_table)
+            else
             if (stationutil:use_no_restricted_radius()) then
                 stationutil:query_noradius_includerestricted_level_channel_response($stationutil:parameters_table,"channel")
             else
@@ -2136,6 +2159,9 @@ let $content :=
             if (stationutil:use_shortcut($stationutil:parameters_table("includerestricted"))) then
                 stationutil:query_core_channel_shortcut($stationutil:parameters_table)
             else
+            if (stationutil:use_net_sta_box($stationutil:parameters_table("includerestricted"))) then
+                stationutil:query_core_box_shortcut($stationutil:parameters_table)
+            else
             if (stationutil:use_no_restricted_radius()) then
                 stationutil:query_noradius_includerestricted_level_channel_response($stationutil:parameters_table,"response")
             else
@@ -2148,8 +2174,8 @@ let $content :=
 return
 if (not(empty($content))) then
 <FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" schemaVersion="1.2" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.2.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd">
-<Source>eXistDB</Source>
-<Sender>INGV-ONT</Sender>
+<Source>{xs:string($stationutil:settings("source"))}</Source>
+<Sender>{xs:string($stationutil:settings("sender"))}</Sender>
 <Module>INGV-ONT WEB SERVICE: fdsnws-station | version: {stationutil:version()}</Module>
 {
             if (request:get-method()="POST")
@@ -2848,6 +2874,8 @@ declare function stationutil:query_noradius_includerestricted_level_channel_resp
         [Station[range:matches(@code, $NSLCSE("station_pattern"))]]
 (:        [Station[matches(@code, $NSLCSE("station_pattern"))]]:)
         /Station
+        [Latitude > $NSLCSE("minlatitude") and Latitude < $NSLCSE("maxlatitude")]
+        [Longitude > $NSLCSE("minlongitude") and Longitude < $NSLCSE("maxlongitude")]
         [range:matches(@code, $NSLCSE("station_pattern"))]
         [Channel[@startDate <= $NSLCSE("endtime") and @startDate < $NSLCSE("startbefore") and @startDate > $NSLCSE("startafter")]]
         [Channel[($NSLCSE("endbefore") = $stationutil:defaults("future_time_as_datetime")) or @endDate < $NSLCSE("endbefore")]]
@@ -2927,7 +2955,7 @@ declare function stationutil:query_noradius_includerestricted_level_channel_resp
                 let $locationcode:=$channel/@locationCode
                 let $channelstartDate:=$channel/@startDate
                 let $channelendDate:=(if (empty($channel/@endDate)) then $stationutil:defaults("future_time_as_datetime")  else $channel/@endDate )
-                let $channelrestrictedStatus := $channel/@restrictedStatus
+(:                let $channelrestrictedStatus := $channel/@restrictedStatus:)
                 where
 
                     matches($chacode, $NSLCSE("channel_pattern")) and
@@ -2938,12 +2966,12 @@ declare function stationutil:query_noradius_includerestricted_level_channel_resp
                     and $channelstartDate > $NSLCSE("startafter")
                     and ( if ( $NSLCSE("endbefore") = $stationutil:defaults("future_time_as_datetime")) then true() else ($channelendDate < $NSLCSE("endbefore")))
                     and (($channelendDate > $NSLCSE("endafter"))  or  ($channelendDate=$stationutil:defaults("future_time")))
-                    and stationutil:check_restricted($NSLCSE,$channelrestrictedStatus)
+(:                    and stationutil:check_restricted($NSLCSE,$channelrestrictedStatus):)
 
                 return
                     $channel
-        where
-            stationutil:check_restricted($NSLCSE,$stationrestrictedStatus)
+(:        where:)
+(:            stationutil:check_restricted($NSLCSE,$stationrestrictedStatus):)
         group by $stationcode, $stationstartDate, $stationendDate
         order by $stationcode, $stationstartDate, $stationendDate
         return
@@ -3273,12 +3301,16 @@ declare function stationutil:query_core($NSLCSE as map()*, $level as xs:string){
             let $selected_channels:= (
                 for $channel in $channels
                 let $CreationDate:= $channel/@startDate
+                let $channelcode := $channel/@code
+                let $channellocationCode := $channel/@locationCode
 (:                let $TerminationDate:= $channel/@endDate:)
                 let $TerminationDate := if (empty($channel/@endDate)) then $stationutil:defaults("future_time_as_datetime") else $channel/@endDate
 (:                let $log := util:log("info", "channels: "):)
                 where
 
                     (
+                        matches($channelcode, $NSLCSE("channel_pattern")) and
+                        matches($channellocationCode, $NSLCSE("location_pattern")) and
                         ((($NSLCSE("endtime") >= $CreationDate)  and  ($NSLCSE("starttime") <= $TerminationDate))) and
                         (($CreationDate < $NSLCSE("startbefore"))) and
                         (($CreationDate > $NSLCSE("startafter"))) and
@@ -4339,6 +4371,142 @@ declare function stationutil:query_core_channel_shortcut($NSLCSE as map()*){
 
 };
 
+(:~
+ :  @return the <network> Station XML fragment given the $NSLCSE map of query parameters, found in the current collection.
+ :  Simplified to treat only the network and station parameter case, without other arguments
+ :
+ : @param $NSLCSE
+ :)
+declare function stationutil:query_core_box_shortcut($NSLCSE as map()*){
+(:DEBUG:)
+(:try{:)
+
+    let $dlog := stationutil:debug("info", "query_core_box_shortcut" )
+    let $level := $NSLCSE("level")
+    let $since:= xs:dateTime($NSLCSE("updatedafter"))
+    let $collection := if ($level="response") then $stationutil:station_collection else $stationutil:station_pruned_collection
+    for $network in collection($collection)
+        //Network
+        [@code= $NSLCSE("network_sequence")]
+        [Station[range:matches(@code, $NSLCSE("station_pattern"))]]
+
+        [Station[Latitude > $NSLCSE("minlatitude") and Latitude < $NSLCSE("maxlatitude")]]
+        [Station[Longitude > $NSLCSE("minlongitude") and Longitude < $NSLCSE("maxlongitude")]]
+(:        [Station[matches(@code, $NSLCSE("station_pattern"))]]:)
+(:        [@code= $NSLCSE("network_sequence")]/Station[matches(@code, $NSLCSE("station_pattern"))]/..:)
+
+        let $networkcode := $network/@code
+        let $station:=$network//Station
+        let $stationcode:=$station/@code
+
+        (:TODO use $startDate,  $endDate?:)
+        let $startDate := $network/@startDate
+        let $endDate := $network/@endDate
+        let $sourceID:=$network/@sourceID
+        let $restrictedStatus:=$network/@restrictedStatus
+        let $alternateCode:=$network/@alternateCode
+        let $historicalCode:=$network/@historicalCode
+        let $stationrestrictedStatus:=$network/Station/@restrictedStatus
+    (:    let $channelrestrictedStatus:=$network//Channel/@restrictedStatus    :)
+        let $Description := $network/Description
+        let $Identifier := $network/Identifier
+        let $firstidentifier := $Identifier[1]
+        let $network_ingv_identifier := $network/ingv:Identifier
+
+        let $stations:=
+        (
+            for $station in $network/Station
+                let $stationcode:=$station/@code
+                let $stationstartDate := $station/@startDate
+                let $stationendDate := $station/@endDate
+                let $stationrestrictedStatus := $station/@restrictedStatus
+                let $channels:=$station//Channel
+            where
+
+                matches($stationcode, $NSLCSE("station_pattern")) and
+                ($networkcode = $NSLCSE("network_sequence")) and
+                (count ($channels)>0)
+    (:  FIX ODC problem with identifier in dataset FIXME          :)
+    (:        group by $networkcode,  $startDate, $endDate, $restrictedStatus, $Description, $network_ingv_identifier, $Identifier:)
+            group by $stationcode, $stationstartDate, $stationendDate, $stationrestrictedStatus
+            order by $stationcode
+            return
+
+                    <Station>
+                    {$stationcode}
+                    </Station>
+        )
+
+        where
+
+            matches($stationcode, $NSLCSE("station_pattern")) and
+            ($networkcode = $NSLCSE("network_sequence"))
+            and
+            (count($stations)>0)
+            group by $networkcode, $alternateCode, $sourceID, $historicalCode, $startDate, $endDate, $restrictedStatus, $Description, $network_ingv_identifier, $firstidentifier
+            order by $networkcode, $startDate, $endDate
+        return
+
+            <Network>
+            {$networkcode}
+            {$startDate}
+            {$endDate}
+            {$sourceID} {$restrictedStatus} {$alternateCode} {$historicalCode}
+            {$Description}
+            {functx:distinct-deep($Identifier)}
+            {$network_ingv_identifier}
+
+            <TotalNumberStations> {stationutil:stationcount($networkcode,$startDate,$endDate, $restrictedStatus )} </TotalNumberStations>
+            <SelectedNumberStations> {count($stations)} </SelectedNumberStations>
+            {
+
+             for $station in $network/Station
+                let $stationcode:=$station/@code
+                let $stationstartDate := $station/@startDate
+                let $stationendDate := $station/@endDate
+                let $stationrestrictedStatus := $station/@restrictedStatus
+                let $channels:=$station//Channel
+            where
+
+                matches($stationcode, $NSLCSE("station_pattern")) and
+                ($networkcode = $NSLCSE("network_sequence")) and
+                (count ($channels)>0)
+            group by $stationcode, $stationstartDate, $stationendDate, $stationrestrictedStatus
+            order by $stationcode, $stationstartDate
+            return
+                    <Station>
+                    {$stationcode}
+                    {$stationstartDate}
+                    {$stationendDate}
+                    {$stationrestrictedStatus}
+                    {$station/ingv:AlternateNetworks}
+                    {$station/ingv:Identifier}
+                    {$station/Latitude}
+                    {$station/Longitude}
+                    {$station/Elevation}
+                    {$station/Site}
+                    {$station/CreationDate}
+                    {$station/TerminationDate}
+                    {
+                        <TotalNumberChannels>
+                        {count($station/Channel)}
+                        </TotalNumberChannels>,
+                        <SelectedNumberChannels>
+                        {count ($channels)}
+                        </SelectedNumberChannels>,
+                        $channels
+
+                    }
+                    </Station>
+
+            }
+            </Network>
+(:}:)
+(:    catch err:* {()}:)
+
+};
+
+
 
 
 declare function stationutil:query_core_single_station($NSLCSE as map()*){
@@ -4542,36 +4710,32 @@ declare function stationutil:delete()
 };
 
 
+declare function stationutil:remove($filename as xs:string){
+    let $s := xmldb:remove($stationutil:station_collection, $filename)
+    let $p := xmldb:remove($stationutil:station_pruned_collection, $filename)
+    let $log := stationutil:log("info", "Deleted station " || $filename )
+    return $s and $p
+};
+
+
 declare function stationutil:delete_selected()
 {
     let $net := request:get-parameter("net", "")
     let $provider:= request:get-parameter("provider", "")
     let $pattern:= replace( $net, "\*", ".*")
 
-    let $cycle:= for $doc in collection($stationutil:station_collection)
+    let $cycle:= count(for $doc in collection($stationutil:station_collection)
          let $filename :=util:document-name($doc)
-         let $log:=stationutil:log("info","Filename: " || $filename)
-         let $log := stationutil:log("info", "Deleted station " || $filename )
          where
          fn:matches($filename,"^"||$provider)
          and
          fn:matches($doc//Network/@code, "^" || $net || "$")
         return
-            xmldb:remove($stationutil:station_collection, $filename)
+            stationutil:remove($filename)
+    )
 
-    let $cycle:= for $doc in collection($stationutil:station_pruned_collection)
-         let $filename :=util:document-name($doc)
-         let $log:=stationutil:log("info","Filename: " || $filename)
-         let $log := stationutil:log("info", "Deleted station " || $filename )
-         where
-         fn:matches($filename,"^"||$provider)
-         and
-         fn:matches($doc//Network/@code, "^" || $net || "$")
-        return
-            xmldb:remove($stationutil:station_pruned_collection, $filename)
-
-    let $cache_created := stationutil:netcache_create()
-    return ()
+    let $cache_created := if ($cycle>0) then stationutil:netcache_create() else stationutil:log("info", "Nothing to delete, no station for " || $provider )
+    return if ($cycle>0) then () else stationutil:nodata_error()
 };
 
 (:"CACHE" management:)
@@ -4589,12 +4753,15 @@ declare function stationutil:real_put($decoded as xs:string, $filename as xs:str
      try {
         (:Possible more than a netcode in a station file:)
         let $alreadyindb:=doc-available($stationutil:station_collection||$filename)
+        let $stationindb:=doc($stationutil:station_collection||$filename)
+        let $oldnetcode:=$stationindb//Network/@code
+
         let $store1:=xmldb:store($stationutil:station_collection, $filename, $decoded)
         let $store2:=xmldb:store($stationutil:station_pruned_collection, $filename, $pruned)
 
         let $todo :=
         (
-            if (count($netcode)>1)
+            if (count($netcode)>1 or not(matches($oldnetcode,$netcode)))
         then
 (:            let $log:=stationutil:log("info", "More than a network, creating cache") return :)
             stationutil:netcache_create()

@@ -3,6 +3,7 @@
 
 
 import requests
+# noinspection PyUnresolvedReferences
 import pytest
 import conftest
 import difflib
@@ -1015,6 +1016,29 @@ S|ELFMC||EHZ|47.3855|8.5996|650|0|0|-90||404236000|5|m/s|100|2010-12-01T00:00:00
 ","check one character network code"),
 
 (
+"level=channel&format=text&starttime=2000-09-18T03:09:54&endtime=2023-09-18T03:18:34&cha=C??,E??,H??,S??&nodata=404&lat=43&lon=12&maxradius=0.9",200,"\
+#Network | Station | location | Channel | Latitude | Longitude | Elevation | Depth | Azimuth | Dip | SensorDescription | Scale | ScaleFreq | ScaleUnits | SampleRate | StartTime | EndTime\n\
+IV|ARVD||EHE|43.49807|12.94153|461|0|90|0|LENNARTZ LE3D-5S|466034000|0.2|m/s|50|2003-03-01T00:00:00|2005-09-30T10:33:00\n\
+IV|ARVD||EHE|43.49807|12.94153|461|0|90|0|LENNARTZ LE3D-5S|466034000|0.2|m/s|50|2005-09-30T10:33:00|2008-02-08T12:00:00\n\
+IV|ARVD||EHN|43.49807|12.94153|461|0|0|0|LENNARTZ LE3D-5S|466034000|0.2|m/s|50|2003-03-01T00:00:00|2005-09-30T10:33:00\n\
+IV|ARVD||EHN|43.49807|12.94153|461|0|0|0|LENNARTZ LE3D-5S|466034000|0.2|m/s|50|2005-09-30T10:33:00|2008-02-08T12:00:00\n\
+IV|ARVD||EHZ|43.49807|12.94153|461|0|0|-90|LENNARTZ LE3D-5S|466034000|0.2|m/s|50|2003-03-01T00:00:00|2005-09-30T10:33:00\n\
+IV|ARVD||EHZ|43.49807|12.94153|461|0|0|-90|LENNARTZ LE3D-5S|466034000|0.2|m/s|50|2005-09-30T10:33:00|2008-02-08T12:00:00\n\
+IV|ARVD||HHE|43.49807|12.94153|461|0|135|0|NANOMETRICS TRILLIUM-40S|1179650000|0.2|m/s|100|2008-02-26T10:03:00|2009-03-14T10:40:00\n\
+IV|ARVD||HHE|43.49807|12.94153|461|0|90|0|NANOMETRICS TRILLIUM-40S|1179650000|0.2|m/s|100|2009-03-14T10:40:00|\n\
+IV|ARVD||HHN|43.49807|12.94153|461|0|45|0|NANOMETRICS TRILLIUM-40S|1179650000|0.2|m/s|100|2008-02-26T10:03:00|2009-03-14T10:40:00\n\
+IV|ARVD||HHN|43.49807|12.94153|461|0|0|0|NANOMETRICS TRILLIUM-40S|1179650000|0.2|m/s|100|2009-03-14T10:40:00|\n\
+IV|ARVD||HHZ|43.49807|12.94153|461|0|0|-90|NANOMETRICS TRILLIUM-40S|1179650000|0.2|m/s|100|2008-02-26T10:03:00|2009-03-14T10:40:00\n\
+IV|ARVD||HHZ|43.49807|12.94153|461|0|0|-90|NANOMETRICS TRILLIUM-40S|1179650000|0.2|m/s|100|2009-03-14T10:40:00|\n\
+TV|AT04||EHE|43.254269|12.450467|595|0|90|0|LENNARTZ LE3D-5S|251652000|1|m/s|100|2010-03-31T00:00:00|2011-02-09T09:55:00\n\
+TV|AT04||EHN|43.254269|12.450467|595|0|0|0|LENNARTZ LE3D-5S|251652000|1|m/s|100|2010-03-31T00:00:00|2011-02-09T09:55:00\n\
+TV|AT04||EHZ|43.254269|12.450467|595|0|0|-90|LENNARTZ LE3D-5S|251652000|1|m/s|100|2010-03-31T00:00:00|2011-02-09T09:55:00\n\
+TV|AT04||HNE|43.254269|12.450467|595|0|90|0|KINEMETRICS EPISENSOR|641523|0.2|m/s**2|200|2010-03-31T00:00:00|2011-02-09T09:55:00\n\
+TV|AT04||HNN|43.254269|12.450467|595|0|0|0|KINEMETRICS EPISENSOR|641523|0.2|m/s**2|200|2010-03-31T00:00:00|2011-02-09T09:55:00\n\
+TV|AT04||HNZ|43.254269|12.450467|595|0|0|-90|KINEMETRICS EPISENSOR|641523|0.2|m/s**2|200|2010-03-31T00:00:00|2011-02-09T09:55:00\n\
+","maxradius and channel"),
+
+(
 "level=station&format=geojson&station=ACER,ACOM",200,'\
 {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"code":"ACER","Name":"Acerenza","network":"IV","startDate":"2007-07-05T12:00:00","endDate":null,"Latitude":40.7867,"Longitude":15.9427,"Elevation":690},"geometry":{"type":"Point","coordinates":[15.9427,40.7867]}},{"type":"Feature","properties":{"code":"ACOM","Name":"Acomizza","network":"NI","startDate":"2005-02-01T12:00:00","endDate":"2015-12-31T23:59:59","Latitude":46.548,"Longitude":13.5137,"Elevation":1788},"geometry":{"type":"Point","coordinates":[13.5137,46.548]}},{"type":"Feature","properties":{"code":"ACOM","Name":"Acomizza","network":"OX","startDate":"2016-01-01T00:00:00","endDate":null,"Latitude":46.548,"Longitude":13.5137,"Elevation":1788},"geometry":{"type":"Point","coordinates":[13.5137,46.548]}}]}',"geojson two station in three networks"),
 ]
@@ -1657,159 +1681,207 @@ Request:\n\
 testdataio = [
 
 (
-"INGV_A319A.xml",200,
+"provider=INGV&net=*","TEST/data/Station/",200,
+'',
+"DELETE_MULTI" , "DELETE ALL INGV station present in DB [NetCache]"),
+
+(
+"FAKE","TEST/data/Station/",204,
+'',
+"DELETE_MULTI" , "DELETE ALL FAKE station present in DB [NetCache]"),
+
+(
+"INGV_A319A.xml","TEST/data/Station/",200,
+'',
+"PUT" , "PUT A319A station"),
+
+(
+"provider=INGV&net=IV","TEST/data/Station/",204,
+'',
+"DELETE_MULTI" , "DELETE ALL INGV IV station present in DB (NONE)"),
+
+(
+"INGV_A319A.xml","TEST/data/Station/",200,
 '',
 "DELETE" , "DELETE A319A station present in DB [NetCache]"),
 
 
 (
-"INGV_A319A.xml",204,
+"INGV_A319A.xml","TEST/data/Station/",204,
 '',
 "DELETE" , "DELETE A319A station from empty DB [NetCache]"),
 
 (
-"INGV_A319A.xml",200,
+"INGV_A319A.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT A319A station"),
 
 
 (
-"INGV_A319A.xml",200,
+"INGV_A319A.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT A319A station again [NetCache]"),
 
 (
-"INGV_ABSI.xml",200,
+"INGV_ABSI.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ABSI station"),
 
 (
-"INGV_ACATE.xml",200,
+"INGV_ACATE.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ACATE station"),
 
 (
-"INGV_ACER.xml",200,
+"INGV_ACER.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ACER station"),
 
 (
-"INGV_ACOM.xml",200,
+"INGV_ACOM.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ACOM station NI,OX networks [NetCache]" ),
 
 (
-"INGV_ACOM.xml",200,
+"INGV_ACOM.xml","TEST/data/Station/",200,
 '',
 "DELETE" , "DELETE ACOM station NI,OX networks [NetCache]"),
 
 (
-"INGV_ACOM.xml",200,
+"INGV_ACOM.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ACOM station NI,OX networks [NetCache]"),
 
 
 (
-"INGV_ACOM.xml",200,
+"INGV_ACOM.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ACOM station, NI,OX networks, again. [NetCache]"),
 
 (
-"INGV_AND3.xml",200,
+"INGV_AND3.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT AND3 station"),
 
 (
-"INGV_AQT1.xml",200,
+"INGV_AQT1.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT AQT1 station"),
 
 (
-"INGV_AQU.xml",200,
+"INGV_AQU.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT AQU station"),
 
 (
-"INGV_ARPR.xml",200,
+"INGV_ARPR.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ARPR station"),
 
 (
-"INGV_ARVD.xml",200,
+"INGV_ARVD.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ARVD station"),
 
 (
-"INGV_IMTC.xml",200,
+"INGV_IMTC.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT IMTC station"),
 
 (
-"INGV_VBKN.xml",200,
+"INGV_VBKN.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT VBKN station"),
 
 (
-"INGV_AT04.xml",200,
+"INGV_AT04.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT (INGV) AT04 station"),
 
 (
-"INGV_VBKN.xml",200,
+"INGV_VBKN.xml","TEST/data/Station/",200,
 '',
 "DELETE" , "DELETE VBKN station. [NetCache update #78]"),
 
 (
-"INGV_ACER.xml",200,
+"INGV_ACER.xml","TEST/data/Station/",200,
 '',
 "DELETE" , "DELETE ACER station. [NetCache update #78]"),
 
 (
-"INGV_AQT1.xml",200,
+"INGV_AQT1.xml","TEST/data/Station/",200,
 '',
 "DELETE" , "DELETE AQT1 station. [NetCache update #78]"),
 
 (
-"INGV_VBKN.xml",200,
+"INGV_VBKN.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT VBKN station. [NetCache update #78]"),
 
 (
-"INGV_ACER.xml",200,
+"INGV_ACER.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ACER station. [NetCache update #78]"),
 
 (
-"INGV_AQT1.xml",200,
+"INGV_AQT1.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT AQT1 station. [NetCache update #78]"),
 
 
 
 (
-"GFZ_AT04.xml",200,
+"GFZ_AT04.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT (GFZ) AT04 station"),
 
 (
-"ETH_ELFMC.xml",200,
+"ETH_ELFMC.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT (ETH) ELFMC station"),
 
 (
-"RAN_CMA.xml",200,
+"RAN_CMA.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT (RAN) CMA station"),
 
 (
-"BGR_ABG1.xml",200,
+"BGR_ABG1.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT (BGR) ABG1 station"),
 
 (
-"BGR_ANNA.xml",200,
+"BGR_ANNA.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT (BGR) ANNA station"),
+
+#Place some stations with buggy net
+(
+"INGV_ACER.xml","TEST/data/Fake/",200,
+'',
+"PUT" , "PUT ACER station, fake net"),
+
+(
+"INGV_ARVD.xml","TEST/data/Fake/",200,
+'',
+"PUT" , "PUT ARVD station, fake net"),
+
+#Overwrite buggy stations
+(
+"INGV_ACER.xml","TEST/data/Station/",200,
+'',
+"PUT" , "PUT ACER station, fake net"),
+
+(
+"INGV_ARVD.xml","TEST/data/Station/",200,
+'',
+"PUT" , "PUT ARVD station, fake net"),
+
+#Delete the buggy stations must fail
+(
+"provider=INGV&net=IY","TEST/data/Station/",204,
+'',
+"DELETE_MULTI" , "DELETE Fake station must fail "),
 
 ]
 
@@ -1829,20 +1901,24 @@ testdataio = [
 #############################################################################################################
 
 @pytest.mark.parametrize(
-    "name,expected_status_code,expected_content,action,comment", testdataio
+    "name,path,expected_status_code,expected_content,action,comment", testdataio
 )
 
-def test_io(name,expected_status_code,expected_content,action,comment,host):
+def test_io(name,path,expected_status_code,expected_content,action,comment,host):
 
     webservicepath="http://"+host+"/exist/apps/fdsn-station/fdsnws/station/1/query?"
-    filename="TEST/data/Station/"+ name
-    files = {'file' : (filename, open(filename, 'rb'), 'application/xml')}
+    #filename="TEST/data/Station/"+ name
+    filename = path + name
+    #files = {'file' : (filename, open(filename, 'rb'), 'application/xml')}
     if action == 'PUT':
         print("Inserting: " + name + " in " + webservicepath)
         response = requests.put(url=webservicepath,data=open(filename, 'rb'),headers={"Content-Type":"application/octet-stream","filename":name}, auth = HTTPBasicAuth('fdsn', 'fdsn'))
-    else:
+    elif action == 'DELETE':
         print("Deleting: " + name + " in " + webservicepath)
         response = requests.delete(url=webservicepath, headers={"filename" : name}, auth=HTTPBasicAuth('fdsn', 'fdsn'))
+    elif action == 'DELETE_MULTI':
+        print("Deleting: " + name + " in " + webservicepath)
+        response = requests.delete(url=webservicepath+name, auth=HTTPBasicAuth('fdsn', 'fdsn'))
 
     print("***Expected**")
     print(response.text)

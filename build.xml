@@ -6,6 +6,6 @@
     <property name="build.dir" value="build"/>
     <target name="xar">
         <mkdir dir="${build.dir}"/>
-	<zip basedir="." destfile="${build.dir}/${project.app}-${project.version}.xar" excludes="${build.dir}/*,TEST/,archive/,AllStation/,Station_for_test/,Trash/,.gitlab-ci.yml,.pytest_cache/,bin/,doc/,Station-all/,Station-test/,etc/,fdsn-station-data/,.*/"/>
+	<zip basedir="." destfile="${build.dir}/${project.app}-${project.version}.xar" excludes="${build.dir}/*,TEST/,archive/,AllStation/,Station_for_test/,Trash/,.gitlab-ci.yml,.pytest_cache/,bin/,doc/,Station-all/,Station-test/,etc/,fdsn-station-data/,.*/,data/,proxy/,Dockerfile,compose.yaml"/>
     </target>
 </project>

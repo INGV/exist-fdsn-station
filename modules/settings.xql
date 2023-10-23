@@ -8,7 +8,7 @@ declare option exist:serialize "method=xhtml media-type=text/html indent=yes";
 
 (:Take parameters from GET in app.xql:)
 let $enable_log      := if (request:get-parameter("enable_log","off") = "on") then true() else false()
-let $enable_debug    := if (request:get-parameter("enable_debug","off") = "on") then true() else false() 
+let $enable_debug    := if (request:get-parameter("enable_debug","off") = "on") then true() else false()
 let $enable_query_log:= if (request:get-parameter("enable_query_log","off") = "on") then true() else false()
 
 (:let $log:=util:log("info","New setting applied"):)
@@ -19,32 +19,35 @@ let $enable_query_log:= if (request:get-parameter("enable_query_log","off") = "o
 (:    "enable_query_log": false(),                        :)
 (:    "post_limit_rows": 1000,                            :)
 (:    "translate_units": true(),                          :)
-(:    "remove_tz": true()                                 :)
+(:    "remove_tz": true(),                                :)
+(:    "source": "ExistDB",                                :)
+(:    "sender": "INGV-ONT"                                :)
 (: };:)
- 
+
 let $settings := json-doc("/db/apps/fdsn-station/config/settings.json")
 (:passo in xml per avere map:)
 
 let $passed:= map {
     "enable_log": $enable_log,
-    "enable_debug": $enable_debug,                            
+    "enable_debug": $enable_debug,
     "enable_query_log": $enable_query_log
 }
 
-let $new_settings:=map:merge( ($settings,$passed)) 
+let $new_settings:=map:merge( ($settings,$passed))
 
-let $f := function($k, $v) {concat('"',$k,'"', ': ', $v, ',')}
+(:json string fields with quotes must be added for source and sender:)
+let $f := function($k, $v) {concat('"',$k,'"', ': ', if($k="source" or $k="sender" ) then concat('"',$v,'"') else $v, ',')}
 let $h := map:for-each($new_settings, $f)
 
 let $string := string-join($h)
 let $fixed := substring($string,1,string-length($string)-1)
-let $json := "{"||$fixed || "}"
+let $json := "{"|| $fixed || "}"
 
-return 
+return
 
-if( empty(xmldb:store("/db/apps/fdsn-station/config", "settings.json", $json)) ) then  
+if( empty(xmldb:store("/db/apps/fdsn-station/config", "settings.json", $json)) ) then
     (
-        let $log := util:log("error","Error applying settings") 
+        let $log := util:log("error","Error applying settings")
         return
         <div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
             <div class="col-md-9">
@@ -67,7 +70,7 @@ if( empty(xmldb:store("/db/apps/fdsn-station/config", "settings.json", $json)) )
     </div>
 )
 
-else 
+else
     (
         let $log := util:log("info","New settings applied")
         return
@@ -91,4 +94,4 @@ else
         <!--settings.xql-->
         </div>
     )
-    
+

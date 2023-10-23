@@ -15,15 +15,12 @@ services:
     networks:
             - station-net
 
-
-
   exist-fdsn-station:
     restart: "unless-stopped"      
     container_name: exist-fdsn-station
     build:
       context: .
       target: deploy
-      # No ports, only proxy or backup can see them
     #To avoid docker-compose close the service
     tty: true
     # Persistent volume on data dir

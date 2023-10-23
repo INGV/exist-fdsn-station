@@ -1,5 +1,5 @@
-image: docker:latest
-
+image: docker:20.10.8
+#Fix version to prevent passing python version until porting to libxml2
 
 variables:
   # When using dind service, we need to instruct docker to talk with
@@ -36,7 +36,7 @@ build:
   script: 
     - docker build --rm . -t exist-fdsn-station
     - docker run  -d -p 80:8080/tcp --name exist-fdsn-station exist-fdsn-station
-    - sleep 60 
+    - sleep 30 
       #    - netstat -ntlp
       #    - docker port exist-fdsn-station
 #      - docker ps
@@ -45,13 +45,15 @@ build:
 #    - ip a
 #    - docker inspect exist-fdsn-station
     - apk add --update py3-pip
-    - pip3 install pytest
+    - pip3 install pytest==7.1.2
     - apk add --no-cache --virtual .build-deps gcc libc-dev libxslt-dev libxml2-dev python3-dev 
     - apk add --no-cache libxslt 
-    - pip3 install --no-cache-dir lxml 
+    - pip3 install --no-cache-dir lxml==4.6.1 
+    - pip3 install --no-cache-dir xmldiff 
+    - pip3 install --no-cache-dir requests 
     - apk del .build-deps
 #    - sleep 5
 #    - pytest TEST/test.py --host 172.26.0.7
 #    - pytest TEST/test.py --host  tcp://docker:80
-    - pytest TEST/test.py --host docker:80
+    - pytest -s -vv TEST/test.py --host docker:80
     - docker stop exist-fdsn-station  
