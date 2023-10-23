@@ -270,7 +270,7 @@
             "enum": [
             	false
             	],
-            "description": "Limit to metadata where selection criteria matches time series data availability. Not implemented."
+            "description": "Limit to metadata where selection criteria matches time series data availability. Not implemented. Accept only matchtimeseries=false"
           }
         ],
         "responses": {

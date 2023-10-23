@@ -3,7 +3,7 @@ FROM openjdk:8-jdk-slim as builder
 RUN apt-get update &&  apt-get -y install --no-install-recommends --no-upgrade wget
 USER root
 
-ENV ANT_VERSION 1.10.13
+ENV ANT_VERSION 1.10.14
 ENV ANT_HOME /etc/ant-${ANT_VERSION}
 
 WORKDIR /tmp

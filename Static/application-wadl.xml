@@ -139,9 +139,13 @@
           <param name="includeavailability" type="xsd:boolean" default="False" fixed="False" style="query">
             <doc title="includeavailability" xml:lang="en">Specify if results should include information about time series data availability. <strong>Not implemented, fails if passed true value.</strong> </doc>
           </param>
+          <!-- Commented out waiting for ObsPy fix this issue: https://github.com/obspy/obspy/issues/3279
+          This software is not changed: still fail if passed true value, supports only matchtimeseries=false
           <param name="matchtimeseries" type="xsd:boolean" default="False" fixed="False" style="query">
             <doc title="matchtimeseries" xml:lang="en">Limit to metadata where selection criteria matches time series data availability. <strong>Not implemented, fails if passed true value.</strong></doc>
           </param>
+          -->
+
           <!-- No more available
           <param name="visibility" default="only" style="query">
             <doc title="visibility" xml:lang="en">If it is 'only', service shows only information with visibility set to true. If it is 'no', shows only information with visibility set to false. If it is 'any', shows everything. **This is an INGV extension to the FDSN specification.**</doc>

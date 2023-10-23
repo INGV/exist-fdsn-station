@@ -1,6 +1,5 @@
 xquery version "1.0";
 
-
 import module namespace xdb="http://exist-db.org/xquery/xmldb";
 
 (: The following external variables are set by the repo:deploy function :)

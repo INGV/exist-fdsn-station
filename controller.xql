@@ -169,7 +169,7 @@ else if (contains($exist:path, "/$shared/")) then (
 )
 else if ($exist:path = "/fdsnws/station/1/application.wadl") then (
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-        <forward url="{$exist:controller}/Static/ingv-application-wadl.xml">
+        <forward url="{$exist:controller}/Static/application-wadl.xml">
             <set-header name="Content-Type"  value="application/xml; charset=UTF-8" />
             <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>
         </forward>
@@ -177,7 +177,7 @@ else if ($exist:path = "/fdsnws/station/1/application.wadl") then (
 )
 else if ($exist:path = "/fdsnws/station/1/swagger.json") then (
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-        <forward url="{$exist:controller}/Static/ingv-application-Swagger20.json">
+        <forward url="{$exist:controller}/Static/application-Swagger20.json">
             <set-header name="Content-Type"  value="application/json; charset=UTF-8" />
             <set-header name="Cache-Control" value="max-age=3600, must-revalidate"/>
         </forward>
