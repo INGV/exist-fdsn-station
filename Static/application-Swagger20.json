@@ -1,542 +1,26 @@
 {
-  "swagger": "2.0",
+  "openapi": "3.0.1",
   "info": {
-    "version": "1.55",
     "title": "INGV FDSNWS station Web Service Documentation",
-    "description": "The fdsnws/station web service returns station metadata in [FDSN StationXML](http://www.fdsn.org/xml/station/) format or as delimited text.\n The purpose of the FDSN StationXML schema is to define an XML representation of the most important and commonly used structures of SEED 2.4 metadata. Results are available at multiple levels of granularity: <strong>network</strong>, <strong>station</strong>, <strong>channel</strong> and <strong>response</strong>. Metadata may be selected based on channel descriptors, time ranges, geographic regions, and more. This service is an implementation of the [FDSN station web service specification](https://www.fdsn.org/webservices/fdsnws-station-1.1.pdf) version 1.1. Optional parameter 'updatedafter' is implemented starting from version 1.1.53. Parameters 'includeavailability' and 'matchtimeseries' are not implemented, silently ignored when requested passing 'false' as a value.To retrieve data from the station service, submit a request using either GET or POST HTTP methods. \n\n# Client software\n\n Dedicated clients that use the fdsnws-station service can be found on the [IRIS DMC Client list page](http://service.iris.edu/clients). ",
-    "contact": {
-      	"email": "eida@ingv.it"
-    },
+    "description": "The fdsnws/station web service returns station metadata in [FDSN StationXML](http://www.fdsn.org/xml/station/) format or as delimited text.\n The purpose of the FDSN StationXML schema is to define an XML representation of the most important and commonly used structures of SEED 2.4 metadata. Results are available at multiple levels of granularity: <strong>network</strong>, <strong>station</strong>, <strong>channel</strong> and <strong>response</strong>. Metadata may be selected based on channel descriptors, time ranges, geographic regions, and more. This service is an implementation of the [FDSN station web service specification](https://www.fdsn.org/webservices/fdsnws-station-1.1.pdf) version 1.1. Optional parameter 'updatedafter' is implemented starting from version 1.1.53. Parameters 'includeavailability' and 'matchtimeseries' are not implemented, silently ignored when requested passing 'false' as a value. To retrieve data from the station service, submit a request using either GET or POST HTTP methods. PUT and DELETE methods are extension to the standard, they need authorization and are not accessible to the public. \n\n# Client software\n\n Dedicated clients that use the fdsnws-station service can be found on the [IRIS DMC Client list page](http://service.iris.edu/clients). ",
     "termsOfService": "https://data.ingv.it/docs/principles/",
+    "contact": {
+      "email": "eida@ingv.it"
+    },
     "license": {
       "name": "Creative Commons Attribution 4.0 International",
       "url": "http://creativecommons.org/licenses/by/4.0/"
-    }
+    },
+    "version": "1.55"
   },
-  "host": "webservices.ingv.it",
-  "basePath": "/fdsnws/station/1",
-  "securityDefinitions": {},
-  "schemes": [
-    "http", "https"
-  ],
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
-  "paths": {
-    "/query": {
-      "get": {
-      "tags": [
-          "fdsnws-station-1.2"
-        ],
-        "description": "Get StationXML.\nProvide a series of parameter-value pairs in the URL that specify the start-time and end-time, along with the desired network(s), station(s), location(s) and channel(s). Each parameter-value pair must be separated from the others by an ampersand '&' and no space. A GET request may take the following general form:\n\n  ``\n/query? [channel-options] [time-constraints] [geographic-constraints] [miscellaneous] [nodata=404]\n``\n\n",
-        "summary": "Query",
-        "operationId": "Query",
-        "deprecated": false,
-        "produces": [
-          "text/plain"
-        ],
-        "parameters": [
-          {
-            "name": "starttime",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time",
-            "description": "Limit to channels that are active on or after the specified start time."
-          },
-          {
-            "name": "endtime",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time",
-            "description": "Limit to channels that are active on or before the specified end time."
-          },
-          {
-            "name": "startbefore",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time",
-            "description": "Limit to stations starting before the specified time."
-          },
-          {
-            "name": "startafter",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time",
-            "description": "Limit to stations starting after the specified time."
-          },
-          {
-            "name": "endbefore",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time",
-            "description": "Limit to stations ending before the specified time."
-          },
-          {
-            "name": "endafter",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time",
-            "description": "Limit to stations ending after the specified time."
-          },
-          {
-            "name": "network",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "description": "Select one or more network or virtual network codes. Lists and wildcards are accepted."
-          },
-          {
-            "name": "station",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "description": "Select one or more SEED station codes. Lists and wildcards are accepted."
-          },
-          {
-            "name": "channel",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "description": "Select one or more SEED channel codes. Lists and wildcards are accepted."
-          },
-          {
-            "name": "location",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "description": "Select one or more SEED location codes. Use -- for spaces. Lists and wildcards are accepted."
-          },
-          {
-            "name": "minlatitude",
-            "in": "query",
-            "required": false,
-            "type": "number",
-            "format": "double",
-            "description": "Specify southern boundary for search."
-          },
-          {
-            "name": "maxlatitude",
-            "in": "query",
-            "required": false,
-            "type": "number",
-            "format": "double",
-            "description": "Specify northern boundary for search."
-          },
-          {
-            "name": "minlongitude",
-            "in": "query",
-            "required": false,
-            "type": "number",
-            "format": "double",
-            "description": "Specify western boundary for search."
-          },
-          {
-            "name": "maxlongitude",
-            "in": "query",
-            "required": false,
-            "type": "number",
-            "format": "double",
-            "description": "Specify eastern boundary for search."
-          },
-          {
-            "name": "latitude",
-            "in": "query",
-            "required": false,
-            "type": "number",
-            "format": "double",
-            "description": "Specify the central latitude point for a radial search."
-          },
-          {
-            "name": "longitude",
-            "in": "query",
-            "required": false,
-            "type": "number",
-            "format": "double",
-            "description": "Specify the central longitude point for a radial search."
-          },
-          {
-            "name": "minradius",
-            "in": "query",
-            "required": false,
-            "type": "number",
-            "format": "double",
-            "description": "Specify minimum distance from the geographic point defined by latitude and longitude. Degrees."
-          },
-          {
-            "name": "maxradius",
-            "in": "query",
-            "required": false,
-            "type": "number",
-            "format": "double",
-            "description": "Specify maximum distance from the geographic point defined by latitude and longitude. Degrees."
-          },
-          {
-            "name": "minradiuskm",
-            "in": "query",
-            "required": false,
-            "type": "number",
-            "format": "double",
-            "description": "Specify minimum distance from the geographic point defined by latitude and longitude. Kilometers. <strong>This is an INGV extension to the FDSN specification.</strong>"
-          },
-          {
-            "name": "maxradiuskm",
-            "in": "query",
-            "required": false,
-            "type": "number",
-            "format": "double",
-            "description": "Specify maximum distance from the geographic point defined by latitude and longitude. Kilometers. <strong>This is an INGV extension to the FDSN specification.</strong>"
-          },
-          {
-            "name": "level",
-            "in": "query",
-            "required": false,
-            "enum": [
-              "network",
-              "station",
-              "channel",
-              "response"
-            ],
-            "default": "station",
-            "type": "string",
-            "description": "Specify the level of detail that is returned."
-          },
-          {
-            "name": "includerestricted",
-            "in": "query",
-            "required": false,
-            "default": true,
-            "type": "boolean",
-            "description": "Specify if results should include information for restricted stations."
-          },
-          {
-            "name": "updatedafter",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time",
-            "description": "Limit to metadata updated after specified time; updates are data center specific."
-          },
-          {
-            "name": "format",
-            "in": "query",
-            "required": false,
-            "enum": [
-              "xml",
-              "text",
-              "json",
-              "geojson"
-            ],
-            "default": "xml",
-            "type": "string",
-            "description": "Specify output format. JSON and GeoJSON ouput are INGV extensions"
-          },
-          {
-            "name": "nodata",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "enum": [
-              204,
-              404
-            ],
-            "description": "Specify which HTML Status code is returned when no data is found. A 404 status helps clarify situations where a 204 may be confusing, such as a web browser user, by including a message in the response."
-          },
-          {
-            "name": "includeavailability",
-            "in": "query",
-            "required": false,
-            "default": false,
-            "type": "boolean",
-            "enum": [
-            	false
-            	],
-            "description": "Specify if results should include information about time series data availability. Not implemented."
-          },
-          {
-            "name": "matchtimeseries",
-            "in": "query",
-            "required": false,
-            "default": false,
-            "type": "boolean",
-            "enum": [
-            	false
-            	],
-            "description": "Limit to metadata where selection criteria matches time series data availability. Not implemented. Accept only matchtimeseries=false"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "type": "string",
-              "default": ""
-            },
-            "headers": {}
-          },
-          "400": {
-            "description": "Bad request due to improper specification, unrecognized parameter, parameter value out of range, etc.",
-            "headers": {}
-          },
-          "401": {
-            "description": "Unauthorized, authentication required",
-            "headers": {}
-          },
-          "403": {
-            "description": "Authentication failed or access blocked to restricted data",
-            "headers": {}
-          },
-          "404": {
-            "description": "Alternate to 204 (set via the 'nodata' parameter), normally used for results returned to a web browser.",
-            "headers": {}
-          },
-          "413": {
-            "description": "Request would result in too much data being returned or the request itself is too large returned error message should include the service limitations in the detailed description. Service limits should also be documented in the service WADL.",
-            "headers": {}
-          },
-          "414": {
-            "description": "Request URI too large",
-            "headers": {}
-          },
-          "500": {
-            "description": "Internal server error",
-            "headers": {}
-          },
-          "503": {
-            "description": "Service temporarily unavailable, used in maintenance and error conditions",
-            "headers": {}
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "fdsnws-station-1.2"
-        ],
-        "description": "Get StationXML",
-        "summary": "Query",
-        "operationId": "PostQuery",
-        "deprecated": false,
-        "produces": [
-          "text/plain"
-        ],
-        "parameters": [
-          {
-            "name": "body",
-            "in": "query",
-            "required": true,
-            "type": "string",
-            "description": "Please note that all parameters used for GET queries are also valid for POST queries with the following exceptions: *startbefore*, *endbefore*, *startafter*, *endafter*. For the POST method, all parameters must be submitted as part of the POST body. The parameters for network, station, location, channel, starttime and endtime may be repeated as many times as necessary, all other parameters should be specified as key=value pairs on separate lines following this pattern:\n\n ```\nparameter1=value\nparameter2=value\nNET STA LOC CHA STARTTIME ENDTIME\nNET STA LOC CHA STARTTIME ENDTIME\nNET STA LOC CHA STARTTIME ENDTIME```"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "type": "string",
-              "default": ""
-            },
-            "headers": {}
-          },
-          "400": {
-            "description": "Bad request due to improper specification, unrecognized parameter, parameter value out of range, etc.",
-            "headers": {}
-          },
-          "401": {
-            "description": "Unauthorized, authentication required",
-            "headers": {}
-          },
-          "403": {
-            "description": "Authentication failed or access blocked to restricted data",
-            "headers": {}
-          },
-          "404": {
-            "description": "Alternate to 204 (set via the 'nodata' parameter), normally used for results returned to a web browser.",
-            "headers": {}
-          },
-          "413": {
-            "description": "Request would result in too much data being returned or the request itself is too large returned error message should include the service limitations in the detailed description. Service limits should also be documented in the service WADL.",
-            "headers": {}
-          },
-          "414": {
-            "description": "Request URI too large",
-            "headers": {}
-          },
-          "500": {
-            "description": "Internal server error",
-            "headers": {}
-          },
-          "503": {
-            "description": "Service temporarily unavailable, used in maintenance and error conditions",
-            "headers": {}
-          }
-        }
-      }
+  "servers": [
+    {
+      "url": "http://webservices.ingv.it/fdsnws/station/1"
     },
-    "/version": {
-      "get": {
-      "tags": [
-          "fdsnws-station-1.2"
-        ],
-        "description": "Get StationXML version",
-        "summary": "Version",
-        "operationId": "Version",
-        "deprecated": false,
-        "produces": [
-          "text/plain"
-        ],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "type": "string",
-              "default": ""
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/application.wadl": {
-      "get": {
-      "tags": [
-          "fdsnws-station-1.2"
-        ],
-        "description": "Get application.wadl",
-        "summary": "Application WADL file",
-        "operationId": "ApplicationWadl",
-        "deprecated": false,
-        "produces": [
-          "application/xml"
-        ],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "type": "string",
-              "default": ""
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/swagger.json": {
-      "get": {
-      "tags": [
-          "fdsnws-station-1.2-INGV-Extension"
-        ],
-        "description": "Get swagger.json",
-        "summary": "SwaggerJson",
-        "operationId": "SwaggerJson",
-        "deprecated": false,
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/representation_A_JSON_Schema_for_Swagger_2_0_API",
-            },
-            "headers": {}
-          }
-        }
-      }
+    {
+      "url": "https://webservices.ingv.it/fdsnws/station/1"
     }
-  },
-  "definitions": {
-    "schemes": {
-      "title": "schemes",
-      "type": "string",
-      "enum": [
-        "http",
-        "https",
-        "ws",
-        "wss"
-      ]
-    },
-    "representation_A_JSON_Schema_for_Swagger_2_0_API": {
-      "title": "JSON Schema for Swagger 2.0 API",
-      "description": "",
-      "type": "object",
-      "properties": {
-        "swagger": {
-          "description": "The Swagger version of this document.",
-          "type": "object"
-        },
-        "host": {
-          "description": "The host (name or ip) of the API. Example: 'swagger.io'",
-          "type": "string"
-        },
-        "basePath": {
-          "description": "The base path to the API. Example: '/api'.",
-          "type": "string"
-        },
-        "schemes": {
-          "description": "The transfer protocol of the API.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/schemes"
-          }
-        },
-        "consumes": {
-          "description": "A list of MIME types accepted by the API.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "produces": {
-          "description": "A list of MIME types the API can produce.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "paths": {
-          "description": "Relative paths to the individual endpoints. They must be relative to the 'basePath'.",
-          "type": "string"
-        },
-        "definitions": {
-          "description": "One or more JSON objects describing the schemas being consumed and produced by the API.",
-          "type": "string"
-        },
-        "parameters": {
-          "description": "One or more JSON representations for parameters",
-          "type": "string"
-        },
-        "responses": {
-          "description": "One or more JSON representations for responses",
-          "type": "string"
-        },
-        "security": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "securityDefinitions": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "swagger",
-        "paths"
-      ]
-    }
-
-  },
+  ],
   "tags": [
     {
       "name": "fdsnws-station-1.2",
@@ -550,6 +34,850 @@
       "name": "fdsnws-station-1.2-INGV-Extension",
       "description": ""
     }
-  ]
-
+  ],
+  "paths": {
+    "/query": {
+      "get": {
+        "tags": [
+          "fdsnws-station-1.2"
+        ],
+        "summary": "Query",
+        "description": "Get StationXML.\nProvide a series of parameter-value pairs in the URL that specify the start-time and end-time, along with the desired network(s), station(s), location(s) and channel(s). Each parameter-value pair must be separated from the others by an ampersand '&' and no space. A GET request may take the following general form:\n\n  ``\n/query? [channel-options] [time-constraints] [geographic-constraints] [miscellaneous] [nodata=404]\n``\n\n",
+        "operationId": "Query",
+        "parameters": [
+          {
+            "name": "starttime",
+            "in": "query",
+            "description": "Limit to channels that are active on or after the specified start time.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endtime",
+            "in": "query",
+            "description": "Limit to channels that are active on or before the specified end time.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "startbefore",
+            "in": "query",
+            "description": "Limit to stations starting before the specified time.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "startafter",
+            "in": "query",
+            "description": "Limit to stations starting after the specified time.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endbefore",
+            "in": "query",
+            "description": "Limit to stations ending before the specified time.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "endafter",
+            "in": "query",
+            "description": "Limit to stations ending after the specified time.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "network",
+            "in": "query",
+            "description": "Select one or more network or virtual network codes. Lists and wildcards are accepted.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "station",
+            "in": "query",
+            "description": "Select one or more SEED station codes. Lists and wildcards are accepted.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "channel",
+            "in": "query",
+            "description": "Select one or more SEED channel codes. Lists and wildcards are accepted.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "description": "Select one or more SEED location codes. Use -- for spaces. Lists and wildcards are accepted.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "minlatitude",
+            "in": "query",
+            "description": "Specify southern boundary for search.",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "maxlatitude",
+            "in": "query",
+            "description": "Specify northern boundary for search.",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "minlongitude",
+            "in": "query",
+            "description": "Specify western boundary for search.",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "maxlongitude",
+            "in": "query",
+            "description": "Specify eastern boundary for search.",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "latitude",
+            "in": "query",
+            "description": "Specify the central latitude point for a radial search.",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "longitude",
+            "in": "query",
+            "description": "Specify the central longitude point for a radial search.",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "minradius",
+            "in": "query",
+            "description": "Specify minimum distance from the geographic point defined by latitude and longitude. Degrees.",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "maxradius",
+            "in": "query",
+            "description": "Specify maximum distance from the geographic point defined by latitude and longitude. Degrees.",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "minradiuskm",
+            "in": "query",
+            "description": "Specify minimum distance from the geographic point defined by latitude and longitude. Kilometers. <strong>This is an INGV extension to the FDSN specification.</strong>",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "maxradiuskm",
+            "in": "query",
+            "description": "Specify maximum distance from the geographic point defined by latitude and longitude. Kilometers. <strong>This is an INGV extension to the FDSN specification.</strong>",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "level",
+            "in": "query",
+            "description": "Specify the level of detail that is returned.",
+            "schema": {
+              "type": "string",
+              "default": "station",
+              "enum": [
+                "network",
+                "station",
+                "channel",
+                "response"
+              ]
+            }
+          },
+          {
+            "name": "includerestricted",
+            "in": "query",
+            "description": "Specify if results should include information for restricted stations.",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "updatedafter",
+            "in": "query",
+            "description": "Limit to metadata updated after specified time; updates are data center specific.",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "description": "Specify output format. JSON and GeoJSON ouput are INGV extensions",
+            "schema": {
+              "type": "string",
+              "default": "xml",
+              "enum": [
+                "xml",
+                "text",
+                "json",
+                "geojson"
+              ]
+            }
+          },
+          {
+            "name": "nodata",
+            "in": "query",
+            "description": "Specify which HTML Status code is returned when no data is found. A 404 status helps clarify situations where a 204 may be confusing, such as a web browser user, by including a message in the response.",
+            "schema": {
+              "type": "integer",
+              "enum": [
+                204,
+                404
+              ]
+            }
+          },
+          {
+            "name": "includeavailability",
+            "in": "query",
+            "description": "Specify if results should include information about time series data availability. Not implemented.",
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "enum": [
+                false
+              ]
+            }
+          },
+          {
+            "name": "matchtimeseries",
+            "in": "query",
+            "description": "Limit to metadata where selection criteria matches time series data availability. Not implemented. Accept only matchtimeseries=false",
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "enum": [
+                false
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "default": ""
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/FDSNStationXML"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to improper specification, unrecognized parameter, parameter value out of range, etc.",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized, authentication required",
+            "content": {}
+          },
+          "403": {
+            "description": "Authentication failed or access blocked to restricted data",
+            "content": {}
+          },
+          "404": {
+            "description": "Alternate to 204 (set via the 'nodata' parameter), normally used for results returned to a web browser.",
+            "content": {}
+          },
+          "413": {
+            "description": "Request would result in too much data being returned or the request itself is too large returned error message should include the service limitations in the detailed description. Service limits should also be documented in the service WADL.",
+            "content": {}
+          },
+          "414": {
+            "description": "Request URI too large",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {}
+          },
+          "503": {
+            "description": "Service temporarily unavailable, used in maintenance and error conditions",
+            "content": {}
+          }
+        },
+        "deprecated": false
+      },
+      "put": {
+        "tags": [
+          "fdsnws-station-1.2-INGV-Extension"
+        ],
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "header",
+            "description": "filename in format PROVIDER_CODE.xml",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "File format *StationXML*",
+          "required": true,
+          "content": {
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/schemas/FDSNStationXML"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "default": ""
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Nodata.",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad request due to improper specification, unrecognized parameter, parameter value out of range, etc.",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized, authentication required",
+            "content": {}
+          },
+          "403": {
+            "description": "Authentication failed or access blocked to restricted data",
+            "content": {}
+          },
+          "409": {
+            "description": "Conflict, the resource conflict with existent network data",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {}
+          },
+          "503": {
+            "description": "Service temporarily unavailable, used in maintenance and error conditions",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "fdsnws-station-1.2"
+        ],
+        "summary": "Query",
+        "description": "Get StationXML",
+        "operationId": "PostQuery",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "query",
+            "description": "Please note that all parameters used for GET queries are also valid for POST queries with the following exceptions: *startbefore*, *endbefore*, *startafter*, *endafter*. For the POST method, all parameters must be submitted as part of the POST body. The parameters for network, station, location, channel, starttime and endtime may be repeated as many times as necessary, all other parameters should be specified as key=value pairs on separate lines following this pattern:\n\n ```\nparameter1=value\nparameter2=value\nNET STA LOC CHA STARTTIME ENDTIME\nNET STA LOC CHA STARTTIME ENDTIME\nNET STA LOC CHA STARTTIME ENDTIME```",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "default": ""
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to improper specification, unrecognized parameter, parameter value out of range, etc.",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized, authentication required",
+            "content": {}
+          },
+          "403": {
+            "description": "Authentication failed or access blocked to restricted data",
+            "content": {}
+          },
+          "404": {
+            "description": "Alternate to 204 (set via the 'nodata' parameter), normally used for results returned to a web browser.",
+            "content": {}
+          },
+          "413": {
+            "description": "Request would result in too much data being returned or the request itself is too large returned error message should include the service limitations in the detailed description. Service limits should also be documented in the service WADL.",
+            "content": {}
+          },
+          "414": {
+            "description": "Request URI too large",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {}
+          },
+          "503": {
+            "description": "Service temporarily unavailable, used in maintenance and error conditions",
+            "content": {}
+          }
+        },
+        "deprecated": false
+      },
+      "delete": {
+        "tags": [
+          "fdsnws-station-1.2-INGV-Extension"
+        ],
+        "operationId": "delete-station",
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "header",
+            "description": "filename in format PROVIDER_CODE.xml, no other parameters needed",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "provider",
+            "in": "query",
+            "description": "first part of filename, usually provider string:INGV. Need net parameter to work",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "net",
+            "in": "query",
+            "description": "network code of stations to be removed, need provider parameter to work",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "default": "Deleted resource: EXAMPLE_CODE.xml"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Nodata.",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad request due to improper specification, unrecognized parameter, parameter value out of range, etc.",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized, authentication required",
+            "content": {}
+          },
+          "403": {
+            "description": "Authentication failed or access blocked to restricted data",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {}
+          },
+          "503": {
+            "description": "Service temporarily unavailable, used in maintenance and error conditions",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ]
+      }
+    },
+    "/version": {
+      "get": {
+        "tags": [
+          "fdsnws-station-1.2"
+        ],
+        "summary": "Version",
+        "description": "Get StationXML version",
+        "operationId": "Version",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "default": ""
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/application.wadl": {
+      "get": {
+        "tags": [
+          "fdsnws-station-1.2"
+        ],
+        "summary": "Application WADL file",
+        "description": "Get application.wadl",
+        "operationId": "ApplicationWadl",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "string",
+                  "default": ""
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/swagger.json": {
+      "get": {
+        "tags": [
+          "fdsnws-station-1.2-INGV-Extension"
+        ],
+        "summary": "SwaggerJson",
+        "description": "Get swagger.json",
+        "operationId": "SwaggerJson",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/representation_A_JSON_Schema_for_Swagger_2_0_API"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/management/network": {
+      "put": {
+        "tags": [
+          "fdsnws-station-1.2-INGV-Extension"
+        ],
+        "summary": "Network management entry point",
+        "description": "Changes on Network element of stations",
+        "operationId": "identifier",
+        "requestBody": {
+          "description": "File format *StationXML*, only the first Network fragment will be used",
+          "required": true,
+          "content": {
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/schemas/FDSNStationXML"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success, returns the network content at station level",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/FDSNStationXML"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Nodata.",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad request due to improper specification, unrecognized parameter, parameter value out of range, etc.",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized, authentication required",
+            "content": {}
+          },
+          "403": {
+            "description": "Authentication failed or access blocked to restricted data",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {}
+          },
+          "503": {
+            "description": "Service temporarily unavailable, used in maintenance and error conditions",
+            "content": {}
+          }
+        },
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "description": "Network code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "IV"
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "Network start date",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "example": "1988-01-01T00:00:00"
+          }
+        ],
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "schemes": {
+        "title": "schemes",
+        "type": "string",
+        "enum": [
+          "http",
+          "https",
+          "ws",
+          "wss"
+        ]
+      },
+      "representation_A_JSON_Schema_for_Swagger_2_0_API": {
+        "title": "JSON Schema for Swagger 2.0 API",
+        "required": [
+          "paths",
+          "swagger"
+        ],
+        "type": "object",
+        "properties": {
+          "swagger": {
+            "type": "object",
+            "properties": {},
+            "description": "The Swagger version of this document."
+          },
+          "host": {
+            "type": "string",
+            "description": "The host (name or ip) of the API. Example: 'swagger.io'"
+          },
+          "basePath": {
+            "type": "string",
+            "description": "The base path to the API. Example: '/api'."
+          },
+          "schemes": {
+            "type": "array",
+            "description": "The transfer protocol of the API.",
+            "items": {
+              "$ref": "#/components/schemas/schemes"
+            }
+          },
+          "consumes": {
+            "type": "array",
+            "description": "A list of MIME types accepted by the API.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "produces": {
+            "type": "array",
+            "description": "A list of MIME types the API can produce.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "paths": {
+            "type": "string",
+            "description": "Relative paths to the individual endpoints. They must be relative to the 'basePath'."
+          },
+          "definitions": {
+            "type": "string",
+            "description": "One or more JSON objects describing the schemas being consumed and produced by the API."
+          },
+          "parameters": {
+            "type": "string",
+            "description": "One or more JSON representations for parameters"
+          },
+          "responses": {
+            "type": "string",
+            "description": "One or more JSON representations for responses"
+          },
+          "security": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "securityDefinitions": {
+            "type": "string"
+          }
+        },
+        "description": ""
+      },
+      "FDSNStationXML": {
+        "required": [
+          "Source",
+          "Sender",
+          "Network"
+        ],
+        "type": "object",
+        "properties": {
+          "Source": {
+            "type": "string",
+            "example": "fdsn-station"
+          },
+          "Sender": {
+            "type": "string",
+            "example": "INGV"
+          },
+          "Network": {
+            "type": "array",
+            "xml": {
+              "wrapped": false
+            },
+            "items": {
+              "$ref": "#/components/schemas/Network"
+            }
+          }
+        }
+      },
+      "Network": {
+        "type": "object",
+        "properties": {
+          "Station": {
+            "type": "array",
+            "xml": {
+              "wrapped": false
+            },
+            "items": {
+              "$ref": "#/components/schemas/Channel"
+            }
+          }
+        }
+      },
+      "Channel": {
+        "type": "object",
+        "properties": {
+          "Channel": {
+            "type": "array",
+            "xml": {
+              "wrapped": false
+            },
+            "items": {
+              "type": "string",
+              "default": "Continues..."
+            }
+          }
+        },
+        "xml": {
+          "name": "Station"
+        }
+      }
+    },
+    "securitySchemes": {
+      "BasicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    }
+  }
 }

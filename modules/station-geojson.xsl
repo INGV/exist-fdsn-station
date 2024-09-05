@@ -7,27 +7,25 @@
 </xsl:template>
 
 
-<!--<xsl:template match="x:FDSNStationXML">{"type":"FeatureCollection","features":[<xsl:apply-templates><xsl:sort select="@code"/></xsl:apply-templates>]}</xsl:template>-->
-
 <xsl:template match="x:FDSNStationXML">
 <xsl:text>{"type":"FeatureCollection","features":[</xsl:text>
-<xsl:for-each select="x:Network">
+
 <!--Comma before, skip the first-->
-<xsl:if test="position() != 1">,</xsl:if>
-                <xsl:apply-templates/>
-            </xsl:for-each>
+    <xsl:for-each select="//x:Station">
+
+    <xsl:if test="position() gt 1"><xsl:text>,</xsl:text></xsl:if>
+    <xsl:call-template name="Station">
+
+    </xsl:call-template>
+
+    </xsl:for-each>
+
 <xsl:text>]}</xsl:text>
 </xsl:template>
 
-<!--Matching and sorting for station code-->
-<xsl:template match="x:Network">
-    <xsl:apply-templates>
-        <xsl:sort select="@code"/>
-    </xsl:apply-templates>
-</xsl:template>
 
 <!--A feature for every station line-->
-<xsl:template match="x:Station">
+<xsl:template name="Station">
 <xsl:text>{"type":"Feature","properties":{"code":"</xsl:text>
 <xsl:value-of select="@code"/>
 <xsl:text>","Name":"</xsl:text>

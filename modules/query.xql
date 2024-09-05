@@ -15,31 +15,25 @@ import module namespace stationutil="http://exist-db.org/apps/fdsn-station/modul
 (:import module namespace config = "http://exist-db.org/xquery/apps/config" at "modules/config.xqm";:)
 
 
-
 let $log:= if ($stationutil:settings("enable_query_log")) then util:log("info",  stationutil:get_caller() || " [" || request:get-method() || "] "  || request:get-query-string() || " [START]") else ()
-
 
 return
 try {
     let $user:=sm:id()
     let $log:=if ($user!="guestguest") then util:log("info", "User: " || $user  ) else ()
     return
-    (
-    if ( request:get-method() eq "POST" or request:get-method() eq "GET") then
-        stationutil:run() 
-     else
-        if ( request:get-method() eq "PUT") then
-            if ($user="fdsndba") then stationutil:put() else stationutil:other_error()
-        else
-            if ( request:get-method() eq "DELETE" and (request:get-parameter("net","None") = "None")) then
-             if ($user="fdsndba") then stationutil:delete() else stationutil:other_error()
-            else 
-                if ( $user="fdsndba" and request:get-method() eq "DELETE" and (request:get-parameter("net","None") != "None")) then
-                    stationutil:delete_selected()
-                else  stationutil:other_error()
-    ,if ($stationutil:settings("enable_query_log")) then util:log("info",  stationutil:get_caller() || " [" || request:get-method() || "] " || request:get-query-string() || " [END]" ) else ()
-    )           
-                
+        (
+            if ( request:get-method() eq "POST" or request:get-method() eq "GET") then
+                stationutil:run()
+             else
+                if ($user!="fdsndba") then stationutil:authorization_error()
+                    else
+                        if ( request:get-method() eq "PUT") then stationutil:put()
+                        else if ( request:get-method() eq "DELETE" and (request:get-parameter("net","None") = "None")) then stationutil:delete()
+                        else if ( request:get-method() eq "DELETE" and (request:get-parameter("net","None") != "None")) then stationutil:delete_selected()
+                        else stationutil:other_error()
+            ,if ($stationutil:settings("enable_query_log")) then util:log("info",  stationutil:get_caller() || " [" || request:get-method() || "] " || request:get-query-string() || " [END]" ) else ()
+        )
     }
 catch err:* {
      let $error := stationutil:internal_error($err:code || " " || $err:description )

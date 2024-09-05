@@ -36,7 +36,7 @@ build:
   script: 
     - docker build --rm . -t exist-fdsn-station
     - docker run  -d -p 80:8080/tcp --name exist-fdsn-station exist-fdsn-station
-    - sleep 30 
+    - sleep 90 
       #    - netstat -ntlp
       #    - docker port exist-fdsn-station
 #      - docker ps
@@ -55,5 +55,6 @@ build:
 #    - sleep 5
 #    - pytest TEST/test.py --host 172.26.0.7
 #    - pytest TEST/test.py --host  tcp://docker:80
-    - pytest -s -vv TEST/test.py --host docker:80
+    - pytest -vv TEST/test.py --host docker:80 -k 'not test_management'
+    - pytest -vv TEST/test.py --host docker:80 -k 'test_management'
     - docker stop exist-fdsn-station  

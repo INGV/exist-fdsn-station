@@ -10,6 +10,7 @@ declare variable $exist:prefix external;
 declare variable $exist:root external;
 
 console:log("controller path: " || $exist:path),
+(:util:log('info', util:unescape-uri($exist:path,'UTF-8')),:)
 if ($exist:path eq '') then
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
         <redirect url="{request:get-uri()}/"/>
@@ -58,7 +59,6 @@ else if (ends-with($exist:path, "restricted.html") or ends-with($exist:path,".xq
             )
             else if ($user and sm:is-dba($user)) then
                (
-
                 if (ends-with($exist:path,".xql")) then
                 <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
                         <view>
@@ -216,6 +216,14 @@ else if ( $exist:path = "/fdsnws/station/1/" )  then (
         <set-header name="Content-Type"  value="text/html; charset=UTF-8" />
         <!--<forward url="{$exist:controller}/static/doc_index.html" method="get"/>-->
         <forward url="{$exist:controller}/modules/document_index.xql" method="get"/>
+    </dispatch>
+)
+  else if ( matches($exist:path ,"/management/network"))  then (
+    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
+        <forward url="{$exist:controller}/modules/management.xql">
+<!--            <set-header name="Cache-Control" value="max-age=60, must-revalidate"/>-->
+            <!--<set-header name="PATH" value="query.xql"/>-->
+        </forward>
     </dispatch>
 )
 else if (ends-with($exist:resource, ".xml") ) then (

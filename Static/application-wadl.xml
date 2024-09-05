@@ -13,9 +13,10 @@
     <div>
     To retrieve data from the station service, submit a request using either GET or POST HTTP methods.
     </div>
+    <div>PUT and DELETE methods are extension to the standard. These methods need authorization and are not accessible to the public.</div>
  </doc>
 
-  <resources base="http://webservices.ingv.it/fdsnws/station/1">
+  <resources base="http://webservices.ingv.it/fdsnws/station/1/">
     <resource id="resource_sl_query" path="/query">
       <method id="Query" name="GET">
         <doc title="Query" xml:lang="en">Get StationXML. Provide a series of parameter-value pairs in the URL that specify the start-time and end-time, along with the desired network(s), station(s), location(s) and channel(s). Each parameter=value pair must be separated by an ampersand character "&amp;", and with no space. A GET request may take the following general form:   /query? [channel-options] [time-constraints] [geographic-constraints] [miscellaneous] [nodata=404]
@@ -104,8 +105,8 @@
     regardless of the level at which the change occurred.</doc>
           </param>
           <param name="format" default="xml" style="query" type="xsd:string">
-            <doc title="format" xml:lang="en">Specify output format.</doc>
-            <!--<doc title="format" xml:lang="en">Specify output format. Format *geojson* works only for level *station*, *channel* or *response* and always returns station coordinates. **This is an INGV extension to the FDSN specification.**</doc>-->
+<!--            <doc title="format" xml:lang="en">Specify output format.</doc>-->
+            <doc title="format" xml:lang="en">Specify output format. Format *geojson* works only for level *station*, and returns station coordinates. **This is an INGV extension to the FDSN specification.**</doc>
             <option value="xml" mediaType="application/xml">
               <doc title="xml" xml:lang="en"/>
             </option>
@@ -115,11 +116,10 @@
             <option value="json" mediaType="application/json">
               <doc title="json" xml:lang="en"/>
             </option>
-            <!-- No more available
             <option value="geojson">
               <doc title="geojson" xml:lang="en"/>
             </option>
-            -->
+
 
           </param>
           <!-- No more available
@@ -177,7 +177,15 @@
         </request>
         <response status="200">
           <doc title="Response 200" xml:lang="en">Success</doc>
-          <representation element="xsd:string"/>
+            <representation mediaType="application/xml">
+                <doc title="FDSNStationXML" xml:lang="en">FDSNStationXML document</doc>
+            </representation>
+            <representation mediaType="text/plain">
+                <doc title="text" xml:lang="en">Pipe-separated values text document</doc>
+            </representation>
+        </response>
+        <response status="204">
+          <doc title="204" xml:lang="en">Nodata, resource not found</doc>
         </response>
         <response status="400">
           <doc title="Error 400" xml:lang="en">Bad request due to improper specification, unrecognized parameter, parameter value out of range, etc.</doc>
@@ -219,31 +227,117 @@ NET STA LOC CHA STARTTIME ENDTIME``` </doc>
           </param>
         </request>
         <response status="200">
-          <representation element="xsd:string"/>
+            <representation mediaType="application/xml">
+              <doc title="FDSNStationXML" xml:lang="en">FDSNStationXML document</doc>
+            </representation>
+            <representation mediaType="text/plain">
+                <doc title="text" xml:lang="en">Pipe-separated values text document</doc>
+            </representation>
+        </response>
+        <response status="204">
+          <doc title="204" xml:lang="en">Nodata, resource not found</doc>
         </response>
         <response status="400">
-          <doc title="400" xml:lang="en">Bad request due to improper specification, unrecognized parameter, parameter value out of range, etc.</doc>
+          <doc title="Error 400" xml:lang="en">Bad request due to improper specification, unrecognized parameter, parameter value out of range, etc.</doc>
         </response>
         <response status="401">
-          <doc title="401" xml:lang="en">Unauthorized, authentication required</doc>
+          <doc title="Error 401" xml:lang="en">Unauthorized, authentication required</doc>
         </response>
         <response status="403">
-          <doc title="403" xml:lang="en">Authentication failed or access blocked to restricted data</doc>
+          <doc title="Error 403" xml:lang="en">Authentication failed or access blocked to restricted data</doc>
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">Alternate to 204 (set via the 'nodata' parameter), normally used for results returned to a web browser.</doc>
+          <doc title="Error 404" xml:lang="en">Alternate to 204 (set via the 'nodata' parameter), normally used for results returned to a web browser.</doc>
         </response>
         <response status="413">
-          <doc title="413" xml:lang="en">Request would result in too much data being returned or the request itself is too large returned error message should include the service limitations in the detailed description. Service limits should also be documented in the service WADL.</doc>
+          <doc title="Error 413" xml:lang="en">Request would result in too much data being returned or the request itself is too large returned error message should include the service limitations in the detailed description. Service limits should also be documented in the service WADL.</doc>
         </response>
         <response status="414">
-          <doc title="414" xml:lang="en">Request URI too large</doc>
+          <doc title="Error 414" xml:lang="en">Request URI too large</doc>
         </response>
         <response status="500">
-          <doc title="500" xml:lang="en">Internal server error</doc>
+          <doc title="Error 500" xml:lang="en">Internal server error</doc>
         </response>
         <response status="503">
-          <doc title="503" xml:lang="en">Service temporarily unavailable, used in maintenance and error conditions</doc>
+          <doc title="Error 503" xml:lang="en">Service temporarily unavailable, used in maintenance and error conditions</doc>
+        </response>
+      </method>
+    </resource>
+    <resource id="resource_put" path="/query">
+      <method id="Put" name="PUT">
+        <doc title="PUT" xml:lang="en"> Load the FDSNStationXML file of a station. This method is subject to authorization. </doc>
+        <request>
+          <param name="filename" type="xsd:string" style="header" required="true">
+            <doc title="filename" xml:lang="en">Name of the file to store in database, in format prefix_stationcode.xml. Examples: INGV_CODE0.xml, 3A1980_CODE1.xml.</doc>
+          </param>
+          <param name="body" type="xsd:base64Binary" required="true" style="query">
+            <doc title="body" xml:lang="en"/>
+            <representation mediaType="application/xml">
+              <doc title="FDSNStationXML" xml:lang="en">FDSNStationXML document</doc>
+            </representation>
+          </param>
+          <representation mediaType="application/xml">
+              <doc title="FDSNStationXML" xml:lang="en">FDSNStationXML document</doc>
+          </representation>
+        </request>
+        <response status="200">
+          <representation element="xsd:string"/>
+        </response>
+        <response status="401">
+          <doc title="Error 401" xml:lang="en">Unauthorized, authentication required</doc>
+        </response>
+        <response status="403">
+          <doc title="Error 403" xml:lang="en">Authentication failed or access blocked to restricted data</doc>
+        </response>
+        <response status="409">
+          <doc title="Error 409" xml:lang="en">Conflict, the resource conflict with existent network data</doc>
+        </response>
+        <response status="500">
+          <doc title="Error 500" xml:lang="en">Internal server error</doc>
+        </response>
+        <response status="503">
+          <doc title="Error 503" xml:lang="en">Service temporarily unavailable, used in maintenance and error conditions</doc>
+        </response>
+      </method>
+    </resource>
+    <resource id="resource_delete" path="/query">
+      <method id="Delete" name="DELETE">
+        <doc title="DELETE" xml:lang="en"> Delete the FDSNStationXML file of a station from database. This method is subject to authorization. </doc>
+        <request>
+          <param name="filename" type="xsd:string" style="header">
+            <doc title="filename" xml:lang="en">Name of the file to delete from the database, in format prefix_stationcode.xml Examples: INGV_CODE0.xml, 3A1980_CODE1.xml.</doc>
+          </param>
+        </request>
+        <response status="200">
+          <representation element="xsd:string"/>
+        </response>
+        <response status="204">
+          <doc title="Error 204" xml:lang="en">Nodata, resource not found</doc>
+        </response>
+        <response status="401">
+          <doc title="Error 401" xml:lang="en">Unauthorized, authentication required</doc>
+        </response>
+      </method>
+    </resource>
+    <resource id="resource_delete_network" path="/query">
+      <method id="DeleteNetwork" name="DELETE">
+        <doc title="DELETE" xml:lang="en"> Delete all the FDSNStationXML files of a network with the same provider prefix. This method is subject to authorization. </doc>
+        <request>
+          <param name="provider" type="xsd:string" style="query" required="true">
+            <doc title="provider" xml:lang="en">Name of the provider, or other prefix of filenames to delete from database. Examples: INGV, 3A1980.</doc>
+          </param>
+           <param name="net" type="xsd:string" style="query" required="true">
+            <doc title="net" xml:lang="en">Network code of station files to delete from database.</doc>
+          </param>
+        </request>
+        <response status="200">
+          <representation element="xsd:string"/>
+        </response>
+        <response status="204">
+          <doc title="Error 204" xml:lang="en">Nodata, resource not found</doc>
+        </response>
+        <response status="401">
+          <doc title="Error 401" xml:lang="en">Unauthorized, authentication required</doc>
         </response>
       </method>
     </resource>
@@ -261,7 +355,9 @@ NET STA LOC CHA STARTTIME ENDTIME``` </doc>
         <doc title="ApplicationWadl" xml:lang="en">Get application.wadl</doc>
         <request/>
         <response status="200">
-          <representation element="xsd:string"/>
+          <representation mediaType="application/xml">
+              <doc title="application.wadl" xml:lang="en">The service description in Web Application Description Language</doc>
+          </representation>
         </response>
       </method>
     </resource>
@@ -270,7 +366,55 @@ NET STA LOC CHA STARTTIME ENDTIME``` </doc>
         <doc title="SwaggerJson" xml:lang="en">Get swagger.json</doc>
         <request/>
         <response status="200">
-          <representation mediaType="application/json" href="#A JSON Schema for Swagger 2.0 API."/>
+<!--          <representation mediaType="application/json" href="#A JSON Schema for Swagger 2.0 API."/>-->
+            <representation id="representation_A_sp_JSON_sp_Schema_sp_for_sp_Swagger_sp_2_pt_0_sp_API_pt" mediaType="application/json">
+                <doc title="A JSON Schema for Swagger/Openapi 3.0 API." xml:lang="en"/>
+            </representation>
+        </response>
+      </method>
+    </resource>
+    <resource id="resource_put_network" path="/management/network">
+      <method id="UpdateNetwork" name="PUT">
+        <doc title="PUT" xml:lang="en">Changes on Network element of stations. File format *StationXML*, only the first Network fragment will be used. This method is subject to authorization. </doc>
+        <request>
+          <param name="code" type="xsd:string" style="query" required="true">
+            <doc title="filename" xml:lang="en">Network code.</doc>
+          </param>
+          <param name="startDate" type="xsd:date" style="query" required="true">
+            <doc title="filename" xml:lang="en">Network start date.</doc>
+          </param>
+          <param name="body" type="xsd:base64Binary" required="true" style="query">
+            <doc title="body" xml:lang="en"/>
+            <representation mediaType="application/xml">
+              <doc title="FDSNStationXML" xml:lang="en">FDSNStationXML document</doc>
+            </representation>
+          </param>
+          <representation mediaType="application/xml">
+              <doc title="FDSNStationXML" xml:lang="en">FDSNStationXML document</doc>
+          </representation>
+        </request>
+        <response status="200">
+          <representation mediaType="application/xml">
+              <doc title="FDSNStationXML" xml:lang="en">FDSNStationXML document</doc>
+          </representation>
+        </response>
+        <response status="204">
+          <doc title="Error 204" xml:lang="en">Nodata, resource not found</doc>
+        </response>
+        <response status="400">
+          <doc title="Error 400" xml:lang="en">Bad request due to improper specification, unrecognized parameter, parameter value out of range, etc.</doc>
+        </response>
+        <response status="401">
+          <doc title="Error 401" xml:lang="en">Unauthorized, authentication required</doc>
+        </response>
+        <response status="403">
+          <doc title="Error 403" xml:lang="en">Authentication failed or access blocked to restricted data</doc>
+        </response>
+        <response status="500">
+          <doc title="Error 500" xml:lang="en">Internal server error</doc>
+        </response>
+        <response status="503">
+          <doc title="Error 503" xml:lang="en">Service temporarily unavailable, used in maintenance and error conditions</doc>
         </response>
       </method>
     </resource>

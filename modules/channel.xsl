@@ -81,7 +81,7 @@
     <xsl:text>|</xsl:text>
     <xsl:value-of select="x:Frequency"/>
     <xsl:text>|</xsl:text>
-    <xsl:value-of select="x:InputUnits"/>
+    <xsl:value-of select="x:InputUnits/x:Name"/>
 </xsl:template>
 
 <xsl:template match="x:Sensor">
