@@ -15,7 +15,28 @@ import module namespace mgmt="http://exist-db.org/apps/fdsn-station/modules/mana
 
 
 let $code:=request:get-parameter('code', '')
-let $startDate:=request:get-parameter('startDate', '')
+(:$startDate is the startDate in past files, it could be different from new StartDate found in passed Network File:)
+(: Converting passed date, forces T00:00:00 if absent :)
+let $converted := stationutil:time_adjust(request:get-parameter('startDate', ''))
+let $time := xs:time(xs:dateTime($converted)) (: 6 ciphres :)
+(:let $ftime:= format-time($time, "T[H01]:[m01]:[s01].[f000001,6-6]"):)
+let $date := xs:date(xs:dateTime($converted))
+(: 6 ciphres :)
+(:let $fdate:= format-date($date, "[Y,4]-[M,2]-[D,2]"):)
+let $datetime := dateTime($date,$time)
+
+(:let $log := util:log('info',"Converted: " || $converted || " date: " || $date || " time: " || $time || " datetime: "|| $datetime  || " fdate: " || $fdate || " ftime " || $ftime):)
+(:(xs:datetime has only three ciphers :)
+(:Se ci sono più di tre cifre decimali nel parametro passato, conviene confrontare come stringa:)
+(:let $input:=format-dateTime(dateTime($date,$time), "[Y,4]-[M,2]-[D,2]T[H01]:[m01]:[s01].[f1,6]"):)
+(:let $input:= xs:dateTime(stationutil:time_adjust(request:get-parameter('startDate', ''))):)
+(:let $log := util:log('info',"Datetime: " || $input):)
+(:let $startDate:=fn:adjust-dateTime-to-timezone($datetime,()):)
+
+let $startDate:=fn:adjust-dateTime-to-timezone($datetime,())
+(:let $startDate:=fn:adjust-dateTime-to-timezone(xs:dateTime(request:get-parameter('startDate', '')),()):)
+let $log:=util:log('info',"Startdate:" || $startDate)
+(::)
 (:let $log:=util:log("info", " net: " || $code  || " date: " || $startDate):)
 let $content := request:get-data()
 (:let $log:= util:log("info","Content: " ||$content):)
@@ -37,8 +58,9 @@ try {
         then
             stationutil:authorization_error()
         else
-            if ( request:get-method() eq "PUT" and $netcode=$code and $netstartDate=$startDate and ( $netrestrictedStatus='open' or $netrestrictedStatus = 'closed' ))
-            then mgmt:bulkmodify($code, $startDate, $xml)
+(:            if ( request:get-method() eq "PUT" and $netcode=$code and $netstartDate=$startDate and ( $netrestrictedStatus='open' or $netrestrictedStatus = 'closed' )):)
+            if ( request:get-method() eq "PUT" and $netcode=$code and ( $netrestrictedStatus='open' or $netrestrictedStatus = 'closed' ))
+            then mgmt:bulkmodify($code, $startDate, $xml) (: check on startDate made only in bulkmodify :)
             else stationutil:other_error()
     )
 
@@ -48,4 +70,3 @@ catch err:* {
      return $error || "
 " || $err:code || " " || $err:description
 }
-

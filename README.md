@@ -1,3 +1,5 @@
+# Exist-fdsn-station
+
 Exist-fdsn-station offers an XML-based database for seismic stations
 metadata, compliant with the standard FDSN StationXML format [FDSN,
 2012] and accessible with the standard FDSN web service fdsnws/station
@@ -5,10 +7,20 @@ metadata, compliant with the standard FDSN StationXML format [FDSN,
 running into an eXist-db [Siegel and Retter, 2014] database, users
 should consider becoming familiar also with the eXist-db software, in
 particular with its Package Manager and with the eXide integrated
-editor. Here are the instructions for using the software in brief, 
-for a more detailed guide download the [manual](https://doi.org/10.13127/rpt/478).
+editor. 
 
-**Installation**
+## Documentation updates
+
+Here are the instructions for using the software in brief,  for a more detailed guide download the official
+[manual](https://doi.org/10.13127/rpt/478). New software features will hardly be officially published in the same form. 
+In a future release the updated manual will be available in the code repository. Meanwhile, updates will be documented 
+only in this README file. 
+
+## API reference
+This software defines some extensions to the fdsnws/station standard see the [API](../Static/application-Swagger20.json) 
+for details.
+
+## Installation
 
 You can install the eXist-db database
 and application in the provided containerized package, following the
@@ -18,7 +30,7 @@ Project, 2014]. In the latter case, after successfully installing
 eXist-db stand-alone, follow the instructions presented below to install
 Exist-fdsn-station using the package system.
 
-**Get the source**
+## Get the source
 
 Whichever method you choose for installation, you will need to obtain
 the source code before proceeding. To get the source code, download a
@@ -27,7 +39,7 @@ directly:
 ```
 $ git clone https://github.com/INGV/exist-fdsn-station
 ```
-**Test run with exist-fdsn-station**
+## Test run with exist-fdsn-station
 
 For a quick application test, you can build the image by running the docker
 command from the project directory:
@@ -57,7 +69,7 @@ $ docker stop exist-fdsn-station
 $ docker rm exist-fdsn-station
 $ docker image rm exist-fdsn-station
 ```
-**Installation with docker-compose**
+## Installation with docker-compose
 
 The recommended and persistent installation procedure is based on the
 docker compose command, driven by the compose.yaml file. The
@@ -85,11 +97,11 @@ docker compose top
 When your server will be up, access it at http://127.0.0.1/exist. With docker compose you can start or
 stop the two services independently.
 
-**Uninstall**
+## Uninstall
 
 The database uses the "data" directory as a container local volume where database and application persist safely on disk. 
 
-**Basic administrative tasks in eXist-db**
+## Basic administrative tasks in eXist-db
 
 Administrator credentials are required to perform administrative tasks
 in eXist-db. The administrator user is called "admin" and has a blank
@@ -100,7 +112,7 @@ to change the "admin" password. Installation of the exist-fdsn-station
 packages automatically creates the "fdsn" user, you need to change its
 default "fdsn" password too.
 
-**The packages**
+## The packages
 
 The exist-fds-station consists of two packages: fdsn-station and
 fdsn-station-data. The first contains the application files, the second
@@ -120,7 +132,7 @@ files, invoking "ant" from the project directory.
 $ ant -f build.xml
 $ ant -f fdsn-station-data/build.xml
 ```
-**Installing using the packages**
+## Installing using the packages
 
 If you installed eXist-db on your own, you need the two package files to
 proceed with this kind of installation. Since distribution of binary
@@ -137,8 +149,7 @@ data, so when the system will be in production you should **avoid
 reinstalling the fdsn-station-data package, otherwise your data will be
 deleted**.
 
-**Updates**
-
+## Updates
 Updates of the package follow the same procedure for every kind of
 installation. Updates of the fdsn-station package are data safe and do
 not require updating the fdsn-station-data package. Future versions of
@@ -146,19 +157,16 @@ the fdsn-station package that eventually require changes to the data
 collection will also require an updated fdsn-station-data package and
 will fail installation otherwise.
 
-**Station Database maintenance**
-
+## Station Database maintenance
 The application interface exposes some basic database maintenance
 operation through the "Manage" page.
 
-**Purge the database**
-
+### Purge the database
 A dummy station is contained in the fdsn-station-data package, it is necessary to remove it
 before starting to use the database with your data. To delete all stations, click on the "Purge" button. Beware,
 **you cannot undelete after clicking**.
 
-**Cache clean**
-
+### Cache clean
 There is a kind of cache system implemented in the application, if you
 moved or deleted some station document using the eXide application or
 accessing the database collection with other clients, you probably broke
@@ -166,8 +174,7 @@ this system. Minor problems can be solved using the "Empty" button to
 reset the cache. This operation is completely safe for data in the
 station collection.
 
-**Fix database**
-
+### Fix database
 Major problems occurring to the cache system can be fixed resetting the
 whole cache system, using the "Fix" button. Typical symptoms of a
 broken cache are inconsistent results of queries from the web service,
@@ -176,13 +183,12 @@ expected results, you can still try to Fix the database. This operation
 is safe for data, but could change data modification time of documents
 used by queries with the parameter updatedafter.
 
-**Touch database**
-
+### Touch database
 This function permits to update all modification time of all documents
 in the database at the same time. Use it whenever you want to force all
 your data to a given update time.
 
-**Log verbosity**
+### Log verbosity
 
 To change the logs verbosity of the application you must check one or
 more desired levels, then click apply. Changes are applied immediately,
@@ -194,14 +200,14 @@ starting from the next query to the service.
     use it only when trying to debug the software.
 -   Enable query: enables GET and POST query logs by the service.
 
-**Where are my logs?**
+#### Where are my logs?
 
 The exist-fdsn-station logs are in the same place where eXist-db logs
 go. If you are using the docker compose installation procedure you can
 see all the logs using:
 ```$ docker compose logs```
 
-**Where are my files?**
+#### Where are my files?
 
 Only using eXide or through the application interface, you can view and download
 the original StationXML browsing the fdsn-station-data collection. To
@@ -210,7 +216,7 @@ in the home page. When the list is very long it may be useful to use the
 "Search" function to find the input files using the station code as
 the search key.
 
-**Data Management**
+### Data Management
 
 Having removed the dummy station by trying the "Purge" of the
 database, it's time to load some station.xml files to continue playing
@@ -218,7 +224,7 @@ around or to put in production your new fdsnws/station web service. The
 better way to load data in a production environment is using the PUT
 HTTP method, in this way data load can be fully automated.
 
-**PUT your stations in the database**
+### PUT your stations in the database
 
 In order to upload station files, you need a web client capable of
 submitting a PUT request with a payload to the webservice. PUT is a
@@ -243,7 +249,7 @@ notice the different URL:
 $ curl -X PUT "http://172.17.0.2:8080/exist/apps/fdsn-station/fdsnws/station/1/query?"
 -H "accept: application/xml" -H "Content-Type:application/octet-stream" -H "Expect:" -H "filename:INGV_ABSI.xml" --data-binary @Station/INGV_ABSI.xml -o output.xml -i -v -fdsn:password
 ```
-**DELETE your stations**
+### DELETE your stations
 
 Usually stations are inserted and updated overwriting them, but if you
 really want to delete one station, you can use the DELETE HTTP method,
@@ -268,17 +274,52 @@ $ curl -v -X DELETE "http://127.0.0.1:80/fdsnws/station/1/query?provider=INGV&ne
 For a complete reference of the extension of the API implemented in
 exist-fdsn-station see Table 1.
 
-|         |                |                  |                                                                             |
-|---------|----------------|------------------|-----------------------------------------------------------------------------|
-| Method  | Parameter      | Header           | Description                                                                 |
+|        |                |                  |                                                                             |
+|--------|----------------|------------------|-----------------------------------------------------------------------------|
+| Method | Parameter      | Header           | Description                                                                 |
 | PUT    | None requested | filename         | Add a station to the database. <br/>The filename of the stationXML passed is in the format PROVIDER_STATIONCODE.xml|
 | DELETE | None requested | filename         | Delete a   station, the name of the stationXML to be removed is  passed in the format PROVIDER_STATIONCODE.xml |
 | DELETE | provider       | None requested   | Provider of the  stations to be removed, as per the prefix of the station file previously inserted.|
-|DELETE | net    | None requested | Select one network code to delete all stations of the network of the  given provider., '*'  to delete all stations of the given provider. |
+| DELETE | net    | None requested | Select one network code to delete all stations of the network of the  given provider., '*'  to delete all stations of the given provider. |
 
 Table 1: fdsnws/station API extension provided.
 
-**Get responses from the web service**
+### Network management 
+
+In order to maintain information related to a whole network in the database, you have a choice: 
+1. modify all the stationXML files of the network outside the database, then delete the old ones from 
+database and load all the modified files.
+2. use the new API extension for management, using as input a StationXML containing the desired Network 
+arguments and elements to be written in the files. The elements that will be modified by the API are 
+Description, Identifier, Comment and Operator. 
+Elements like Station, TotalNumberStation and SelectedNumberStation will be ignored if present in the 
+passed file.
+
+The entry point to use is: fdsnws/station/1/management/network
+
+|         |                 |                  |                                                                                                                                                                         |
+|---------|-----------------|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Method  | Parameter       | Header           | Description                                                                                                                                                             |
+| PUT    | code, startDate | None requested    | Modify the network of the given code and corresponding startDate. <br/>The input StationXML file with the network element to update must be passed in the request body. |
+
+Table 2: network management entry point and syntax
+
+Example of use, the new network data is in the IV_FIX.xml file:
+```
+curl -X PUT "http://127.0.0.1/fdsnws/station/1/management/network/?code=IV&startDate=1988-01-01T00%3A00%3A00"
+-H "accept: application/xml" -H "Content-Type:application/octet-stream" --data-binary @IV_FIX.xml -ufdsn:password
+```
+
+**The restricted status**
+
+The restricted status value of the network is managed by the application. It depends on the Station restricted status
+of the set of station belonging to the given network, it will be open, when all stations are open, closed, when all stations 
+are closed, and partial otherwise. If the restrictedStatus is not explicitly present in the input network XML file, it 
+will remain unchanged. On the contrary, if explicitly set in the input, it will be applied in the database to all the stations. 
+A new configuration parameter, restrictedStatus_closeable regulates the possibility of closing an open network. 
+You need to set it to true, if you want to enable this transition, otherwise the aforementioned operation will not succeed.
+
+### Get responses from the web service
 
 Just after station loading, querying your service will start to give
 some meaningful results. The entry points differ depending on the server
@@ -291,16 +332,14 @@ you interrogate, see Table 3 for reference.
 |  exist-fdsn-station-proxy-1   | http://127.0.0.1:80/fdsnws/station/1/query?    |
 
 
-
-
-Table 2: entry points of the fdsnws/station service
+Table 3: entry points of the fdsnws/station service
 
 Notice that INTERNAL_IP is the IP assigned on the docker network to the
 exist-fdsn-station.
 
 Access the service path "/fdsnws/station/1" to obtain a human-readable description of the service specification. 
 
-**Automating database updates**
+### Automating database updates
 
 The API permits to write into the database programmatically, you can use
 whatever instrument to exploit it for manage data into
@@ -312,22 +351,18 @@ option or inspect the code to understand its use. The file
 "bin/config.py" must be edited to insert the credentials needed to
 authenticate the script with the exist-fdsn-station destination server.
 
-**Performance monitoring**
+### Performance monitoring
 
 The performance of the service can be monitored in real time using the
-pre-installed Monex application, accessible from the eXist-db home page,
-see Figure 1. The service works best when XML output is requested, while
+pre-installed Monex application, accessible from the eXist-db home page. 
+User must be aware that monitoring performance with Monex slow down the system.
+The service in general works best when XML output is requested, while
 text or other formats output requires translation, with a slight
 penalty. This must be taken into consideration when creating
 applications that access the service and have critical needs in terms of
 response times.
 
-**References**
-
-eXist-db Project (2014). https://exist-db.org/exist/apps/doc/ 
-
-EXPath Community Group, (2021). Packaging System EXPath Candidate Module
-9 May 2012, available at http://expath.org/spec/pkg
+### References
 
 FDSN - International Federation of Digital Seismograph
 Networks (2012). StationXML schema 1.0, available at
@@ -335,6 +370,11 @@ https://www.fdsn.org/xml/station/fdsn-station-1.0.xsd
 
 FDSN - International Federation of Digital Seismograph Networks (2013).
 FDSN Web Service Specifications Version 1.0, available at http://www.fdsn.org/webservices/FDSN-WS-Specifications-1.0.pdf.
+
+eXist-db Project (2014). https://exist-db.org/exist/apps/doc/ 
+
+EXPath Community Group, (2021). Packaging System EXPath Candidate Module
+9 May 2012, available at http://expath.org/spec/pkg
 
 Siegel, E., Retter, A., (2014). eXist, O'Reilly Media, Inc. ISBN:9781449337100
 

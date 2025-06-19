@@ -29,7 +29,8 @@ RUN wget https://exist-db.org/exist/apps/public-repo/public/xquery-versioning-mo
 
 # START STAGE 2
 #FROM existdb/existdb:release as deploy
-FROM existdb/existdb:6.0.1 as deploy
+FROM existdb/existdb:6.2.0 as deploy
+
 #ADD http://exist-db.org/exist/apps/public-repo/public/functx-1.0.1.xar /exist/autodeploy
 
 COPY --from=builder /tmp/build/*.xar /exist/autodeploy/
@@ -39,6 +40,4 @@ COPY --from=builder /tmp/etc/web.xml /exist/etc/webapp/WEB-INF/
 COPY --from=builder /tmp/etc/conf.xml /exist/etc/
 COPY --from=builder /tmp/etc/page500.xql /exist/etc/webapp/
 
-EXPOSE 8080 8443
 
-CMD [ "java", "-jar", "start.jar", "jetty" ]

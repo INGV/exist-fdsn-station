@@ -1790,214 +1790,256 @@ Request:\n\
 testdataio = [
 
 (
-"provider=INGV&net=*","TEST/data/Station/",200,
+"provider=INGV&net=*","","TEST/data/Station/",200,
 '',
 "DELETE_MULTI" , "DELETE ALL INGV station present in DB [NetCache]"),
 
 (
-"FAKE","TEST/data/Station/",204,
+"","FAKE","TEST/data/Station/",204,
 '',
 "DELETE_MULTI" , "DELETE ALL FAKE station present in DB [NetCache]"),
 
 (
-"INGV_A319A.xml","TEST/data/Station/",200,
+"","INGV_A319A.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT A319A station"),
 
 (
-"provider=INGV&net=IV","TEST/data/Station/",204,
+"provider=INGV&net=IV","","TEST/data/Station/",204,
 '',
 "DELETE_MULTI" , "DELETE ALL INGV IV station present in DB (NONE)"),
 
 (
-"INGV_A319A.xml","TEST/data/Station/",200,
+"","INGV_A319A.xml","TEST/data/Station/",200,
 '',
 "DELETE" , "DELETE A319A station present in DB [NetCache]"),
 
 
 (
-"INGV_A319A.xml","TEST/data/Station/",204,
+"","INGV_A319A.xml","TEST/data/Station/",204,
 '',
 "DELETE" , "DELETE A319A station from empty DB [NetCache]"),
 
 (
-"INGV_A319A.xml","TEST/data/Station/",200,
+"","INGV_A319A.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT A319A station"),
 
 
 (
-"INGV_A319A.xml","TEST/data/Station/",200,
+"","INGV_A319A.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT A319A station again [NetCache]"),
 
 (
-"INGV_ABSI.xml","TEST/data/Station/",200,
+"","INGV_ABSI.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ABSI station"),
 
 (
-"INGV_ACATE.xml","TEST/data/Station/",200,
+"","INGV_ACATE.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ACATE station"),
 
 (
-"INGV_ACER.xml","TEST/data/Station/",200,
+"","INGV_ACER.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ACER station"),
 
 (
-"INGV_ACOM.xml","TEST/data/Station/",200,
+"net=IV&level=station&format=text","","TEST/data/Station/",200,
+'#Network | Station | Latitude | Longitude | Elevation | SiteName | StartTime | EndTime\n\
+IV|ACATE|37.02398|14.50064|210|ACATE|2019-02-28T05:59:00|\n\
+IV|ACER|40.7867|15.9427|690|Acerenza|2007-07-05T12:00:00|\n',
+"GETTEXT" , "GET station level after update in cache"),
+
+(
+"","INGV_ACOM.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ACOM station NI,OX networks [NetCache]" ),
 
 (
-"INGV_ACOM.xml","TEST/data/Station/",200,
+"","INGV_ACOM.xml","TEST/data/Station/",200,
 '',
 "DELETE" , "DELETE ACOM station NI,OX networks [NetCache]"),
 
 (
-"INGV_ACOM.xml","TEST/data/Station/",200,
+"","INGV_ACOM.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ACOM station NI,OX networks [NetCache]"),
 
-
 (
-"INGV_ACOM.xml","TEST/data/Station/",200,
+"","INGV_ACOM.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ACOM station, NI,OX networks, again. [NetCache]"),
 
 (
-"INGV_AND3.xml","TEST/data/Station/",200,
+"","INGV_AND3.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT AND3 station"),
 
 (
-"INGV_AQT1.xml","TEST/data/Station/",200,
+"","INGV_AQT1.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT AQT1 station"),
 
 (
-"INGV_AQU.xml","TEST/data/Station/",200,
+"","INGV_AQU.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT AQU station"),
 
 (
-"INGV_ARPR.xml","TEST/data/Station/",200,
+"","INGV_ARPR.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ARPR station"),
 
 (
-"INGV_ARVD.xml","TEST/data/Station/",200,
+"","INGV_ARVD.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ARVD station"),
 
 (
-"INGV_IMTC.xml","TEST/data/Station/",200,
+"","INGV_IMTC.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT IMTC station"),
 
 (
-"INGV_VBKN.xml","TEST/data/Station/",200,
+"","INGV_VBKN.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT VBKN station"),
 
 (
-"INGV_AT04.xml","TEST/data/Station/",200,
+"","INGV_AT04.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT (INGV) AT04 station"),
 
 (
-"INGV_VBKN.xml","TEST/data/Station/",200,
+"","INGV_VBKN.xml","TEST/data/Station/",200,
 '',
 "DELETE" , "DELETE VBKN station. [NetCache update #78]"),
 
 (
-"INGV_ACER.xml","TEST/data/Station/",200,
+"","INGV_ACER.xml","TEST/data/Station/",200,
 '',
 "DELETE" , "DELETE ACER station. [NetCache update #78]"),
 
 (
-"INGV_AQT1.xml","TEST/data/Station/",200,
+"","INGV_AQT1.xml","TEST/data/Station/",200,
 '',
 "DELETE" , "DELETE AQT1 station. [NetCache update #78]"),
 
 (
-"INGV_VBKN.xml","TEST/data/Station/",200,
+"","INGV_VBKN.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT VBKN station. [NetCache update #78]"),
 
 (
-"INGV_ACER.xml","TEST/data/Station/",200,
+"","INGV_ACER.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ACER station. [NetCache update #78]"),
 
 (
-"INGV_AQT1.xml","TEST/data/Station/",200,
+"","INGV_AQT1.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT AQT1 station. [NetCache update #78]"),
 
-
-
 (
-"GFZ_AT04.xml","TEST/data/Station/",200,
+"","GFZ_AT04.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT (GFZ) AT04 station"),
 
 (
-"ETH_ELFMC.xml","TEST/data/Station/",200,
+"","ETH_ELFMC.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT (ETH) ELFMC station"),
 
 (
-"RAN_CMA.xml","TEST/data/Station/",200,
+"","RAN_CMA.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT (RAN) CMA station"),
 
 (
-"BGR_ABG1.xml","TEST/data/Station/",200,
+"","BGR_ABG1.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT (BGR) ABG1 station"),
 
 (
-"BGR_ANNA.xml","TEST/data/Station/",200,
+"","BGR_ANNA.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT (BGR) ANNA station"),
 
 #Place some stations with buggy net
 (
-"INGV_ACER.xml","TEST/data/Fake/",200,
+"","INGV_ACER.xml","TEST/data/Fake/",200,
 '',
 "PUT" , "PUT ACER station, fake net"),
 
 #Stations with duplicate network
 (
-"INGV_IMTC.xml","TEST/data/Fake/",409,
+"","INGV_IMTC.xml","TEST/data/Fake/",409,
 '',
 "PUT" , "PUT IMTC station, fail for conflicting network"),
 
 (
-"INGV_ARVD.xml","TEST/data/Fake/",200,
+"","INGV_ARVD.xml","TEST/data/Fake/",200,
 '',
 "PUT" , "PUT ARVD station, fake net"),
 
 #Overwrite buggy stations
 (
-"INGV_ACER.xml","TEST/data/Station/",200,
+"","INGV_ACER.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ACER station, fake net"),
 
 (
-"INGV_ARVD.xml","TEST/data/Station/",200,
+"","INGV_ARVD.xml","TEST/data/Station/",200,
 '',
 "PUT" , "PUT ARVD station, fake net"),
 
 #Delete the buggy stations must fail
 (
-"provider=INGV&net=IY","TEST/data/Station/",204,
+"provider=INGV&net=IY","","TEST/data/Station/",204,
 '',
 "DELETE_MULTI" , "DELETE Fake station must fail "),
 
+#Next three works together
+
+(
+"","INGV_IMTC2.xml","TEST/data/Fake/",200,
+'',
+"PUT" , "PUT IMTC2 station with spaces first time"),
+
+(
+"","INGV_IMTC2.xml","TEST/data/Fake/",200,
+'',
+"PUT" , "PUT IMTC2 station station with spaces, again"),
+
+#Delete the buggy stations must fail
+(
+"","INGV_IMTC2.xml","TEST/data/Fake/",200,
+'',
+"DELETE" , "DELETE IMTC station must not fail "),
+
+##NEXT five working together, fourth fails if the other don't go in in the right place, fifth restore good station
+(
+"","INGV_ACER.xml","TEST/data/Fake/Moved/",200,
+'',
+"PUT" , "PUT ACER station, moving in new net period"),
+
+(
+"","INGV_ACER.xml","TEST/data/Fake/Moved/",200,
+'',
+"PUT" , "PUT ACER station, moving in new net period"),
+
+(
+"sta=*","","TEST/data/Station/",200,
+'',
+"GET" , "Check all is still working, fails on netcache corruption"),
+
+(
+"","INGV_ACER.xml","TEST/data/Station/",200,
+'',
+"PUT" , "PUT ACER station AGAIN in place"),
 ]
 
 
@@ -2017,6 +2059,46 @@ test_management = [
 'code=IV&startDate=1988-01-01T00:00:00','TEST/data/Fake/INGV_NET_001.xml',200, '',
 'PUT',
 "Change elements in IV network"),
+
+(
+'code=IV&startDate=1988-01-01','TEST/data/Fake/INGV_NET_001.xml',200, '',
+'PUT',
+"Change elements in IV network, with different format (YYYY-MM-DD)"),
+
+(
+'code=IV&startDate=1988-01-01T00:00:00','TEST/data/Fake/INGV_NET_001.xml',200, '',
+'PUT',
+"Change elements in IV network, with different format (YYYY-MM-DD)"),
+
+(
+'code=IV&startDate=1988-01-01T00:00:00.000000','TEST/data/Fake/INGV_NET_001.xml',200, '',
+'PUT',
+"Change elements in IV network, with different format (.000000)"),
+
+(
+'code=IV&startDate=1988-01-01T00:00:00.000000Z','TEST/data/Fake/INGV_NET_001.xml',200, '',
+'PUT',
+"Change elements in IV network, with different format (.000000Z)"),
+
+(
+'code=IV&startDate=1988-01-01T00:00:01.000000Z','TEST/data/Fake/INGV_NET_001.xml',204, '',
+'PUT',
+"Cannot change elements in IV network mismatch in startDate"),
+
+(
+'code=IV&startDate=1988-01-01T00:00:00.00000','TEST/data/Fake/INGV_NET_001.xml',200, '',
+'PUT',
+"Change elements in IV network, with different format (.00000)"),
+
+(
+'code=IV&startDate=1988-01-01T00:00:00.001000Z','TEST/data/Fake/INGV_NET_001.xml',204, '',
+'PUT',
+"Change elements in IV network, with different format (.000001Z) and mismatch"),
+
+(
+'code=IV&startDate=1988-01-01T00:00:00.000100Z','TEST/data/Fake/INGV_NET_001.xml',200, '',
+'PUT',
+"Change elements in IV network, with different format (.000100Z) unable to view under millisecond, sorry"),
 
 (
 'format=xml&net=IV&level=network',
@@ -2044,8 +2126,53 @@ Z3|AT04|37.7252|24.0496|23|Station Egelados Network, GreeceGreece|2005-11-02T00:
 Z3|AT04|37.7252|24.0496|23|Station Egelados Network, GreeceGreece|2005-11-02T00:00:00|2007-02-23T00:00:00\n\
 Z3|A319A|43.476425|10.578689|343|Santa Luce (PI)|2015-12-11T12:06:34|2019-04-10T23:59:00\n',
 'GETTEXT',
-"Verifying restrictedStatus previously closed"),
+"Verifying restrictedStatus for A319A after opening"),
 
+
+#Insert modification also in network startdate, closing it again
+(
+'code=Z3&startDate=2015-01-01T00:00:00', 'TEST/data/Fake/INGV_NET_004.xml', 200, '',
+'PUT',
+"Moving StartDate"),
+
+(
+'format=text&net=Z3&includerestricted=false', '', 200,
+'#Network | Station | Latitude | Longitude | Elevation | SiteName | StartTime | EndTime\n\
+Z3|AT04|37.7252|24.0496|23|Station Egelados Network, GreeceGreece|2005-11-02T00:00:00|2007-02-23T00:00:00\n',
+'GETTEXT',
+"Verifying restrictedStatus for A319A after moving date and closing" ),
+
+# Verify modification in network startdate
+(
+'level=network&net=Z3&format=text&includerestricted=true', '', 200,
+'#Network | Description | StartTime | EndTime | TotalStations\n\
+Z3|Egelados project, RUB Bochum, Germany|2005-06-05T00:00:00|2007-04-30T00:00:00|1\n\
+Z3|AlpArray Seismic Network (AASN) temporary component|2014-12-31T00:00:00|2022-12-31T00:00:00|1\n',
+'GETTEXT',
+"Verifying moved date"),
+
+#Reverse modification also in network startdate
+(
+'code=Z3&startDate=2014-12-31T00:00:00', 'TEST/data/Fake/INGV_NET_003.xml', 200, '',
+'PUT',
+"Back to 2015 and open restrictedStatus"),
+
+# Verify modification in network startdate
+(
+'level=network&net=Z3&format=text', '', 200,
+'#Network | Description | StartTime | EndTime | TotalStations\n\
+Z3|Egelados project, RUB Bochum, Germany|2005-06-05T00:00:00|2007-04-30T00:00:00|1\n\
+Z3|AlpArray Seismic Network (AASN) temporary component|2015-01-01T00:00:00|2022-12-31T00:00:00|1\n',
+'GETTEXT',
+"Verifying moved date again"),
+
+(
+'format=text&net=Z3&includerestricted=false', '', 200,
+'#Network | Station | Latitude | Longitude | Elevation | SiteName | StartTime | EndTime\n\
+Z3|AT04|37.7252|24.0496|23|Station Egelados Network, GreeceGreece|2005-11-02T00:00:00|2007-02-23T00:00:00\n\
+Z3|A319A|43.476425|10.578689|343|Santa Luce (PI)|2015-12-11T12:06:34|2019-04-10T23:59:00\n',
+'GETTEXT',
+"Verifying restrictedStatus previously closed"),
 
 ]
 
@@ -2055,10 +2182,10 @@ Z3|A319A|43.476425|10.578689|343|Santa Luce (PI)|2015-12-11T12:06:34|2019-04-10T
 #############################################################################################################
 
 @pytest.mark.parametrize(
-    "name,path,expected_status_code,expected_content,action,comment", testdataio
+    "query,name,path,expected_status_code,expected_content,action,comment", testdataio
 )
 
-def test_io(name,path,expected_status_code,expected_content,action,comment,host):
+def test_io(query,name,path,expected_status_code,expected_content,action,comment,host):
 
     webservicepath="http://"+host+"/exist/apps/fdsn-station/fdsnws/station/1/query?"
     #filename="TEST/data/Station/"+ name
@@ -2072,7 +2199,13 @@ def test_io(name,path,expected_status_code,expected_content,action,comment,host)
         response = requests.delete(url=webservicepath, headers={"filename" : name}, auth=HTTPBasicAuth('fdsn', 'fdsn'))
     elif action == 'DELETE_MULTI':
         print("Deleting: " + name + " in " + webservicepath)
-        response = requests.delete(url=webservicepath+name, auth=HTTPBasicAuth('fdsn', 'fdsn'))
+        response = requests.delete(url=webservicepath+query, auth=HTTPBasicAuth('fdsn', 'fdsn'))
+    elif action == 'GET':
+        print("Checking: " + name + " in " + webservicepath)
+        response = requests.get(url=webservicepath + name, auth=HTTPBasicAuth('fdsn', 'fdsn'))
+    elif action == 'GETTEXT':
+        print("Checking: " + query + " in " + webservicepath)
+        response = test_content(query,expected_status_code,expected_content,comment,host)
 
     print("***Expected**")
     print(expected_content)
@@ -2120,7 +2253,7 @@ def test_eval(query,expected_status_code,expected_content,comment,host):
     #assert ET.tostring(response_tree) == ET.tostring(expected_content_tree)
     assert (ET.tostring(expected_content_tree, encoding=None, method='c14n2') == ET.tostring(response_tree, encoding=None, method='c14n2'))
     #assert  ET.canonicalize(expected_content_tree) == ET.canonicalize(response_tree) Is the same?
-#    assert (ET.tostring(expected_content_tree, encoding=None, method='c14n2') == ET.tostring(response_tree, encoding=None, method='c14n2'))
+    #assert (ET.tostring(expected_content_tree, encoding=None, method='c14n2') == ET.tostring(response_tree, encoding=None, method='c14n2'))
 
 #    assert (expected_content_tree.getchildren().sort() == response_tree.getchildren().sort())
 
@@ -2139,6 +2272,7 @@ def test_content(query,expected_status_code,expected_content,comment,host):
     response = requests.get( "http://"+host+"/exist/apps/fdsn-station/fdsnws/station/1/query?" + query)
     assert (response.status_code == expected_status_code)
     assert (response.text == expected_content)
+    return response
 
 ############################################################################################################
 

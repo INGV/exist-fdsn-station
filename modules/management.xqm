@@ -29,9 +29,10 @@ declare function mgmt:bulkmodify($code, $startDate, $xml) {
     let $net_in_cache := stationutil:netcache_exists($code,$startDate)
 
     (: recover valid attribute and elements from xml:)
-    let $netstartDate := $xml//Network/@startDate
+    (: If Sstartdate different from $netstartDate, then the date should change in all correspondent station files    :)
+    let $netstartDate := if (exists($xml//Network/@startDate)) then stationutil:time_adjust($xml//Network/@startDate) else ()
     let $alternateCode := $xml//Network/@alternateCode
-    let $endDate := $xml//Network/@endDate
+    let $netendDate := if (exists($xml//Network/@endDate)) then stationutil:time_adjust($xml//Network/@endDate) else ()
     let $historicalCode := $xml//Network/@historicalCode
     let $restrictedStatus := $xml//Network/@restrictedStatus
 
@@ -64,9 +65,10 @@ declare function mgmt:bulkmodify($code, $startDate, $xml) {
 
                 element Network {
                      attribute code {$code},
-                     attribute startDate {$startDate},
+(:                     attribute startDate {$startDate},:)
+                     attribute startDate {$netstartDate},
                      if (exists($alternateCode)) then attribute alternateCode {$alternateCode} else (),
-                     if (exists($endDate)) then attribute endDate {$endDate} else (),
+                     if (exists($netendDate)) then attribute endDate {$netendDate} else (),
                      if (exists($historicalCode)) then attribute historicalCode {$historicalCode} else (),
                      $network/@restrictedStatus, (: untouched at this stage :)
                      if (exists($sourceID)) then attribute sourceID {$sourceID} else (),
@@ -87,11 +89,11 @@ declare function mgmt:bulkmodify($code, $startDate, $xml) {
                 {$sender}
                 {$module}
                 {$moduleURI}
-                <Created>{adjust-dateTime-to-timezone(current-dateTime(),())}</Created>
+                <Created>{format-dateTime(current-dateTime(), "[Y0001]-[M01]-[D01]T[H01]:[m01]:[s01].[f]")}</Created>
                 {$propagated}{$other_network}
                 </FDSNStationXML>
                 ),
-        stationutil:update_collections($code, $startDate)
+        stationutil:update_collections($code, $netstartDate)
         )
     else stationutil:nodata_error()
     (:Fix only the network required:)

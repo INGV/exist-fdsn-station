@@ -378,10 +378,10 @@ NET STA LOC CHA STARTTIME ENDTIME``` </doc>
         <doc title="PUT" xml:lang="en">Changes on Network element of stations. File format *StationXML*, only the first Network fragment will be used. This method is subject to authorization. </doc>
         <request>
           <param name="code" type="xsd:string" style="query" required="true">
-            <doc title="filename" xml:lang="en">Network code.</doc>
+            <doc title="filename" xml:lang="en">Code of target network, cannot be changed whatever the content of the input StationXML.</doc>
           </param>
           <param name="startDate" type="xsd:date" style="query" required="true">
-            <doc title="filename" xml:lang="en">Network start date.</doc>
+            <doc title="filename" xml:lang="en">Start date of target network, startDate can be altered after this operation if changes in input StationXML.</doc>
           </param>
           <param name="body" type="xsd:base64Binary" required="true" style="query">
             <doc title="body" xml:lang="en"/>

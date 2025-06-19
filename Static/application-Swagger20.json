@@ -651,7 +651,7 @@
           "fdsnws-station-1.2-INGV-Extension"
         ],
         "summary": "Network management entry point",
-        "description": "Changes on Network element of stations",
+        "description": "Changes on Network element of stations identified by code and startDate",
         "operationId": "identifier",
         "requestBody": {
           "description": "File format *StationXML*, only the first Network fragment will be used",
@@ -704,7 +704,7 @@
           {
             "name": "code",
             "in": "query",
-            "description": "Network code",
+            "description": "Code of target network, cannot be changed whatever the content of the input StationXML",
             "required": true,
             "schema": {
               "type": "string"
@@ -714,7 +714,7 @@
           {
             "name": "startDate",
             "in": "query",
-            "description": "Network start date",
+            "description": "Start date of target network, startDate can be altered after this operation if changes in input StationXML",
             "required": true,
             "schema": {
               "type": "string",

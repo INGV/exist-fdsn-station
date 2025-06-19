@@ -6,8 +6,9 @@
     "translate_units": true,
     "remove_tz": true,
     "fix_restrictedStatus": true,
-    "restrictedStatus_closeable": false,
+    "restrictedStatus_closeable": true,
     "sender": "INGV-ONT",
     "source": "eXistDB",
-    "enable_check_validity": true
+    "enable_check_validity": true,
+    "serialize_input": false
 }

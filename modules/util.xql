@@ -406,16 +406,19 @@ as xs:string
 
 
 (:~
- :  Adjust datetime strings to fdsn standard format YYYY-MM-DDThh:mm:ss.d if possible
+ :  Adjust datetime strings to fdsn standard format YYYY-MM-DDThh:mm:ss.d or YYYY-MM-DDThh:mm:ss
  :)
 declare function stationutil:time_adjust( $mydatetime as xs:string ) as xs:string {
 
 
     if ((matches($mydatetime,"..-..-..T..:..:..*"))) then
-        $mydatetime
+        if ((matches($mydatetime,"..-..-..T..:..:...000000Z"))) then
+            functx:substring-before-if-contains($mydatetime,'.000000Z')
+        else
+            $mydatetime
     else
         if (matches($mydatetime,"..-..-..")) then
-            $mydatetime||"T"||"00:00:00.0"
+            $mydatetime||"T"||"00:00:00"
         else
             ""
 };
@@ -611,9 +614,9 @@ declare function stationutil:remove-elements-f($i as element()*, $remove-names a
  : @param $remove-names name of elements to remove
  : :)
 declare function stationutil:remove-elements($input as element(), $remove-names as xs:string*) as element() {
-   element {node-name($input) }
+   element {node-name($input)}
       {$input/@*,
-       for $child in $input/node()[name(.)!=$remove-names]
+       for $child in $input/node()[name(.)!=$remove-names and not(empty(.))]
           return
              if ($child instance of element())
                 then stationutil:remove-elements($child, $remove-names)
@@ -631,7 +634,7 @@ declare function stationutil:remove-multi($in as element()*, $remove-names as xs
     return
         element { node-name($input) } {
             $input/@*,
-            for $child in $input/node()[not(name(.) = $remove-names)]
+            for $child in $input/node()[not(name(.) = $remove-names) and not(empty(.))]
             (: for $child in $input/node()[name(.)!=$remove-names] Fails :) return
                 if ($child instance of element()) then
                     stationutil:remove-elements($child, $remove-names)
@@ -2224,7 +2227,7 @@ if (not(empty($content))) then
                 <ModuleURI>{request:get-uri()}?{request:get-query-string() }</ModuleURI>
 (: Modificato per togliere i doppi apici per json        <ModuleURI>{request:get-uri()}?{request:get-query-string() }</ModuleURI>:)
 }
-<Created>{adjust-dateTime-to-timezone(current-dateTime(),())}</Created>
+<Created>{format-dateTime(current-dateTime(), "[Y0001]-[M01]-[D01]T[H01]:[m01]:[s01].[f]")}</Created>
 {$content}
 </FDSNStationXML>
 else
@@ -4289,7 +4292,7 @@ declare function stationutil:query_core_station_POST($NSLCSE as map()*, $level a
     return $network
     )
 
-   let $log := stationutil:debug('info' , 'after first phase')
+(:   let $log := stationutil:debug('info' , 'after first phase'):)
 
    for $condition in $NSLCSE
    for $network in $first_phase[matches(@code,$condition("network_pattern"))][matches(Station/@code, $condition("station_pattern"))]
@@ -4933,7 +4936,7 @@ declare function stationutil:change-dates-deep
                     try {
 (:                    let $log:= if (matches(node-name($node), "Network")) then util:log("info", "Examining " || node-name($node)) else ():)
                     for $attribute in $node/@*
-
+(:                    let $log:=util:log("info", "Examining " || name($attribute) || " " || string($attribute)):)
                     let $found-attribute-name := name($attribute)
                     let $found-attribute-value := string($attribute)
                     return
@@ -4957,6 +4960,7 @@ declare function stationutil:change-dates-deep
 declare function stationutil:put()
 {
 try {
+(:    let $o:=util:declare-option("exist:serialize","method=xml indent=no"):)
     (:Explicitly passed the filename in a custom http header  :)
     let $filename := request:get-header('filename')
     let $log:=util:log("info", "Request to insert " || $filename)
@@ -4971,10 +4975,12 @@ try {
 
     return
         if($stationutil:settings("remove_tz")) then
+(:            let $log:=util:log("info", "Before serialize " || $filename) return:)
+(:            fn:serialize(stationutil:change-dates-deep($modified_xml,("startDate","endDate")), $o):)
             fn:serialize(stationutil:change-dates-deep($modified_xml,("startDate","endDate")))
         else
+(:            fn:serialize($modified_xml, $o ):)
             fn:serialize($modified_xml)
-
 
 (: TODO END :)
     else
@@ -4988,10 +4994,9 @@ try {
     }
      catch err:* {
         let $log:=util:log("error", "Caught error " || $err:code || " " || $err:description)
-        return ()
+        return stationutil:other_error()
     }
 };
-
 
 declare function stationutil:delete()
 {
@@ -5054,31 +5059,65 @@ declare function stationutil:check-validity_or_skip($station){
 
 (: Look for duplicate networks with same code and startDate but different other attributes or elements :)
 declare function stationutil:check-validity($station){
+  let $log := stationutil:log("info", "check-validity")
   for $net in  $station//Network
       (: Eliminate not unique elements :)
-      let $netpruned := stationutil:remove-multi($net,("Station","TotalNumberStations","SelectedNumberStations"))
+      let $netpruned := stationutil:remove-multi($net,("Station","TotalNumberStations","SelectedNumberStations",'restrictedStatus'))
       let $netpruned := functx:remove-attributes($netpruned, ('restrictedStatus'))
+      (: TODO fix the remove-multi , remove-attributes if possible:)
+
+(:      let $log := stationutil:log("info", "netpruned:"|| string-join($netpruned)):)
+
       let $netprunedcode := $netpruned/@code
       let $netprunedstartDate := $netpruned/@startDate
 
       (: take netcache correspondent :)
       let $n-cached := doc($stationutil:netcache_collection||"/net.xml")//Network[@code=$netprunedcode][@startDate=$netprunedstartDate]
-      let $n-cached-code := doc($stationutil:netcache_collection||"/net.xml")//Network[@code=$netprunedcode]
+(:      let $log := stationutil:log("info", "n-cached:"|| string-join($n-cached)):)
+
+
       let $net-in-cache := stationutil:remove-multi($n-cached,("Station","TotalNumberStations","SelectedNumberStations",'restrictedStatus'))
+
       let $net-in-cache := functx:remove-attributes($net-in-cache, ('restrictedStatus'))
+      let $log := stationutil:log("info", "net-in-cache:"|| fn:normalize-space(string-join($net-in-cache)))
+
 (:      let $is_valid := functx:is-node-in-sequence-deep-equal( $netpruned , $net-in-cache )  :)
       let $is_valid := functx:sequence-deep-equal( $netpruned , $net-in-cache )
-(:      let $output := if ($is_valid) then "valid" else "Not valid":)
-(:      let $log := stationutil:log("info", "Elements in netcache: " || count($net-in-cache) || " " || count($netpruned) || " " || string-join($net-in-cache/@*) || " " || string-join($net-in-cache/*) || " " || string-join($netpruned/@*) || " " || string-join($netpruned/*) || " " || $output  ):)
-    return if (($is_valid) or empty($n-cached) ) then true() else fn:error(fn:QName('http://exist-db.org/apps/fdsn-station/modules/stationutil', 'err:001'), 'Refusing to insert station to avoid duplicate network')
+      let $output := if ($is_valid) then "valid" else "Not valid"
+
+(:      let $c1:=count($net-in-cache/@*):)
+(:      let $c2:=count($netpruned/@*):)
+(:      let $c3:=count($net-in-cache/*):)
+(:      let $c4:=count($netpruned/*):)
+
+(:      let $s1:=fn:normalize-space(functx:trim(string-join($net-in-cache/@*))):)
+(:      let $s2:=fn:normalize-space(functx:trim(string-join($netpruned/@*))):)
+      let $s3:=fn:normalize-space(functx:trim(string-join($net-in-cache/*)))
+      let $s4:=fn:normalize-space(functx:trim(string-join($netpruned/*)))
+(:      let $s5:=fn:normalize-space(functx:trim(string-join($net-in-cache))):)
+(:      let $s6:=fn:normalize-space(functx:trim(string-join($netpruned))):)
+
+
+(:      let $log := stationutil:log("info", "Pruned:"|| functx:trim(string-join($netpruned))):)
+(:      let $log := stationutil:log("info", "Cache :"|| fn:normalize-space(functx:trim(string-join($net-in-cache)))):)
+
+      let $same:=if ($s3=$s4) then "same" else "diverse"
+
+(:      let $log := stationutil:log("info", "Elements in netcache: " || $c1 || ":" || $c2 || ":" || $c3 || ":" || $c4 || ":" || $s1 || ":" || $s2 || ":" || $s3 || ":" || $s4 || ":"|| $s5 || ":" || $s6 || ":" || $output || ":" || count($net/*) || ":" || count($n-cached/*) || ":" || $same ):)
+    return if (($is_valid) or empty($n-cached) or $same='same' ) then true() else fn:error(fn:QName('http://exist-db.org/apps/fdsn-station/modules/stationutil', 'err:001'), 'Refusing to insert station to avoid duplicate network')
 
 };
 
+
 declare function stationutil:real_put($decoded as xs:string, $filename as xs:string){
-
+(:    let $s1:=stationutil:log("info", "real_put"):)
 (: create the second resource then store them together, update cache in the end :)
-     let $station := fn:parse-xml($decoded)
+     let $station := if ($stationutil:settings("serialize_input")) then fn:parse-xml(fn:normalize-space($decoded)) else fn:parse-xml($decoded)
+(:     let $log := if ($stationutil:settings("serialize_input")) then stationutil:log("info", "Serialize input: true ") else stationutil:log("info", "Serialize input: false "):)
+(:     let $station := fn:parse-xml(fn:normalize-space($decoded)):)
 
+(:     let $station := stationutil:parse_remove_empty($decoded):)
+(:     let $s1:=stationutil:log("info", string-join($station/*)):)
      let $netcode := $station//Network/@code
      let $station_periods := count($station//Station/@startDate)
      let $startDate := $station//Network/@startDate
@@ -5087,24 +5126,23 @@ declare function stationutil:real_put($decoded as xs:string, $filename as xs:str
      let $alreadyindb:=doc-available($stationutil:station_collection||$filename)
      let $stationindb:=doc($stationutil:station_collection||$filename)
      let $oldnetcode := if ($alreadyindb) then $stationindb//Network/@code[1] else $netcode
+     let $oldnetstartDate := if ($alreadyindb) then $stationindb//Network/@startDate[1] else $startDate
+
      let $stored:=(
      try {
         (:Possible more than a netcode in a station file:)
-(:        let $alreadyindb:=doc-available($stationutil:station_collection||$filename):)
-(:        let $stationindb:=doc($stationutil:station_collection||$filename):)
 (:        let $log:=stationutil:log("info", "Read in " || $filename || " net code: " || $stationindb//Network/@code[1] )  :)
+(: issue #133  check only when is already in the database, that fails with bad xml    :)
         let $acceptable := if ($alreadyindb) then  stationutil:check-validity_or_skip($station) else ()
-(:        let $oldnetcode := if ($alreadyindb) then $stationindb//Network/@code[1] else $netcode:)
-(:        let $log:=stationutil:log("info", "Read in db before " || $stationindb//Network/@code[1] || " and " || $oldnetcode )  :)
 
+(:        let $oldnetcode := if ($alreadyindb) then $stationindb//Network/@code[1] else $netcode:)
 (:        let $store1:=xmldb:store($stationutil:station_collection, $filename, $decoded):)
 (:        let $store2:=xmldb:store($stationutil:station_pruned_collection, $filename, $pruned):)
 
-(:        let $log:=stationutil:log("info", "Read in db after " || $stationindb//Network/@code[1] || " and " || $oldnetcode )  :)
 
         let $todo :=
         (
-            if (count($netcode)>1 or not(matches($oldnetcode,$netcode)))
+            if (count($netcode)>1 or not(matches($oldnetcode,$netcode)) or not(matches($oldnetstartDate,$startDate))  )
         then
             let $store1:=xmldb:store($stationutil:station_collection, $filename, $decoded)
             let $store2:=xmldb:store($stationutil:station_pruned_collection, $filename, $pruned)
@@ -5114,21 +5152,21 @@ declare function stationutil:real_put($decoded as xs:string, $filename as xs:str
             stationutil:netcache_create()
         else
         (
+            (:Here only one netcode :)
             let $store1:=xmldb:store($stationutil:station_collection, $filename, $decoded)
             let $store2:=xmldb:store($stationutil:station_pruned_collection, $filename, $pruned)
-            for $net in $netcode
+            for $net in $netcode, $start in $startDate
             let $net_in_cache := stationutil:netcache_exists($net,$station//Network[@code=$net]/@startDate)
             let $cached :=
                 if ( $net_in_cache and $alreadyindb and count($netcode)=1) then
                     (:before did nothing here, now must update info in cache for the station:)
-                    stationutil:netcache_update($station, $net, $station_periods)
+                    stationutil:netcache_update($station, $net, $startDate, $station_periods)
                 else
                     if ($net_in_cache and not($alreadyindb) and count($netcode)=1)
                     then
                         (:Update the current net count inserting a new simple station belonging to a single network:)
 (:                        let $log:=stationutil:debug("info", "Do update when needed")  return:)
-                            (:TODO UNCOMMENT after update fix:)
-                            stationutil:netcache_update($station, $net, $station_periods)
+                            stationutil:netcache_update($station, $net, $startDate, $station_periods)
 (:                            stationutil:netcache_create():)
                     else
                         (: new net create cache :)
@@ -5212,7 +5250,7 @@ declare function stationutil:prune_station($station as item(), $filename as xs:s
 
 (: previously called to update only station numbers and restrictedStatus, now must add Station for its network :)
 (: Should update net.xml, rebuilding only the station pertaining network :)
-declare function stationutil:netcache_update($station as item(), $currentcode as xs:string,  $sign as xs:double) as xs:boolean {
+declare function stationutil:netcache_update($station as item(), $currentcode as xs:string,  $currentstartDate as xs:string, $sign as xs:double) as xs:boolean {
 
 try {
     (:Reduced to one network $currentcode:)
@@ -5221,7 +5259,7 @@ try {
 
     let $xml:=
         for $network in collection($collection)
-            //Network[@code=$currentcode]
+            //Network[@code=$currentcode][@startDate=$currentstartDate]
             let $args:=$network/@*[local-name()!='restrictedStatus']
 
             let $netcode := $network/@code
@@ -5293,8 +5331,8 @@ try {
                  }
     (:$res is the fragment to change in net.xml:)
     let $old_cache_network:=doc($stationutil:netcache_collection||"/net.xml")
-    let $old_network := $old_cache_network//Network[@code=$currentcode]
-    let $inserting:= update insert $res preceding $old_cache_network//Network[@code=$currentcode]
+    let $old_network := $old_cache_network//Network[@code=$currentcode][@startDate=$currentstartDate]
+    let $inserting:= update insert $res preceding $old_cache_network//Network[@code=$currentcode][@startDate=$currentstartDate]
     let $removing:=for $network in $old_cache_network return update delete $old_network
 
 
@@ -5643,7 +5681,7 @@ declare function stationutil:netcache_create() as xs:string{
 
 try {
 
-    let $log:=stationutil:debug("info", "netcache_create_alt")
+    let $log:=stationutil:debug("info", "netcache_create")
     let $collection := $stationutil:station_pruned_collection
 
     let $xml:=

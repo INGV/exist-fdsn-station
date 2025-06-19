@@ -80,7 +80,7 @@ def build_scnl_lists(webservice_path: str, query: str) -> list:
 
     else:
         if response.status_code == 204:
-            print(f"Nodata on source")
+            print(f"No data on source")
     return scnl
 
 
@@ -103,44 +103,45 @@ def build_scnl_lists_from_files(dir_path: str, provider: str, network_code: str)
         if entry.is_file() and entry.match(f'{provider}*.xml'):
             with open(entry, 'rb') as f:
                 content = f.read()
-            root = et.fromstring(content)
-            for child in root.iter('*'):
-                if child.tag == '{http://www.fdsn.org/xml/station/1}Network':
-                    net_code = child.attrib.get('code')
-                    if net_code == network_code:
-                        print(entry)
-                        net_startDate = fix_dates(child.attrib.get('startDate'))
-                        net_endDate = fix_dates(child.attrib.get('endDate'))
-                        net_identifier = ""
-                        net_description = ""
+                if content:
+                    root = et.fromstring(content)
+                    for child in root.iter('*'):
+                        if child.tag == '{http://www.fdsn.org/xml/station/1}Network':
+                            net_code = child.attrib.get('code')
+                            if net_code == network_code:
+                                print(entry)
+                                net_startDate = fix_dates(child.attrib.get('startDate'))
+                                net_endDate = fix_dates(child.attrib.get('endDate'))
+                                net_identifier = ""
+                                net_description = ""
 
-                        for elem in child.iter('*'):
-                            if elem.tag == '{http://www.fdsn.org/xml/station/1}Description':
-                                net_description = elem.text
-                                # print(f'description: {net_description}')
-                                break
-                        for elem in child.iter('*'):
-                            if elem.tag == '{http://www.fdsn.org/xml/station/1}Identifier':
-                                net_identifier = elem.text
+                                for elem in child.iter('*'):
+                                    if elem.tag == '{http://www.fdsn.org/xml/station/1}Description':
+                                        net_description = elem.text
+                                        # print(f'description: {net_description}')
+                                        break
+                                for elem in child.iter('*'):
+                                    if elem.tag == '{http://www.fdsn.org/xml/station/1}Identifier':
+                                        net_identifier = elem.text
+                                        # print(f'identifier: {net_identifier}')
+                                        break
                                 # print(f'identifier: {net_identifier}')
-                                break
-                        # print(f'identifier: {net_identifier}')
-                        # print(f'description: {net_description}')
-                        for element in child.iter():
-                            if element.tag == "{http://www.fdsn.org/xml/station/1}Station":
-                                station_code = element.attrib.get('code')
-                                station_startDate = fix_dates(element.attrib.get('startDate'))
-                                station_endDate = fix_dates(element.attrib.get('endDate'))
-                                for e in element.iter('*'):
-                                    if e.tag == "{http://www.fdsn.org/xml/station/1}Channel":
-                                        channel_code = e.attrib.get('code')
-                                        channel_location = e.attrib.get('location')
-                                        channel_startDate = fix_dates(e.attrib.get('startDate'))
-                                        channel_endDate = fix_dates(e.attrib.get('endDate'))
-                                        station_list.append((net_code, station_code, net_startDate, net_endDate,
-                                                            net_identifier, net_description,
-                                                            station_startDate, station_endDate, channel_code,
-                                                            channel_location, channel_startDate, channel_endDate))
+                                # print(f'description: {net_description}')
+                                for element in child.iter():
+                                    if element.tag == "{http://www.fdsn.org/xml/station/1}Station":
+                                        station_code = element.attrib.get('code')
+                                        station_startDate = fix_dates(element.attrib.get('startDate'))
+                                        station_endDate = fix_dates(element.attrib.get('endDate'))
+                                        for e in element.iter('*'):
+                                            if e.tag == "{http://www.fdsn.org/xml/station/1}Channel":
+                                                channel_code = e.attrib.get('code')
+                                                channel_location = e.attrib.get('location')
+                                                channel_startDate = fix_dates(e.attrib.get('startDate'))
+                                                channel_endDate = fix_dates(e.attrib.get('endDate'))
+                                                station_list.append((net_code, station_code, net_startDate, net_endDate,
+                                                                    net_identifier, net_description,
+                                                                    station_startDate, station_endDate, channel_code,
+                                                                    channel_location, channel_startDate, channel_endDate))
     scnl = station_list
 
     if not scnl:
@@ -184,16 +185,17 @@ def build_network_lists_from_files(dir_path: str) -> list:
         if entry.is_file() and entry.match("*.xml"):
             with open(entry, 'rb') as f:
                 content = f.read()
-            root = et.fromstring(content)
-            for child in root.iter('*'):
-                if child.tag == '{http://www.fdsn.org/xml/station/1}Network':
-                    netcode = child.attrib.get('code')
-                    if netcode not in network_list:
-                        network_list.append(netcode)
+                if content:
+                    root = et.fromstring(content)
+                    for child in root.iter('*'):
+                        if child.tag == '{http://www.fdsn.org/xml/station/1}Network':
+                            netcode = child.attrib.get('code')
+                            if netcode not in network_list:
+                                network_list.append(netcode)
     return network_list
 
 
-def get_station_xml(webservice_path: str, provider: str, station: str, path: str, no_save: bool) -> bool:
+def get_station_xml(webservice_path: str, provider: str, station: str, path: str, no_save: bool, add_params: str) -> bool:
     """
     Get station data, optionally saved on disk
     :param webservice_path: webservice part of request
@@ -204,7 +206,7 @@ def get_station_xml(webservice_path: str, provider: str, station: str, path: str
     :return: true if data found on source
     """
     filename = f'{path}/{provider}{station}.xml'
-    query = 'level=response&format=xml&station=' + station
+    query = 'level=response&format=xml&station=' + station + add_params
     # To cope with nosave feature introduced current_content to carry station data instead of file
     response = requests.get(webservice_path + query)
     global current_content
@@ -221,7 +223,7 @@ def get_station_xml(webservice_path: str, provider: str, station: str, path: str
         result = True
     else:
         if response.status_code == 204:
-            print(f"Nodata on source")
+            print(f"No data on source")
             result = False
     return result
 
@@ -259,7 +261,7 @@ def get_station_xml_from_files(dir_path: str, provider: str, station: str, path:
     return result
 
 
-def put_station_xml(webservice_path: str, provider: str, station: str, path: str, no_save: bool) -> bool:
+def put_station_xml(webservice_path: str, provider: str, station: str, path: str, no_save: bool) -> int:
     """
     Put station in webservice taking optionally from file system
     :param webservice_path: webservice part of request
@@ -272,7 +274,7 @@ def put_station_xml(webservice_path: str, provider: str, station: str, path: str
     filename = f'{provider}{station}.xml'
     filepath = f'{path}/{filename}'
     print(webservice_path + " " + provider + " " + station + " " + path)
-    result: bool
+
     global current_content
     if no_save:
         # To cope with nosave feature introduced current_content to carry station data instead of file
@@ -287,9 +289,8 @@ def put_station_xml(webservice_path: str, provider: str, station: str, path: str
     if not r.status_code == 200:
         print(f"Error: {r.status_code}")
         print(r.headers)
-        result = False
-    else:
-        result = True
+    result = r.status_code
+
     return result
 
 
@@ -331,6 +332,7 @@ def print_help():
     print("  -q", "--query\t\t\tQuery to select stations to sync [level=channel]")
     print("  -P", "--provider\t\t\tprovider code, uppercase")
     print("  -f", "--force-station\t\tComma separated station list, if present sync only this stations")
+    print("  -a", "--add-params\t\tOptional parameters passed to source webservice, i.e. legacy INGV")
     # print("  -S\t\t\t\tStationonly = True") TODO REMOVE
     print("  -v\t\t\t\tUse virtualnetworks service [INGV only]")
     # print("  -c", "--check_sensor_desc\t\t\t") TODO
@@ -345,6 +347,8 @@ def print_help():
         '  Example 2: fdsn-station-sync-xml.py -s file:///opt/Station -d http://127.0.0.1:80  -p /tmp  -x -P INGV -l"')
     print(
         '  Example 3: fdsn-station-sync-xml.py -s https://webservices.ingv.it -d http://172.17.0.2:8080 -p /tmp --force-station="ACER,AMUR" ')
+    print(
+        '  Example 4: fdsn-station-sync-xml.py -s https://webservices.ingv.it -d http://172.17.0.2:8080 -p /tmp --force-station="ACER,AMUR" -a "&includerestricted=true&authoritative=any&visibility=any"')
 
 
 def main(argv):
@@ -363,11 +367,12 @@ def main(argv):
     Station = ""
     OK = True
     NoSave = False
+    AddParams = ""
     # To cope with nosave feature introduced current_content to carry station data instead of file
     global current_content
     try:
-        opts, args = getopt.getopt(argv, "s:d:p:q:P:f:cexlhnv",
-                                   ["source=", "destination=", "path=", "query=", "provider=", "force-station=",
+        opts, args = getopt.getopt(argv, "s:d:p:q:P:f:a:cexlhnv",
+                                   ["source=", "destination=", "path=", "query=", "provider=", "force-station=", "add-params",
                                     "check_sensor_desc", "existdb-source", "existdb-destination", "leave_unmatched",
                                     "help", "no-save"])
     except getopt.GetoptError:
@@ -386,6 +391,8 @@ def main(argv):
             Provider = arg + "_"
         elif opt in ("-f", "--force-station"):
             Station = arg
+        elif opt in ("-a", "--add-params"):
+            AddParams = arg
         elif opt in ("-n", "--no-save"):
             NoSave = True
         elif opt in ("-v"):
@@ -403,7 +410,7 @@ def main(argv):
             sys.exit()
     networks = ""
     if virtualNetworks:
-        AN.build_alternate_network_file(url='http://webservices.ingv.it/ingvws/virtualnetwork/1/codes',
+        AN.build_alternate_network_file(url='http://exist-dev.int.ingv.it:9080/eidaws/alternatenetworks/1/',
                                         filename=f'{Path}/AlternateNetwork.xml')
         networks = AN.build_alternate_network_lists(filename=f'{Path}/AlternateNetwork.xml')
 
@@ -425,7 +432,7 @@ def main(argv):
     else:
         DestinationURL = Destination + "/fdsnws/station/1/query?"
     print(f'Writing into {DestinationURL}')
-
+    last_err = 200
     if Station == "":
         if SourcePath == "":
             SourceNetworks = build_network_lists(SourceURL, Query)
@@ -485,24 +492,33 @@ def main(argv):
                         for station in removed_stationset:
                             print('Attempting to revive station ' + Provider + station)
                             if SourcePath == "":
-                                resp = get_station_xml(SourceURL, Provider, station, Path, NoSave)
-                                OK &= resp
+                                station_get = get_station_xml(SourceURL, Provider, station, Path, NoSave, AddParams)
+                                if station_get:
+                                    OK &= True
+                                else:
+                                    last_err = 204
+                                    OK &= False
+                                    print('No data found for ' + Provider + station)
                             else:
                                 get_station_xml_from_files(SourcePath, Provider, station, Path, NoSave)
-                            if virtualNetworks:
+                            if virtualNetworks and OK:
                                 if NoSave:
                                     current_content = AN.add_virtual_networks_indata(current_content, station, networks, 
                                                                                      Path+"/"+'AlternateNetwork.xml')
                                 else:
                                     AN.add_virtual_networks(Path + "/" + Provider + station + '.xml', station, networks,
                                                             Path + "/" + 'AlternateNetwork.xml')
-                            resp = put_station_xml(DestinationURL, Provider, station, Path, NoSave)
-                            OK &= resp
+                            if OK:
+                                resp = put_station_xml(DestinationURL, Provider, station, Path, NoSave)
+                            if OK & resp == 200:
+                                OK &= True
+                            else:
+                                last_err = resp
                     # stations with missing channels
                     for station in missing_stationset:
                         print('Syncing station ' + Provider + station)
                         if SourcePath == "":
-                            get_station_xml(SourceURL, Provider, station, Path, NoSave)
+                            get_station_xml(SourceURL, Provider, station, Path, NoSave, AddParams)
                         else:
                             get_station_xml_from_files(SourcePath, Provider, station, Path, NoSave)
                         if virtualNetworks:
@@ -515,7 +531,10 @@ def main(argv):
                                                         Path + "/" + 'AlternateNetwork.xml')
                         # time.sleep(1)
                         resp: bool = put_station_xml(DestinationURL, Provider, station, Path, NoSave)
-                        OK &= resp
+                        if resp == 200:
+                            OK &= True
+                        else:
+                            last_err = resp
 
     else:
         print(f'Requested to upload: {Station}')
@@ -526,7 +545,7 @@ def main(argv):
             read_station: bool
             print('Syncing station ' + Provider + station)
             if SourcePath == "":
-                read_station = get_station_xml(SourceURL, Provider, station, Path, NoSave)
+                read_station = get_station_xml(SourceURL, Provider, station, Path, NoSave, AddParams)
             else:
                 read_station = get_station_xml_from_files(SourcePath, Provider, station, Path, NoSave)
             if virtualNetworks and read_station:
@@ -537,10 +556,13 @@ def main(argv):
                     # add in station file the alternate snippet
                     AN.add_virtual_networks(Path + "/" + Provider + station + '.xml', station, networks,
                                             Path + "/" + 'AlternateNetwork.xml')
-                print(f'Forcing upload of {station}')
+                # print(f'Forcing upload of {station}')
             if read_station:
-                resp: bool = put_station_xml(DestinationURL, Provider, station, Path, NoSave)
-                OK &= resp
+                resp = put_station_xml(DestinationURL, Provider, station, Path, NoSave)
+                if resp == 200:
+                    OK &= True
+                else:
+                    last_err = resp
             else:
                 OK = False
                 print(f'An error occurred processing {station}')
@@ -549,7 +571,10 @@ def main(argv):
         print('Synced')
     else:
         print('Synced, with errors')
-
+    if last_err == 200:
+        exit(0)
+    else:
+        exit(last_err-400)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
