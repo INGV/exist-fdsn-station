@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" schemaVersion="1.1" xsi:schemaLocation="http://www.fdsn.org/xml/station/1 http://www.fdsn.org/xml/station/fdsn-station-1.1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd">
+    <Source>SeisNet-mysql</Source>
+    <Sender>INGV-CNT</Sender>
+    <Module>INGV-CNT WEB SERVICE: fdsnws-station | version: 1.1.46.0</Module>
+    <ModuleURI>http://webservices.ingv.it/fdsnws/station/1/query?format=xml&amp;level=response&amp;station=ACER</ModuleURI>
+    <Created>2021-02-08T09:52:34</Created>
+    <Network code="Z3" startDate="2015-01-01T00:00:00" endDate="2022-12-31T00:00:00" restrictedStatus="open">
+        <Description>AlpArray Seismic Network (AASN) temporary component</Description>
+        <Identifier type="DOI">10.12686/alparray/z3_2015</Identifier>
+        <ingv:Identifier xmlns:ingv="https://raw.githubusercontent.com/FDSN/StationXML/master/fdsn-station.xsd">N81</ingv:Identifier>
+        <TotalNumberStations>1</TotalNumberStations>
+        <SelectedNumberStations>1</SelectedNumberStations>
+    </Network>
+</FDSNStationXML>
