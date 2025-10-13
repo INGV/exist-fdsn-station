@@ -35,7 +35,7 @@ let $datetime := dateTime($date,$time)
 
 let $startDate:=fn:adjust-dateTime-to-timezone($datetime,())
 (:let $startDate:=fn:adjust-dateTime-to-timezone(xs:dateTime(request:get-parameter('startDate', '')),()):)
-let $log:=util:log('info',"Startdate:" || $startDate)
+
 (::)
 (:let $log:=util:log("info", " net: " || $code  || " date: " || $startDate):)
 let $content := request:get-data()
@@ -46,6 +46,10 @@ let $log:= stationutil:debug("info", "Decoded: " || $decoded)
 let $xml := fn:parse-xml($decoded)
 let $netcode := $xml//Network/@code
 let $netstartDate := $xml//Network/@startDate
+let $netendDate := if (exists($xml//Network/@endDate)) then stationutil:time_adjust($xml//Network/@endDate) else ()
+
+let $log:=util:log('info',"startDate: " || string-join($startDate) || " endDate: " || string-join($netendDate) )
+
 let $netrestrictedStatus := $xml//Network/@restrictedStatus
 
 return
@@ -60,7 +64,7 @@ try {
         else
 (:            if ( request:get-method() eq "PUT" and $netcode=$code and $netstartDate=$startDate and ( $netrestrictedStatus='open' or $netrestrictedStatus = 'closed' )):)
             if ( request:get-method() eq "PUT" and $netcode=$code and ( $netrestrictedStatus='open' or $netrestrictedStatus = 'closed' ))
-            then mgmt:bulkmodify($code, $startDate, $xml) (: check on startDate made only in bulkmodify :)
+            then mgmt:bulkmodify($code, $startDate, $netendDate, $xml) (: check on startDate made only in bulkmodify :)
             else stationutil:other_error()
     )
 

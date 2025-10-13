@@ -24,9 +24,9 @@ declare namespace ingv="https://raw.githubusercontent.com/FDSN/StationXML/master
  : If passed a segment with @restrictedStatus=open, it means that all the station
  : implied and their channels must pass explicitly to restrictedStatus=open
  :)
-declare function mgmt:bulkmodify($code, $startDate, $xml) {
+declare function mgmt:bulkmodify($code, $startDate, $endDate, $xml) {
 
-    let $net_in_cache := stationutil:netcache_exists($code,$startDate)
+    let $net_in_cache := stationutil:netcache_exists($code,$startDate,$endDate)
 
     (: recover valid attribute and elements from xml:)
     (: If Sstartdate different from $netstartDate, then the date should change in all correspondent station files    :)
