@@ -12,6 +12,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 import AlternateNetworks as AN
+from Routing import Routing
 import config as cfg
 
 current_content = u''
@@ -19,69 +20,85 @@ current_content = u''
 # Build a list with scnl for network, querying station webservice
 
 
-def build_scnl_lists(webservice_path: str, query: str) -> list:
+def build_scnl_lists(webservice_path: str, query: str, Routing=None) -> list:
     """
-    Build a list of scnl found on service
+    Build a list of scnl found on service, optionally confirming with routing service
     :param webservice_path: webservice part of request
     :param query: query part of request
     :return: list of scnl
     """
     scnl = []
     url_request = webservice_path + query
-    response = requests.get(url_request)
-    if response.status_code == 200:
-        root = et.fromstring(response.content)
-        # print(response.content)
-        for child in root.iter('*'):
-            if child.tag == '{http://www.fdsn.org/xml/station/1}Network':
-                net_code = child.attrib.get('code')
-                net_startDate = fix_dates(child.attrib.get('startDate'))
-                startend_query = ""
-                if net_startDate != "None":
-                    startend_query += f'&starttime={net_startDate}'
-                net_endDate = fix_dates(child.attrib.get('endDate'))
-                if net_endDate != "None":
-                    startend_query += f'&endtime={net_endDate}'
-                net_identifier = ""
-                net_description = ""
-                for elem in child.iter('*'):
-                    if elem.tag == '{http://www.fdsn.org/xml/station/1}Description':
-                        net_description = elem.text
-                    if elem.tag == '{http://www.fdsn.org/xml/station/1}Identifier':
-                        net_identifier = elem.text
-                # print(f'identifier: {net_identifier}')
-                # print(f'description: {net_description}')
-                query = f'{webservice_path}level=channel&net={net_code}&format=xml&nodata=404' + startend_query
-                # debug
-                print(query)
-                stationxml = requests.get(query)
-                if stationxml.status_code == 200:
-                    s = et.fromstring(stationxml.content)
-                    # debug print (s)
-                    station_list = []
-                    for element in s.iter():
-                        if element.tag == "{http://www.fdsn.org/xml/station/1}Station":
-                            station_code = element.attrib.get('code')
-                            station_startDate = fix_dates(element.attrib.get('startDate'))
-                            station_endDate = fix_dates(element.attrib.get('endDate'))
-                            for channel_child in element.iter('*'):
-                                if channel_child.tag == "{http://www.fdsn.org/xml/station/1}Channel":
-                                    channel_code = channel_child.attrib.get('code')
-                                    channel_location = channel_child.attrib.get('location')
-                                    channel_startDate = fix_dates(channel_child.attrib.get('startDate'))
-                                    channel_endDate = fix_dates(channel_child.attrib.get('endDate'))
-                                    station_list.append((net_code, station_code, net_startDate, net_endDate,
-                                                        net_identifier, net_description, station_startDate,
-                                                        station_endDate, channel_code, channel_location,
-                                                        channel_startDate, channel_endDate))
-                            scnl += station_list
-                else:
-                    print(f"station status_code {stationxml.status_code} for {query} ")
+    try:
+        response = requests.get(url_request, timeout=120)
 
-    else:
-        if response.status_code == 204:
-            print(f"No data on source")
-    return scnl
+        if response.status_code == 200:
+            root = et.fromstring(response.content)
+            # print(response.content)
+            for child in root.iter('*'):
+                if child.tag == '{http://www.fdsn.org/xml/station/1}Network':
+                    net_code = child.attrib.get('code')
+                    net_startDate = fix_dates(child.attrib.get('startDate'))
+                    startend_query = ""
+                    if net_startDate != "None":
+                        startend_query += f'&starttime={net_startDate}'
+                    net_endDate = fix_dates(child.attrib.get('endDate'))
+                    if net_endDate != "None" and net_endDate != "":
+                        startend_query += f'&endtime={net_endDate}'
+                    net_identifier = ""
+                    net_description = ""
+                    for elem in child.iter('*'):
+                        if elem.tag == '{http://www.fdsn.org/xml/station/1}Description':
+                            net_description = elem.text
+                        if elem.tag == '{http://www.fdsn.org/xml/station/1}Identifier':
+                            net_identifier = elem.text
+                    # print(f'identifier: {net_identifier}')
+                    # print(f'description: {net_description}')
+                    query = f'{webservice_path}level=channel&net={net_code}&format=xml&nodata=404' + startend_query
+                    # debug
+                    print(query)
+                    stationxml = requests.get(query)
+                    if stationxml.status_code == 200:
+                        s = et.fromstring(stationxml.content)
+                        # debug print (s)
+                        station_list = []
+                        for element in s.iter():
+                            if element.tag == "{http://www.fdsn.org/xml/station/1}Station":
+                                station_code = element.attrib.get('code')
+                                station_startDate = fix_dates(element.attrib.get('startDate'))
+                                station_endDate = fix_dates(element.attrib.get('endDate'))
+                                for channel_child in element.iter('*'):
+                                    if channel_child.tag == "{http://www.fdsn.org/xml/station/1}Channel":
+                                        channel_code = channel_child.attrib.get('code')
+                                        if channel_child.attrib.get('location') is None :
+                                            channel_location = ''
+                                        else :
+                                            channel_location = channel_child.attrib.get('location')
+                                        channel_startDate = fix_dates(channel_child.attrib.get('startDate'))
+                                        channel_endDate = fix_dates(channel_child.attrib.get('endDate'))
+                                        if Routing is not None:
+                                            if Routing.check_station('station', webservice_path.rstrip('?'), net_code, station_code, channel_location, channel_code, station_startDate, station_endDate):
+                                                station_list.append((net_code, station_code, net_startDate, net_endDate,
+                                                            net_identifier, net_description, station_startDate,
+                                                            station_endDate, channel_code, channel_location,
+                                                            channel_startDate, channel_endDate))
+
+                                        else:
+                                               station_list.append((net_code, station_code, net_startDate, net_endDate,
+                                                                    net_identifier, net_description, station_startDate,
+                                                                    station_endDate, channel_code, channel_location,
+                                                                    channel_startDate, channel_endDate))
+
+                                scnl += station_list
+                    else:
+                        print(f"station status_code {stationxml.status_code} for {query} ")
+
+        else:
+            if response.status_code == 204:
+                print(f"No data on source {url_request}")
+        return scnl
+    except:  print(f"Connection timed out trying {url_request}")
+    finally: return scnl
 
 
 # Given a path look for scnl defined in the contained xml files
@@ -261,7 +278,7 @@ def get_station_xml_from_files(dir_path: str, provider: str, station: str, path:
     return result
 
 
-def put_station_xml(webservice_path: str, provider: str, station: str, path: str, no_save: bool) -> int:
+def put_station_xml(webservice_path: str, provider: str, station: str, path: str, no_save: bool, lock_seconds: str) -> int:
     """
     Put station in webservice taking optionally from file system
     :param webservice_path: webservice part of request
@@ -269,23 +286,39 @@ def put_station_xml(webservice_path: str, provider: str, station: str, path: str
     :param station: station code
     :param path: where to optionally save station files
     :param no_save: optionally don't save
+    :param lock_seconds: lock cache update for given seconds
     :return: true if data put on destination
     """
     filename = f'{provider}{station}.xml'
     filepath = f'{path}/{filename}'
+    lockseconds = f'{lock_seconds}'
     print(webservice_path + " " + provider + " " + station + " " + path)
 
     global current_content
     if no_save:
-        # To cope with nosave feature introduced current_content to carry station data instead of file
-        r = requests.put(url=webservice_path, data=current_content,
-                         headers={"Content-Type": "application/octet-stream", "filename": filename},
-                         auth=HTTPBasicAuth(cfg.AdminUser, cfg.AdminPassword))
-        current_content = u''
+        if lock_seconds == "":
+            # To cope with nosave feature introduced current_content to carry station data instead of file
+            r = requests.put(url=webservice_path, data=current_content,
+                             headers={"Content-Type": "application/octet-stream", "filename": filename},
+                             auth=HTTPBasicAuth(cfg.AdminUser, cfg.AdminPassword))
+            current_content = u''
+        else:
+            # To cope with nosave feature introduced current_content to carry station data instead of file
+            r = requests.put(url=webservice_path, data=current_content,
+                             headers={"Content-Type": "application/octet-stream", "filename": filename, "lockseconds": lockseconds},
+                             auth=HTTPBasicAuth(cfg.AdminUser, cfg.AdminPassword))
+            current_content = u''
+
     else:
-        r = requests.put(url=webservice_path, data=open(filepath, 'rb'),
-                         headers={"Content-Type": "application/octet-stream", "filename": filename},
-                         auth=HTTPBasicAuth(cfg.AdminUser, cfg.AdminPassword))
+        if lock_seconds == "":
+            r = requests.put(url=webservice_path, data=open(filepath, 'rb'),
+                             headers={"Content-Type": "application/octet-stream", "filename": filename, "lockseconds": lock_seconds},
+                             auth=HTTPBasicAuth(cfg.AdminUser, cfg.AdminPassword))
+        else:
+            r = requests.put(url=webservice_path, data=open(filepath, 'rb'),
+                             headers={"Content-Type": "application/octet-stream", "filename": filename},
+                             auth=HTTPBasicAuth(cfg.AdminUser, cfg.AdminPassword))
+
     if not r.status_code == 200:
         print(f"Error: {r.status_code}")
         print(r.headers)
@@ -315,7 +348,11 @@ def fix_dates(date):
     :param date:
     :return: fixed date string
     """
-    return re.sub("Z", "", str(date))
+    if date is not None and date != '':
+        result  = re.sub("Z", "", str(date))
+    else:
+        result = ''
+    return result
 
 
 def print_help():
@@ -337,12 +374,14 @@ def print_help():
     print("  -v\t\t\t\tUse virtualnetworks service [INGV only]")
     # print("  -c", "--check_sensor_desc\t\t\t") TODO
     print("  -l", "--leave_unmatched\t\tLeave stations on destination even when not found on source")
+    print("  -k", "--lock-seconds\t\tLock cache updates for given seconds")
+    print("  -r", "--routing-confirm\t\tAsk to routing service before sync")
     print("  -e", "--existdb-source\t\tSource with exist-fdsn-station url prefix")
     print("  -x", "--existdb-destination\tDestination with exist-fdsn-station url prefix")
     print("  -n", "--no-save\t\t\tDo not save station files in temporary files path")
     print("  -h", "--help\t\t\tprint this help")
     print(
-        '\n\n  Example 1: fdsn-station-sync-xml.py -v -s https://webservices.ingv.it -d http://172.17.0.2:8080 -p /tmp -q "level=channel&network=*&format=xml&includerestricted=true"')
+        '\n\n  Example 1: fdsn-station-sync-xml.py -v -r -s https://webservices.ingv.it -d http://172.17.0.2:8080 -p /tmp -q "level=channel&network=*&format=xml&includerestricted=true"')
     print(
         '  Example 2: fdsn-station-sync-xml.py -s file:///opt/Station -d http://127.0.0.1:80  -p /tmp  -x -P INGV -l"')
     print(
@@ -356,7 +395,7 @@ def main(argv):
     Destination = '172.17.0.2:8080'
     Path = '/tmp'
     Query = "level=channel&network=*&format=xml&includerestricted=true"
-
+    LockSeconds = ""
     virtualNetworks = False
     CheckSensorDescription = False
     LeaveUnmatched = False
@@ -367,13 +406,14 @@ def main(argv):
     Station = ""
     OK = True
     NoSave = False
+    shouldRoutingConfirm = False
     AddParams = ""
     # To cope with nosave feature introduced current_content to carry station data instead of file
     global current_content
     try:
-        opts, args = getopt.getopt(argv, "s:d:p:q:P:f:a:cexlhnv",
-                                   ["source=", "destination=", "path=", "query=", "provider=", "force-station=", "add-params",
-                                    "check_sensor_desc", "existdb-source", "existdb-destination", "leave_unmatched",
+        opts, args = getopt.getopt(argv, "s:d:p:q:P:f:k:a:cexlrhnv",
+                                   ["source=", "destination=", "path=", "query=", "provider=", "force-station=", "lock-seconds=", "add-params",
+                                    "check_sensor_desc", "existdb-source", "existdb-destination", "leave_unmatched", "routing-confirm",
                                     "help", "no-save"])
     except getopt.GetoptError:
         print('try fdsn-station-sync.py --help')
@@ -395,12 +435,16 @@ def main(argv):
             AddParams = arg
         elif opt in ("-n", "--no-save"):
             NoSave = True
+        elif opt in ("-r", "--routing-confirm"):
+            shouldRoutingConfirm = True
         elif opt in ("-v"):
             virtualNetworks = True
         elif opt in ("-c", "--check_sensor_desc"):
             CheckSensorDescription = True
         elif opt in ("-l", "--leave_unmatched"):
             LeaveUnmatched = True
+        elif opt in ("-k", "--lock-seconds"):
+            LockSeconds = arg
         elif opt in ("-e", "--existdb-source"):
             ExistDBSource = True
         elif opt in ("-x", "--existdb-destination"):
@@ -415,7 +459,7 @@ def main(argv):
         networks = AN.build_alternate_network_lists(filename=f'{Path}/AlternateNetwork.xml')
 
 
-    print("provider: " + Provider)
+    print("provider: " + Provider + "lockseconds: " + LockSeconds)
     source_parse: ParseResult = urlparse(Source)
     SourceURL = ""
     if source_parse.scheme.startswith('http'):
@@ -433,6 +477,11 @@ def main(argv):
         DestinationURL = Destination + "/fdsnws/station/1/query?"
     print(f'Writing into {DestinationURL}')
     last_err = 200
+    if shouldRoutingConfirm:
+        R = Routing('https://www.orfeus-eu.org/eidaws/routing/1/', 'station')
+        # R.print()
+    else:
+        R = None
     if Station == "":
         if SourcePath == "":
             SourceNetworks = build_network_lists(SourceURL, Query)
@@ -452,7 +501,7 @@ def main(argv):
         for net_code in AllnetworksList:
             print(f'Elaborating network {net_code} on source')
             if SourcePath == "":
-                SourceSCNL = build_scnl_lists(SourceURL, f"level=network&network={net_code}")
+                SourceSCNL = build_scnl_lists(SourceURL, f"level=network&network={net_code}",R)
             else:
                 SourceSCNL = build_scnl_lists_from_files(SourcePath, Provider, net_code)
             # print(SourceSCNL)
@@ -509,14 +558,16 @@ def main(argv):
                                     AN.add_virtual_networks(Path + "/" + Provider + station + '.xml', station, networks,
                                                             Path + "/" + 'AlternateNetwork.xml')
                             if OK:
-                                resp = put_station_xml(DestinationURL, Provider, station, Path, NoSave)
+                                # Invalidate lock cache in this case
+                                resp = put_station_xml(DestinationURL, Provider, station, Path, NoSave, "0")
                             if OK & resp == 200:
                                 OK &= True
                             else:
                                 last_err = resp
                     # stations with missing channels
+                    count_cached = len(missing_stationset)
                     for station in missing_stationset:
-                        print('Syncing station ' + Provider + station)
+                        print('Syncing station ' + Provider + station + f' count_cached: {count_cached}')
                         if SourcePath == "":
                             get_station_xml(SourceURL, Provider, station, Path, NoSave, AddParams)
                         else:
@@ -530,17 +581,22 @@ def main(argv):
                                 AN.add_virtual_networks(Path + "/" + Provider + station + '.xml', station, networks,
                                                         Path + "/" + 'AlternateNetwork.xml')
                         # time.sleep(1)
-                        resp: bool = put_station_xml(DestinationURL, Provider, station, Path, NoSave)
+                        #the last put invalidate cache lock
+                        if count_cached == 1:
+                            resp: bool = put_station_xml(DestinationURL, Provider, station, Path, NoSave, "0")
+                        else:
+                            resp: bool = put_station_xml(DestinationURL, Provider, station, Path, NoSave, LockSeconds)
                         if resp == 200:
                             OK &= True
                         else:
                             last_err = resp
+                        count_cached -= 1
 
     else:
         print(f'Requested to upload: {Station}')
         stationlist = Station.split(',')
         missing_stationset = set(stationlist)
-
+        count_cached = len(missing_stationset)
         for station in missing_stationset:
             read_station: bool
             print('Syncing station ' + Provider + station)
@@ -558,7 +614,10 @@ def main(argv):
                                             Path + "/" + 'AlternateNetwork.xml')
                 # print(f'Forcing upload of {station}')
             if read_station:
-                resp = put_station_xml(DestinationURL, Provider, station, Path, NoSave)
+                if count_cached == 1:
+                    resp = put_station_xml(DestinationURL, Provider, station, Path, NoSave, "0")
+                else:
+                    resp = put_station_xml(DestinationURL, Provider, station, Path, NoSave, LockSeconds)
                 if resp == 200:
                     OK &= True
                 else:
@@ -566,6 +625,7 @@ def main(argv):
             else:
                 OK = False
                 print(f'An error occurred processing {station}')
+            count_cached -= 1
 
     if OK:
         print('Synced')

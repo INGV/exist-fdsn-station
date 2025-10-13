@@ -371,7 +371,19 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "lock_seconds",
+            "in": "header",
+            "description": "lock cache updates for lock_seconds",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 120
+            }
           }
+
         ],
         "requestBody": {
           "description": "File format *StationXML*",
