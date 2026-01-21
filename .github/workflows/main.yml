@@ -19,7 +19,7 @@ jobs:
 
     env:
       DOCKER_TLS_CERTDIR: ""
-      DOCKER_HOST: tcp://docker:2375
+      DOCKER_HOST: tcp://localhost:2375
 
     steps:
       - name: Install base tools (git, curl, tar/zstd)
