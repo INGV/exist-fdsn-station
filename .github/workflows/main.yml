@@ -87,5 +87,32 @@ jobs:
             python3-pip build-essential libxml2-dev libxslt1-dev python3-dev
           # Use the python -m pip --user pattern to avoid modifying system-wide packages.
           python3 -m pip install --upgrade pip --disable-pip-version-check
-          python3 -
-
+          python3 -m pip install --user --no-cache-dir pytest==7.1.2 lxml==4.6.1 xmldiff requests
+          # Ensure ~/.local/bin is on PATH for subsequent steps
+          echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Wait for service to respond (up to 120s)
+        shell: sh
+        run: |
+          set -eu
+          for i in $(seq 1 120); do
+            code="$(curl -s -o /dev/null -w "%{http_code}" http://docker:80/ || true)"
+            [ "$code" != "000" ] && exit 0 || true
+            sleep 1
+          done
+          echo "Service did not start in time" >&2
+          docker logs exist-fdsn-station || true
+          exit 1
+
+      - name: Run tests
+        shell: sh
+        run: |
+          set -eu
+          pytest -vv TEST/test.py --host docker:80 -k 'not test_management'
+          pytest -vv TEST/test.py --host docker:80 -k 'test_management'
+
+      - name: Teardown
+        if: always()
+        shell: sh
+        run: |
+          docker rm -f exist-fdsn-station || true
