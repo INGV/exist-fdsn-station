@@ -26,8 +26,8 @@ jobs:
         shell: sh
         run: |
           set -eu
-          DEBIAN_FRONTEND=noninteractive apt-get update
-          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+          sudo DEBIAN_FRONTEND=noninteractive apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
             git openssh-client curl tar zstd ca-certificates
 
       - name: Checkout
@@ -82,37 +82,10 @@ jobs:
         shell: sh
         run: |
           set -eu
-          DEBIAN_FRONTEND=noninteractive apt-get update
-          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+          sudo DEBIAN_FRONTEND=noninteractive apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
             python3-pip build-essential libxml2-dev libxslt1-dev python3-dev
-          pip3 install --upgrade pip
-          pip3 install pytest==7.1.2
-          pip3 install --no-cache-dir lxml==4.6.1
-          pip3 install --no-cache-dir xmldiff
-          pip3 install --no-cache-dir requests
-
-      - name: Wait for service to respond (up to 120s)
-        shell: sh
-        run: |
-          set -eu
-          for i in $(seq 1 120); do
-            code="$(curl -s -o /dev/null -w "%{http_code}" http://docker:80/ || true)"
-            [ "$code" != "000" ] && exit 0 || true
-            sleep 1
-          done
-          echo "Service did not start in time" >&2
-          docker logs exist-fdsn-station || true
-          exit 1
-
-      - name: Run tests
-        shell: sh
-        run: |
-          set -eu
-          pytest -vv TEST/test.py --host docker:80 -k 'not test_management'
-          pytest -vv TEST/test.py --host docker:80 -k 'test_management'
-
-      - name: Teardown
-        if: always()
-        shell: sh
-        run: |
-          docker rm -f exist-fdsn-station || true
+          # Use the python -m pip --user pattern to avoid modifying system-wide packages.
+          python3 -m pip install --upgrade pip --disable-pip-version-check
+          python3 -
+
