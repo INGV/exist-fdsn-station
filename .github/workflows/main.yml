@@ -86,12 +86,15 @@ jobs:
           set -eu
           sudo DEBIAN_FRONTEND=noninteractive apt-get update
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            python3-pip build-essential libxml2-dev libxslt1-dev python3-dev
-          # Use the python -m pip --user pattern to avoid modifying system-wide packages.
-          python3 -m pip install --upgrade pip --disable-pip-version-check
-          python3 -m pip install --user --no-cache-dir pytest==7.1.2 lxml==4.6.1 xmldiff requests
+            build-essential libxml2-dev libxslt1-dev zlib1g-dev python3-dev libpython3.12-dev pkg-config
+          # Upgrade packaging tools so pip can pull modern binary wheels when available
+          python3 -m pip install --upgrade pip setuptools wheel --disable-pip-version-check
+          # Install test tools. Do not pin lxml to an old version that lacks wheels for modern Python.
+          python3 -m pip install --user --no-cache-dir pytest==7.1.2 lxml xmldiff requests
           # Ensure ~/.local/bin is on PATH for subsequent steps
           echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+          # Optional check to help debugging: print Python include dir and confirm longintrepr.h present (non-fatal)
+          python3 -c 'import sysconfig, os; inc = sysconfig.get_config_var("INCLUDEPY"); print("INCLUDEPY:", inc); print(os.path.exists(os.path.join(inc, "longintrepr.h")) or os.path.exists(os.path.join(inc, "cpython","longintrepr.h")))' || true
 
       - name: Wait for service to respond (up to 120s)
         shell: sh
