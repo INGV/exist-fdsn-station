@@ -26,16 +26,17 @@ jobs:
         shell: sh
         run: |
           set -eu
-          apk add --no-cache git openssh-client curl tar zstd
+          DEBIAN_FRONTEND=noninteractive apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            git openssh-client curl tar zstd ca-certificates
 
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Restore caches (apk + buildx)
+      - name: Restore caches (buildx)
         uses: actions/cache@v4
         with:
           path: |
-            .apk-cache
             .buildx-cache
           key: ${{ runner.os }}-exist-fdsn-${{ github.ref_name }}
           restore-keys: |
@@ -77,19 +78,18 @@ jobs:
           docker rm -f exist-fdsn-station >/dev/null 2>&1 || true
           docker run -d -p 80:8080/tcp --name exist-fdsn-station exist-fdsn-station
 
-      - name: Install test dependencies (with apk cache)
+      - name: Install test dependencies
         shell: sh
         run: |
           set -eu
-          mkdir -p .apk-cache
-          apk add --cache-dir .apk-cache --update py3-pip
+          DEBIAN_FRONTEND=noninteractive apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            python3-pip build-essential libxml2-dev libxslt1-dev python3-dev
+          pip3 install --upgrade pip
           pip3 install pytest==7.1.2
-          apk add --cache-dir .apk-cache --virtual .build-deps gcc libc-dev libxslt-dev libxml2-dev python3-dev
-          apk add --cache-dir .apk-cache libxslt
           pip3 install --no-cache-dir lxml==4.6.1
           pip3 install --no-cache-dir xmldiff
           pip3 install --no-cache-dir requests
-          apk del .build-deps
 
       - name: Wait for service to respond (up to 120s)
         shell: sh
