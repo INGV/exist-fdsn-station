@@ -16,6 +16,7 @@ jobs:
         options: --privileged
         ports:
           - 2375:2375
+          - 8080:8080
         env:
           DOCKER_TLS_CERTDIR: ""
 
@@ -78,7 +79,7 @@ jobs:
         run: |
           set -eu
           docker rm -f exist-fdsn-station >/dev/null 2>&1 || true
-          docker run -d -p 80:8080/tcp --name exist-fdsn-station exist-fdsn-station
+          docker run -d -p 8080:8080/tcp --name exist-fdsn-station exist-fdsn-station
 
       - name: Install test dependencies
         shell: sh
@@ -101,7 +102,7 @@ jobs:
         run: |
           set -eu
           for i in $(seq 1 120); do
-            code="$(curl -s -o /dev/null -w "%{http_code}" http://docker:80/ || true)"
+            code="$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/ || true)"
             [ "$code" != "000" ] && exit 0 || true
             sleep 1
           done
@@ -113,8 +114,8 @@ jobs:
         shell: sh
         run: |
           set -eu
-          pytest -vv TEST/test.py --host docker:80 -k 'not test_management'
-          pytest -vv TEST/test.py --host docker:80 -k 'test_management'
+          pytest -vv TEST/test.py --host localhost:8080 -k 'not test_management'
+          pytest -vv TEST/test.py --host localhost:8080 -k 'test_management'
 
       - name: Teardown
         if: always()
