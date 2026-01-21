@@ -1,0 +1,121 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+
+    container:
+      image: docker:20.10.8
+
+    services:
+      docker:
+        image: docker:dind
+        options: --privileged
+        env:
+          DOCKER_TLS_CERTDIR: ""
+
+    env:
+      DOCKER_TLS_CERTDIR: ""
+      DOCKER_HOST: tcp://docker:2375
+
+    steps:
+      - name: Install base tools (git, curl, tar/zstd)
+        shell: sh
+        run: |
+          set -eu
+          apk add --no-cache git openssh-client curl tar zstd
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Restore caches (apk + buildx)
+        uses: actions/cache@v4
+        with:
+          path: |
+            .apk-cache
+            .buildx-cache
+          key: ${{ runner.os }}-exist-fdsn-${{ github.ref_name }}
+          restore-keys: |
+            ${{ runner.os }}-exist-fdsn-
+
+      - name: Wait for Docker daemon (dind) to be ready
+        shell: sh
+        run: |
+          set -eu
+          for i in $(seq 1 60); do
+            docker info >/dev/null 2>&1 && exit 0
+            sleep 1
+          done
+          echo "Docker daemon did not become ready in time" >&2
+          docker version || true
+          exit 1
+
+      - name: Build Docker image (with buildx cache when available)
+        shell: sh
+        run: |
+          set -eu
+          mkdir -p .buildx-cache
+          if docker buildx version >/dev/null 2>&1; then
+            docker buildx create --name ci-builder --use >/dev/null 2>&1 || docker buildx use ci-builder
+            docker buildx build --load -t exist-fdsn-station \
+              --cache-from type=local,src=.buildx-cache \
+              --cache-to type=local,dest=.buildx-cache-new,mode=max \
+              .
+            rm -rf .buildx-cache
+            mv .buildx-cache-new .buildx-cache
+          else
+            docker build --rm . -t exist-fdsn-station
+          fi
+
+      - name: Start container
+        shell: sh
+        run: |
+          set -eu
+          docker rm -f exist-fdsn-station >/dev/null 2>&1 || true
+          docker run -d -p 80:8080/tcp --name exist-fdsn-station exist-fdsn-station
+
+      - name: Install test dependencies (with apk cache)
+        shell: sh
+        run: |
+          set -eu
+          mkdir -p .apk-cache
+          apk add --cache-dir .apk-cache --update py3-pip
+          pip3 install pytest==7.1.2
+          apk add --cache-dir .apk-cache --virtual .build-deps gcc libc-dev libxslt-dev libxml2-dev python3-dev
+          apk add --cache-dir .apk-cache libxslt
+          pip3 install --no-cache-dir lxml==4.6.1
+          pip3 install --no-cache-dir xmldiff
+          pip3 install --no-cache-dir requests
+          apk del .build-deps
+
+      - name: Wait for service to respond (up to 120s)
+        shell: sh
+        run: |
+          set -eu
+          for i in $(seq 1 120); do
+            code="$(curl -s -o /dev/null -w "%{http_code}" http://docker:80/ || true)"
+            [ "$code" != "000" ] && exit 0 || true
+            sleep 1
+          done
+          echo "Service did not start in time" >&2
+          docker logs exist-fdsn-station || true
+          exit 1
+
+      - name: Run tests
+        shell: sh
+        run: |
+          set -eu
+          pytest -vv TEST/test.py --host docker:80 -k 'not test_management'
+          pytest -vv TEST/test.py --host docker:80 -k 'test_management'
+
+      - name: Teardown
+        if: always()
+        shell: sh
+        run: |
+          docker rm -f exist-fdsn-station || true
