@@ -26,7 +26,9 @@ declare namespace ingv="https://raw.githubusercontent.com/FDSN/StationXML/master
  :)
 declare function mgmt:bulkmodify($code, $startDate, $endDate, $xml) {
 
-    let $net_in_cache := stationutil:netcache_exists($code,$startDate,$endDate)
+(:    let $net_in_cache := stationutil:netcache_exists($code,$startDate,$endDate):)
+    let $net_in_cache := stationutil:netcache_exists($code,$startDate)
+    let $log:= stationutil:debug("info", if ($net_in_cache) then "Network found" else "Network not found")
 
     (: recover valid attribute and elements from xml:)
     (: If Sstartdate different from $netstartDate, then the date should change in all correspondent station files    :)
@@ -47,7 +49,7 @@ declare function mgmt:bulkmodify($code, $startDate, $endDate, $xml) {
     if ($net_in_cache) then (
       for $doc in collection($stationutil:station_collection)
         let $document_name := util:document-name($doc)
-(:        let $log:= stationutil:debug('info', string-join($document_name))    :)
+        let $log:= stationutil:debug('info', string-join($document_name))
         for $sta_doc in $doc//Network[@code=$code and @startDate=$startDate]/..
             let $network := $sta_doc//Network[@code=$code and @startDate=$startDate]
             let $other_network := $sta_doc//Network[@code!=$code or @startDate!=$startDate]
@@ -80,6 +82,7 @@ declare function mgmt:bulkmodify($code, $startDate, $endDate, $xml) {
                      }
             (:Policy: the network should only be open, restrictedStatus_closeable defaults to false :)
             let $propagated := if ($restrictedStatus='open' or $stationutil:settings('restrictedStatus_closeable')) then mgmt:restrictedStatus($new_network,$restrictedStatus) else $new_network
+
 (:            let $log := util:log('info', string-join($propagated//@*)):)
             where $sta_doc//Network[@code=$code and @startDate=$startDate]
         return
@@ -89,7 +92,7 @@ declare function mgmt:bulkmodify($code, $startDate, $endDate, $xml) {
                 {$sender}
                 {$module}
                 {$moduleURI}
-                <Created>{format-dateTime(current-dateTime(), "[Y0001]-[M01]-[D01]T[H01]:[m01]:[s01].[f]")}</Created>
+                <Created>{if($stationutil:settings("remove_tz")) then format-dateTime(current-dateTime(), "[Y0001]-[M01]-[D01]T[H01]:[m01]:[s01].[f]") else format-dateTime(current-dateTime(), "[Y0001]-[M01]-[D01]T[H01]:[m01]:[s01].[f]Z")}</Created>
                 {$propagated}{$other_network}
                 </FDSNStationXML>
                 ),
