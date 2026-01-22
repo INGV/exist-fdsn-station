@@ -33,6 +33,10 @@
     {
       "name": "fdsnws-station-1.2-INGV-Extension",
       "description": ""
+    },
+    {
+      "name": "management-settings",
+      "description": "Service runtime configuration management"
     }
   ],
   "paths": {
@@ -383,7 +387,6 @@
               "maximum": 120
             }
           }
-
         ],
         "requestBody": {
           "description": "File format *StationXML*",
@@ -662,7 +665,7 @@
         "tags": [
           "fdsnws-station-1.2-INGV-Extension"
         ],
-        "summary": "Network management entry point",
+        "summary": "Network management endpoint",
         "description": "Changes on Network element of stations identified by code and startDate",
         "operationId": "identifier",
         "requestBody": {
@@ -740,6 +743,356 @@
             "BasicAuth": []
           }
         ]
+      }
+    },
+    "/management/database/purge": {
+      "delete": {
+        "tags": [
+          "fdsnws-station-1.2-INGV-Extension"
+        ],
+        "summary": "Purge database",
+        "description": "Purge database empties collections content",
+        "operationId": "Purge",
+        "responses": {
+          "200": {
+            "description": "Success, database content purged"
+          },
+          "204": {
+            "description": "Nodata, database already empty",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad request due to improper specification, unrecognized parameter, parameter value out of range, etc.",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized, authentication required",
+            "content": {}
+          },
+          "403": {
+            "description": "Authentication failed or access blocked to restricted data",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {}
+          },
+          "503": {
+            "description": "Service temporarily unavailable, used in maintenance and error conditions",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ]
+      }
+    },
+    "/management/database/cache_clean": {
+      "post": {
+        "tags": [
+          "fdsnws-station-1.2-INGV-Extension"
+        ],
+        "summary": "Cache clean",
+        "description": "Cache clean after re-scan collections content",
+        "operationId": "Collections",
+        "responses": {
+          "200": {
+            "description": "Success, database cache rebuilt"
+          },
+          "204": {
+            "description": "Nodata, database is empty",
+            "content": {}
+          },
+          "400": {
+            "description": "Bad request due to improper specification, unrecognized parameter, parameter value out of range, etc.",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized, authentication required",
+            "content": {}
+          },
+          "403": {
+            "description": "Authentication failed or access blocked to restricted data",
+            "content": {}
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {}
+          },
+          "503": {
+            "description": "Service temporarily unavailable, used in maintenance and error conditions",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ]
+      }
+    },
+    "/management/database/fix": {
+      "post": {
+        "tags": [
+          "fdsnws-station-1.2-INGV-Extension"
+        ],
+        "summary": "Fix database collections",
+        "description": "Attempt to fix database collections. May affect 'updatedafter' semantics.",
+        "operationId": "databaseFix",
+        "responses": {
+          "200": {
+            "description": "Fix executed"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ]
+      }
+    },
+    "/management/database/touch": {
+      "post": {
+        "tags": [
+          "fdsnws-station-1.2-INGV-Extension"
+        ],
+        "summary": "Touch creation dates",
+        "description": "Reset creation dates to the current server time.",
+        "operationId": "databaseTouch",
+        "responses": {
+          "200": {
+            "description": "Touch completed"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ]
+      }
+    },
+    "/management/database/change_date_format": {
+      "post": {
+        "tags": [
+          "fdsnws-station-1.2-INGV-Extension"
+        ],
+        "summary": "Change date format (TZ settings)",
+        "description": "Normalize stored date strings according to current 'remove_tz' and 'strip_zero' settings.",
+        "operationId": "databaseChangeDateFormat",
+        "responses": {
+          "200": {
+            "description": "Normalization completed"
+          },
+          "202": {
+            "description": "Normalization accepted and running asynchronously"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "security": [
+          {
+            "BasicAuth": []
+          }
+        ]
+      }
+    },
+    "/management/settings": {
+      "get": {
+        "tags": [
+          "fdsnws-station-1.2-INGV-Extension"
+        ],
+        "summary": "Get current settings",
+        "operationId": "getSettings",
+        "responses": {
+          "200": {
+            "description": "Current settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Settings"
+                },
+                "example": {
+                  "provider": "IV",
+                  "remove_tz": false,
+                  "strip_zero": true
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "fdsnws-station-1.2-INGV-Extension"
+        ],
+        "summary": "Replace settings (full document)",
+        "operationId": "replaceSettings",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Settings"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Settings"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Updated, no content"
+          },
+          "400": {
+            "description": "Malformed request or invalid setting"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/management/settings/{key}": {
+      "parameters": [
+        {
+          "name": "key",
+          "in": "path",
+          "required": true,
+          "description": "Setting key (e.g. 'strip_zero')",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "fdsnws-station-1.2-INGV-Extension"
+        ],
+        "summary": "Get a single setting",
+        "operationId": "getSetting",
+        "responses": {
+          "200": {
+            "description": "Setting value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingValue"
+                },
+                "example": true
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Setting not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "fdsnws-station-1.2-INGV-Extension"
+        ],
+        "summary": "Set a single setting value",
+        "operationId": "putSetting",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettingValue"
+              },
+              "example": true
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Settings"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Updated, no content"
+          },
+          "400": {
+            "description": "Malformed request or invalid setting"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Not authorized"
+          },
+          "404": {
+            "description": "Setting not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
       }
     }
   },
@@ -883,6 +1236,56 @@
         "xml": {
           "name": "Station"
         }
+      },
+      "Settings": {
+        "type": "object",
+        "description": "Runtime configuration (backed by config/settings.json).",
+        "additionalProperties": true,
+        "properties": {
+          "provider": {
+            "type": "string",
+            "description": "Default provider/network code"
+          },
+          "remove_tz": {
+            "type": "boolean",
+            "description": "If true, drop trailing 'Z' in outputs"
+          },
+          "strip_zero": {
+            "type": "boolean",
+            "description": "If true, strip trailing zeros in fractional seconds"
+          }
+        },
+        "example": {
+          "provider": "IV",
+          "remove_tz": false,
+          "strip_zero": true
+        }
+      },
+      "SettingValue": {
+        "description": "Single setting value; any JSON type",
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "object"
+          },
+          {
+            "type": "array"
+          },
+          {
+            "type": "null"
+          }
+        ]
       }
     },
     "securitySchemes": {
