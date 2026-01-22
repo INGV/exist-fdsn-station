@@ -1,0 +1,2 @@
+#Network | Station | location | Channel | Latitude | Longitude | Elevation | Depth | Azimuth | Dip | SensorDescription | Scale | ScaleFreq | ScaleUnits | SampleRate | StartTime | EndTime
+IV|AQU||SHZ|42.35388|13.40193|729|0|0|-90|GEOTECH S-13|582216000|0.2|m/s|50|2003-03-01T00:00:00|2008-10-15T00:00:00

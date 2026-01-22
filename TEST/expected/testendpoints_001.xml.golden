@@ -1,0 +1,4 @@
+<application xmlns="http://wadl.dev.java.net/2009/02" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doc title="INGV FDSNWS station Web Service Documentation" xml:lang="en">
+    <div>
+    The fdsnws/station web service returns station metadata in <a href="http://www.fdsn.org/xml/station/">FDSN StationXML</a> format or as delimited text.

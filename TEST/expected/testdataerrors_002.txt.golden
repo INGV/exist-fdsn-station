@@ -1,0 +1,9 @@
+Error 404 - no matching inventory found
+
+Usage details are available from /fdsnws/station/1/
+
+Request:
+
+/fdsnws/station/1/query?level=channel&net=MN&cha=SHZ&station=AQU&format=json&maxlatitude=45&minlat=42&nodata=404
+
+Request Submitted:

@@ -1,0 +1,17 @@
+{
+  "enable_query_log": true,
+  "enable_check_validity": true,
+  "enable_debug": true,
+  "fix_restrictedStatus": true,
+  "remove_tz": false,
+  "sender": "INGV-ONT",
+  "serialize_input": false,
+  "post_limit_rows": 1000,
+  "strip_zero": true,
+  "restrictedStatus_closeable": true,
+  "expose_db": true,
+  "source": "eXistDB",
+  "translate_units": true,
+  "enable_log": true
+}
+
