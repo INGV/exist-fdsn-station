@@ -85,16 +85,16 @@
           <param name="level" default="station" style="query" type="xsd:string">
             <doc title="level" xml:lang="en">Specify the level of detail that is returned.</doc>
             <option value="network" type="xsd:string">
-              <doc title="network" xml:lang="en"/>
+              <doc title="network" xml:lang="en" />
             </option>
             <option value="station" type="xsd:string">
-              <doc title="station" xml:lang="en"/>
+              <doc title="station" xml:lang="en" />
             </option>
             <option value="channel" type="xsd:string">
-              <doc title="channel" xml:lang="en"/>
+              <doc title="channel" xml:lang="en" />
             </option>
             <option value="response" type="xsd:string">
-              <doc title="response" xml:lang="en"/>
+              <doc title="response" xml:lang="en" />
             </option>
           </param>
           <param name="includerestricted" type="xsd:boolean" default="True" style="query">
@@ -105,75 +105,40 @@
     regardless of the level at which the change occurred.</doc>
           </param>
           <param name="format" default="xml" style="query" type="xsd:string">
-<!--            <doc title="format" xml:lang="en">Specify output format.</doc>-->
+
             <doc title="format" xml:lang="en">Specify output format. Format *geojson* works only for level *station*, and returns station coordinates. **This is an INGV extension to the FDSN specification.**</doc>
             <option value="xml" mediaType="application/xml">
-              <doc title="xml" xml:lang="en"/>
+              <doc title="xml" xml:lang="en" />
             </option>
             <option value="text" mediaType="text/plain">
-              <doc title="text" xml:lang="en"/>
+              <doc title="text" xml:lang="en" />
             </option>
             <option value="json" mediaType="application/json">
-              <doc title="json" xml:lang="en"/>
+              <doc title="json" xml:lang="en" />
             </option>
             <option value="geojson">
-              <doc title="geojson" xml:lang="en"/>
+              <doc title="geojson" xml:lang="en" />
             </option>
 
 
           </param>
-          <!-- No more available
-          <param name="formatted" type="xsd:boolean" default="False" style="query">
-            <doc title="formatted" xml:lang="en">Specify output must be formatted. **This is an INGV extension to the FDSN specification.**</doc>
-          </param>
-          -->
-          <param xmlns:xs="http://www.w3.org/2001/XMLSchema" name="nodata" style="query" type="xs:int" default="204">
+          
+          <param name="nodata" style="query" type="xs:int" default="204">
             <doc title="nodata" xml:lang="en">Specify which HTML Status code is returned when no data is found. A 404 status helps clarify situations where a 204 may be confusing, such as a web browser user, by including a message in the response.</doc>
             <option value="204">
-              <doc title="204" xml:lang="en"/>
+              <doc title="204" xml:lang="en" />
             </option>
             <option value="404">
-              <doc title="404" xml:lang="en"/>
+              <doc title="404" xml:lang="en" />
             </option>
           </param>
           <param name="includeavailability" type="xsd:boolean" default="False" fixed="False" style="query">
             <doc title="includeavailability" xml:lang="en">Specify if results should include information about time series data availability. <strong>Not implemented, fails if passed true value.</strong> </doc>
           </param>
-          <!-- Commented out waiting for ObsPy fix this issue: https://github.com/obspy/obspy/issues/3279
-          This software is not changed: still fail if passed true value, supports only matchtimeseries=false
-          <param name="matchtimeseries" type="xsd:boolean" default="False" fixed="False" style="query">
-            <doc title="matchtimeseries" xml:lang="en">Limit to metadata where selection criteria matches time series data availability. <strong>Not implemented, fails if passed true value.</strong></doc>
-          </param>
-          -->
+          
 
-          <!-- No more available
-          <param name="visibility" default="only" style="query">
-            <doc title="visibility" xml:lang="en">If it is 'only', service shows only information with visibility set to true. If it is 'no', shows only information with visibility set to false. If it is 'any', shows everything. **This is an INGV extension to the FDSN specification.**</doc>
-            <option value="any">
-              <doc title="any" xml:lang="en"/>
-            </option>
-            <option value="only">
-              <doc title="only" xml:lang="en"/>
-            </option>
-            <option value="no">
-              <doc title="no" xml:lang="en"/>
-            </option>
-          </param>
-          -->
-          <!--
-          <param name="authoritative" default="only" style="query">
-            <doc title="authoritative" xml:lang="en">If it is 'only', service shows only information with authoritative set to true. If it is 'no', shows only not authoritative. If it is 'any', shows everything. **This is an INGV extension to the FDSN specification.**</doc>
-            <option value="any">
-              <doc title="any" xml:lang="en"/>
-            </option>
-            <option value="only">
-              <doc title="only" xml:lang="en"/>
-            </option>
-            <option value="no">
-              <doc title="no" xml:lang="en"/>
-            </option>
-          </param>
-          -->
+          
+          
         </request>
         <response status="200">
           <doc title="Response 200" xml:lang="en">Success</doc>
@@ -271,7 +236,7 @@ NET STA LOC CHA STARTTIME ENDTIME``` </doc>
             <doc title="filename" xml:lang="en">Name of the file to store in database, in format prefix_stationcode.xml. Examples: INGV_CODE0.xml, 3A1980_CODE1.xml.</doc>
           </param>
           <param name="body" type="xsd:base64Binary" required="true" style="query">
-            <doc title="body" xml:lang="en"/>
+            <doc title="body" xml:lang="en" />
             <representation mediaType="application/xml">
               <doc title="FDSNStationXML" xml:lang="en">FDSNStationXML document</doc>
             </representation>
@@ -281,7 +246,7 @@ NET STA LOC CHA STARTTIME ENDTIME``` </doc>
           </representation>
         </request>
         <response status="200">
-          <representation element="xsd:string"/>
+          <representation element="xsd:string" />
         </response>
         <response status="401">
           <doc title="Error 401" xml:lang="en">Unauthorized, authentication required</doc>
@@ -309,7 +274,7 @@ NET STA LOC CHA STARTTIME ENDTIME``` </doc>
           </param>
         </request>
         <response status="200">
-          <representation element="xsd:string"/>
+          <representation element="xsd:string" />
         </response>
         <response status="204">
           <doc title="Error 204" xml:lang="en">Nodata, resource not found</doc>
@@ -331,7 +296,7 @@ NET STA LOC CHA STARTTIME ENDTIME``` </doc>
           </param>
         </request>
         <response status="200">
-          <representation element="xsd:string"/>
+          <representation element="xsd:string" />
         </response>
         <response status="204">
           <doc title="Error 204" xml:lang="en">Nodata, resource not found</doc>
@@ -344,16 +309,16 @@ NET STA LOC CHA STARTTIME ENDTIME``` </doc>
     <resource id="resource_sl_version" path="/version">
       <method id="Version" name="GET">
         <doc title="Version" xml:lang="en">Get service version string, format: SpecMajor.SpecMinor.Implementation </doc>
-        <request/>
+        <request />
         <response status="200">
-          <representation element="xsd:string"/>
+          <representation element="xsd:string" />
         </response>
       </method>
     </resource>
     <resource id="resource_sl_application_pt_wadl" path="/application.wadl">
       <method id="ApplicationWadl" name="GET">
         <doc title="ApplicationWadl" xml:lang="en">Get application.wadl</doc>
-        <request/>
+        <request />
         <response status="200">
           <representation mediaType="application/xml">
               <doc title="application.wadl" xml:lang="en">The service description in Web Application Description Language</doc>
@@ -364,11 +329,11 @@ NET STA LOC CHA STARTTIME ENDTIME``` </doc>
     <resource id="resource_sl_swagger_pt_json" path="/swagger.json">
       <method id="SwaggerJson" name="GET">
         <doc title="SwaggerJson" xml:lang="en">Get swagger.json</doc>
-        <request/>
+        <request />
         <response status="200">
-<!--          <representation mediaType="application/json" href="#A JSON Schema for Swagger 2.0 API."/>-->
+
             <representation id="representation_A_sp_JSON_sp_Schema_sp_for_sp_Swagger_sp_2_pt_0_sp_API_pt" mediaType="application/json">
-                <doc title="A JSON Schema for Swagger/Openapi 3.0 API." xml:lang="en"/>
+                <doc title="A JSON Schema for Swagger/Openapi 3.0 API." xml:lang="en" />
             </representation>
         </response>
       </method>
@@ -384,7 +349,7 @@ NET STA LOC CHA STARTTIME ENDTIME``` </doc>
             <doc title="filename" xml:lang="en">Start date of target network, startDate can be altered after this operation if changes in input StationXML.</doc>
           </param>
           <param name="body" type="xsd:base64Binary" required="true" style="query">
-            <doc title="body" xml:lang="en"/>
+            <doc title="body" xml:lang="en" />
             <representation mediaType="application/xml">
               <doc title="FDSNStationXML" xml:lang="en">FDSNStationXML document</doc>
             </representation>
@@ -418,28 +383,28 @@ NET STA LOC CHA STARTTIME ENDTIME``` </doc>
         </response>
       </method>
     </resource>
-<!--    <resource id="resource_sl_test" path="/test">-->
-<!--      <method id="test" name="GET">-->
-<!--        <doc title="test" xml:lang="en">Returns a json message containing 'test'</doc>-->
-<!--        <request/>-->
-<!--        <response status="200">-->
-<!--          <representation mediaType="application/json" href="#MessageResponse"/>-->
-<!--        </response>-->
-<!--      </method>-->
-<!--    </resource>-->
-  </resources>
+
+
+
+
+
+
+
+
+
+  <resource path="management/settings"><method name="GET"><doc>Get current settings</doc><response status="200"><representation mediaType="application/json" /></response><response status="400" /><response status="401" /><response status="403" /><response status="404" /><response status="500" /></method><method name="PUT"><doc>Replace settings (full document)</doc><request><representation mediaType="application/json" /></request><response status="200"><representation mediaType="application/json" /></response><response status="400" /><response status="401" /><response status="403" /><response status="404" /><response status="500" /></method><resource path="{key}"><param name="key" style="template" type="xs:string" required="true" /><method name="GET"><doc>Get a single setting</doc><response status="200"><representation mediaType="application/json" /></response><response status="400" /><response status="401" /><response status="403" /><response status="404" /><response status="500" /></method><method name="PUT"><doc>Set a single setting value</doc><request><representation mediaType="application/json" /></request><response status="200"><representation mediaType="application/json" /></response><response status="400" /><response status="401" /><response status="403" /><response status="404" /><response status="500" /></method></resource></resource></resources>
   <representation id="MessageResponse" mediaType="application/json">
-    <doc title="MessageResponse" xml:lang="en"/>
+    <doc title="MessageResponse" xml:lang="en" />
     <param name="message" type="xsd:string">
-      <doc title="message" xml:lang="en"/>
+      <doc title="message" xml:lang="en" />
     </param>
   </representation>
   <representation id="representation_A_sp_JSON_sp_Schema_sp_for_sp_Swagger_sp_2_pt_0_sp_API_pt" mediaType="application/json">
-    <doc title="A JSON Schema for Swagger 2.0 API." xml:lang="en"/>
+    <doc title="A JSON Schema for Swagger 2.0 API." xml:lang="en" />
     <param name="swagger" required="true">
       <doc title="swagger" xml:lang="en">The Swagger version of this document.</doc>
       <option value="Enum_2.0">
-        <doc title="Enum_2.0" xml:lang="en"/>
+        <doc title="Enum_2.0" xml:lang="en" />
       </option>
     </param>
     <param href="#info" name="info" required="true">
@@ -454,16 +419,16 @@ NET STA LOC CHA STARTTIME ENDTIME``` </doc>
     <param name="schemes" repeating="true">
       <doc title="schemes" xml:lang="en">The transfer protocol of the API.</doc>
       <option value="http">
-        <doc title="http" xml:lang="en"/>
+        <doc title="http" xml:lang="en" />
       </option>
       <option value="https">
-        <doc title="https" xml:lang="en"/>
+        <doc title="https" xml:lang="en" />
       </option>
       <option value="ws">
-        <doc title="ws" xml:lang="en"/>
+        <doc title="ws" xml:lang="en" />
       </option>
       <option value="wss">
-        <doc title="wss" xml:lang="en"/>
+        <doc title="wss" xml:lang="en" />
       </option>
     </param>
     <param name="consumes" type="xsd:string" repeating="true">
@@ -485,20 +450,20 @@ NET STA LOC CHA STARTTIME ENDTIME``` </doc>
       <doc title="responses" xml:lang="en">One or more JSON representations for responses</doc>
     </param>
     <param name="security" type="xsd:string" repeating="true">
-      <doc title="security" xml:lang="en"/>
+      <doc title="security" xml:lang="en" />
     </param>
     <param name="securityDefinitions" type="xsd:string">
-      <doc title="securityDefinitions" xml:lang="en"/>
+      <doc title="securityDefinitions" xml:lang="en" />
     </param>
     <param href="#tag" name="tags" repeating="true">
-      <doc title="tags" xml:lang="en"/>
+      <doc title="tags" xml:lang="en" />
     </param>
     <param href="#externalDocs" name="externalDocs">
       <doc title="externalDocs" xml:lang="en">information about external documentation</doc>
     </param>
   </representation>
   <representation id="info" mediaType="application/json">
-    <doc title="info" xml:lang="en"/>
+    <doc title="info" xml:lang="en" />
     <param name="title" type="xsd:string" required="true">
       <doc title="title" xml:lang="en">A unique and precise title of the API.</doc>
     </param>
@@ -515,11 +480,11 @@ NET STA LOC CHA STARTTIME ENDTIME``` </doc>
       <doc title="contact" xml:lang="en">Contact information for the owners of the API.</doc>
     </param>
     <param href="#license" name="license">
-      <doc title="license" xml:lang="en"/>
+      <doc title="license" xml:lang="en" />
     </param>
   </representation>
   <representation id="contact" mediaType="application/json">
-    <doc title="contact" xml:lang="en"/>
+    <doc title="contact" xml:lang="en" />
     <param name="name" type="xsd:string">
       <doc title="name" xml:lang="en">The identifying name of the contact person/organization.</doc>
     </param>
@@ -531,7 +496,7 @@ NET STA LOC CHA STARTTIME ENDTIME``` </doc>
     </param>
   </representation>
   <representation id="license" mediaType="application/json">
-    <doc title="license" xml:lang="en"/>
+    <doc title="license" xml:lang="en" />
     <param name="name" type="xsd:string" required="true">
       <doc title="name" xml:lang="en">The name of the license type. It's encouraged to use an OSI compatible license.</doc>
     </param>
@@ -540,24 +505,24 @@ NET STA LOC CHA STARTTIME ENDTIME``` </doc>
     </param>
   </representation>
   <representation id="tag" mediaType="application/json">
-    <doc title="tag" xml:lang="en"/>
+    <doc title="tag" xml:lang="en" />
     <param name="name" type="xsd:string" required="true">
-      <doc title="name" xml:lang="en"/>
+      <doc title="name" xml:lang="en" />
     </param>
     <param name="description" type="xsd:string">
-      <doc title="description" xml:lang="en"/>
+      <doc title="description" xml:lang="en" />
     </param>
     <param href="#externalDocs" name="externalDocs">
       <doc title="externalDocs" xml:lang="en">information about external documentation</doc>
     </param>
   </representation>
   <representation id="externalDocs" mediaType="application/json">
-    <doc title="externalDocs" xml:lang="en"/>
+    <doc title="externalDocs" xml:lang="en" />
     <param name="description" type="xsd:string">
-      <doc title="description" xml:lang="en"/>
+      <doc title="description" xml:lang="en" />
     </param>
     <param name="url" type="xsd:string" required="true">
-      <doc title="url" xml:lang="en"/>
+      <doc title="url" xml:lang="en" />
     </param>
   </representation>
 </application>

@@ -1,0 +1,4 @@
+#Network | Station | location | Channel | Latitude | Longitude | Elevation | Depth | Azimuth | Dip | SensorDescription | Scale | ScaleFreq | ScaleUnits | SampleRate | StartTime | EndTime
+IV|IMTC||HHE|40.7209|13.8758|59|0|90|0|GURALP CMG-40T-60S|243822000|1|m/s|100|1988-01-01T00:00:00|
+IV|IMTC||HHN|40.7209|13.8758|59|0|0|0|GURALP CMG-40T-60S|243822000|1|m/s|100|1988-01-01T00:00:00|
+IV|IMTC||HHZ|40.7209|13.8758|59|0|0|-90|GURALP CMG-40T-60S|243822000|1|m/s|100|1988-01-01T00:00:00|

@@ -1,0 +1,3453 @@
+- group: testdataio
+  index: '0'
+  name: testdataio_000
+  method: DELETE
+  path: /management/database/purge
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: DELETE ALL stations present in DB [NetCache]
+  match: ''
+  action: GET
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataio
+  index: '1'
+  name: testdataio_001
+  method: DELETE
+  path: /query
+  query: ''
+  expected_status: '204'
+  filename: ''
+  ctype: ''
+  comment: DELETE ALL FAKE station present in DB [NetCache]
+  match: ''
+  action: DELETE_MULTI
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataio
+  index: '2'
+  name: testdataio_002
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT A319A station
+  match: ''
+  action: PUT
+  file_name: INGV_A319A.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '3'
+  name: testdataio_003
+  method: DELETE
+  path: /query
+  query: provider=INGV&net=IV
+  expected_status: '204'
+  filename: ''
+  ctype: ''
+  comment: DELETE ALL INGV IV station present in DB (NONE)
+  match: ''
+  action: DELETE_MULTI
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataio
+  index: '4'
+  name: testdataio_004
+  method: DELETE
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: DELETE A319A station present in DB [NetCache]
+  match: ''
+  action: DELETE
+  file_name: INGV_A319A.xml
+  file_dir: ''
+  version: ''
+- group: testdataio
+  index: '5'
+  name: testdataio_005
+  method: DELETE
+  path: /query
+  query: ''
+  expected_status: '204'
+  filename: ''
+  ctype: ''
+  comment: DELETE A319A station from empty DB [NetCache]
+  match: ''
+  action: DELETE
+  file_name: INGV_A319A.xml
+  file_dir: ''
+  version: ''
+- group: testdataio
+  index: '6'
+  name: testdataio_006
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT A319A station
+  match: ''
+  action: PUT
+  file_name: INGV_A319A.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '7'
+  name: testdataio_007
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT A319A station again [NetCache]
+  match: ''
+  action: PUT
+  file_name: INGV_A319A.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '8'
+  name: testdataio_008
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT ABSI station
+  match: ''
+  action: PUT
+  file_name: INGV_ABSI.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '9'
+  name: testdataio_009
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT ACATE station
+  match: ''
+  action: PUT
+  file_name: INGV_ACATE.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '10'
+  name: testdataio_010
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT ACER station
+  match: ''
+  action: PUT
+  file_name: INGV_ACER.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '11'
+  name: testdataio_011
+  method: GET
+  path: '#Network | Station | Latitude | Longitude | Elevation | SiteName | StartTime
+    | EndTime
+
+    IV|ACATE|37.02398|14.50064|210|ACATE|2019-02-28T05:59:00|
+
+    IV|ACER|40.7867|15.9427|690|Acerenza|2007-07-05T12:00:00|
+
+    '
+  query: net=IV&level=station&format=text
+  expected_status: '200'
+  filename: ''
+  ctype: text
+  comment: GET station level after update in cache
+  match: ''
+  action: GETTEXT
+  file_name: ''
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '12'
+  name: testdataio_012
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT ACOM station NI,OX networks [NetCache]
+  match: ''
+  action: PUT
+  file_name: INGV_ACOM.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '13'
+  name: testdataio_013
+  method: DELETE
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: DELETE ACOM station NI,OX networks [NetCache]
+  match: ''
+  action: DELETE
+  file_name: INGV_ACOM.xml
+  file_dir: ''
+  version: ''
+- group: testdataio
+  index: '14'
+  name: testdataio_014
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT ACOM station NI,OX networks [NetCache]
+  match: ''
+  action: PUT
+  file_name: INGV_ACOM.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '15'
+  name: testdataio_015
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT ACOM station, NI,OX networks, again. [NetCache]
+  match: ''
+  action: PUT
+  file_name: INGV_ACOM.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '16'
+  name: testdataio_016
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT AND3 station
+  match: ''
+  action: PUT
+  file_name: INGV_AND3.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '17'
+  name: testdataio_017
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT AQT1 station
+  match: ''
+  action: PUT
+  file_name: INGV_AQT1.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '18'
+  name: testdataio_018
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT AQU station
+  match: ''
+  action: PUT
+  file_name: INGV_AQU.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '19'
+  name: testdataio_019
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT ARPR station
+  match: ''
+  action: PUT
+  file_name: INGV_ARPR.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '20'
+  name: testdataio_020
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT ARVD station
+  match: ''
+  action: PUT
+  file_name: INGV_ARVD.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '21'
+  name: testdataio_021
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT IMTC station
+  match: ''
+  action: PUT
+  file_name: INGV_IMTC.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '22'
+  name: testdataio_022
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT VBKN station
+  match: ''
+  action: PUT
+  file_name: INGV_VBKN.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '23'
+  name: testdataio_023
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT (INGV) AT04 station
+  match: ''
+  action: PUT
+  file_name: INGV_AT04.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '24'
+  name: testdataio_024
+  method: DELETE
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: 'DELETE VBKN station. [NetCache update #78]'
+  match: ''
+  action: DELETE
+  file_name: INGV_VBKN.xml
+  file_dir: ''
+  version: ''
+- group: testdataio
+  index: '25'
+  name: testdataio_025
+  method: DELETE
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: 'DELETE ACER station. [NetCache update #78]'
+  match: ''
+  action: DELETE
+  file_name: INGV_ACER.xml
+  file_dir: ''
+  version: ''
+- group: testdataio
+  index: '26'
+  name: testdataio_026
+  method: DELETE
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: 'DELETE AQT1 station. [NetCache update #78]'
+  match: ''
+  action: DELETE
+  file_name: INGV_AQT1.xml
+  file_dir: ''
+  version: ''
+- group: testdataio
+  index: '27'
+  name: testdataio_027
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: 'PUT VBKN station. [NetCache update #78]'
+  match: ''
+  action: PUT
+  file_name: INGV_VBKN.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '28'
+  name: testdataio_028
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: 'PUT ACER station. [NetCache update #78]'
+  match: ''
+  action: PUT
+  file_name: INGV_ACER.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '29'
+  name: testdataio_029
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: 'PUT AQT1 station. [NetCache update #78]'
+  match: ''
+  action: PUT
+  file_name: INGV_AQT1.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '30'
+  name: testdataio_030
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT (GFZ) AT04 station
+  match: ''
+  action: PUT
+  file_name: GFZ_AT04.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '31'
+  name: testdataio_031
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT (ETH) ELFMC station
+  match: ''
+  action: PUT
+  file_name: ETH_ELFMC.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '32'
+  name: testdataio_032
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT (RAN) CMA station
+  match: ''
+  action: PUT
+  file_name: RAN_CMA.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '33'
+  name: testdataio_033
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT (BGR) ABG1 station
+  match: ''
+  action: PUT
+  file_name: BGR_ABG1.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '34'
+  name: testdataio_034
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT (BGR) ANNA station
+  match: ''
+  action: PUT
+  file_name: BGR_ANNA.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '35'
+  name: testdataio_035
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT ACER station, fake net
+  match: ''
+  action: PUT
+  file_name: INGV_ACER.xml
+  file_dir: TEST/data/Fake/
+  version: ''
+- group: testdataio
+  index: '36'
+  name: testdataio_036
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '409'
+  filename: ''
+  ctype: ''
+  comment: PUT IMTC station, fail for conflicting network
+  match: ''
+  action: PUT
+  file_name: INGV_IMTC.xml
+  file_dir: TEST/data/Fake/
+  version: ''
+- group: testdataio
+  index: '37'
+  name: testdataio_037
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '409'
+  filename: ''
+  ctype: ''
+  comment: PUT NUOVA station, fail for conflicting network
+  match: ''
+  action: PUT
+  file_name: INGV_NUOVA.xml
+  file_dir: TEST/data/Fake/
+  version: ''
+- group: testdataio
+  index: '38'
+  name: testdataio_038
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT ARVD station, fake net
+  match: ''
+  action: PUT
+  file_name: INGV_ARVD.xml
+  file_dir: TEST/data/Fake/
+  version: ''
+- group: testdataio
+  index: '39'
+  name: testdataio_039
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT ACER station, fake net
+  match: ''
+  action: PUT
+  file_name: INGV_ACER.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '40'
+  name: testdataio_040
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT ARVD station, fake net
+  match: ''
+  action: PUT
+  file_name: INGV_ARVD.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '41'
+  name: testdataio_041
+  method: DELETE
+  path: /query
+  query: provider=INGV&net=IY
+  expected_status: '204'
+  filename: ''
+  ctype: ''
+  comment: 'DELETE Fake station must fail '
+  match: ''
+  action: DELETE_MULTI
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataio
+  index: '42'
+  name: testdataio_042
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT IMTC2 station with spaces first time
+  match: ''
+  action: PUT
+  file_name: INGV_IMTC2.xml
+  file_dir: TEST/data/Fake/
+  version: ''
+- group: testdataio
+  index: '43'
+  name: testdataio_043
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT IMTC2 station station with spaces, again
+  match: ''
+  action: PUT
+  file_name: INGV_IMTC2.xml
+  file_dir: TEST/data/Fake/
+  version: ''
+- group: testdataio
+  index: '44'
+  name: testdataio_044
+  method: DELETE
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: 'DELETE IMTC station must not fail '
+  match: ''
+  action: DELETE
+  file_name: INGV_IMTC2.xml
+  file_dir: ''
+  version: ''
+- group: testdataio
+  index: '45'
+  name: testdataio_045
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT ACER station, moving in new net period
+  match: ''
+  action: PUT
+  file_name: INGV_ACER.xml
+  file_dir: TEST/data/Fake/Moved/
+  version: ''
+- group: testdataio
+  index: '46'
+  name: testdataio_046
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT ACER station, moving in new net period
+  match: ''
+  action: PUT
+  file_name: INGV_ACER.xml
+  file_dir: TEST/data/Fake/Moved/
+  version: ''
+- group: testdataio
+  index: '47'
+  name: testdataio_047
+  method: GET
+  path: /query
+  query: sta=*
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: Check all is still working, fails on netcache corruption
+  match: ''
+  action: GET
+  file_name: ''
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '48'
+  name: testdataio_048
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: PUT ACER station AGAIN in place with lock
+  match: ''
+  action: PUT_LOCK_CACHE
+  file_name: INGV_ACER.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '49'
+  name: testdataio_049
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: Again ACER station. Anticipated lock test, avoid next failing because lock
+  match: ''
+  action: PUT
+  file_name: INGV_ACER.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '50'
+  name: testdataio_050
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '409'
+  filename: 'INGV_AQU.xml'
+  ctype: ''
+  comment: PUT AQU in network overlapped must fail. Overlapping 1/10
+  match: ''
+  action: PUT
+  file_name: 'dataio_050.xml.golden'
+  file_dir: 'TEST/expected/'
+  version: ''
+- group: testdataio
+  index: '51'
+  name: testdataio_051
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: 'FAKE_AQU.xml'
+  ctype: ''
+  comment: Network not overlapped, second interval. Overlapping 2/10
+  match: ''
+  action: PUT
+  file_name: FAKE_AQU.xml
+  file_dir: TEST/data/Fake/
+  version: ''
+- group: testdataio
+  index: '52'
+  name: testdataio_052
+  method: GET
+  path: /query
+  query: level=network&net=MN&format=text&nodata=404
+  expected_status: '200'
+  filename: dataio_052.txt.golden
+  ctype: txt
+  comment: There should be two MN network now. Overlapping 3/10
+  match: matches
+  action: GETTEXT
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataio
+  index: '53'
+  name: testdataio_053
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '409'
+  filename: 'FAKE2_AQU.xml'
+  ctype: ''
+  comment: Two overlapped network, not a third network. Overlapping 4/10
+  match: ''
+  action: PUT
+  file_name: FAKE2_AQU.xml
+  file_dir: TEST/data/Fake/
+  version: ''
+- group: testdataio
+  index: '54'
+  name: testdataio_054
+  method: DELETE
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: 'INGV_AQU.xml'
+  ctype: ''
+  comment: Delete in network not overlapped must not fail. Overlapping 5/10
+  match: ''
+  action: DELETE
+  file_name: INGV_AQU.xml
+  file_dir: TEST/data/Station
+  version: ''
+- group: testdataio
+  index: '55'
+  name: testdataio_055
+  method: DELETE
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: 'INGV_ARPR.xml'
+  ctype: ''
+  comment: Network not overlapped, open ended MN disappears. Overlapping 6/10
+  match: ''
+  action: DELETE
+  file_name: INGV_ARPR.xml
+  file_dir: TEST/data/Station
+  version: ''
+- group: testdataio
+  index: '56'
+  name: testdataio_056
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '409'
+  filename: 'FAKE2_AQU.xml'
+  ctype: ''
+  comment: Overlap of a closed network. Overlapping 7/10
+  match: ''
+  action: PUT
+  file_name: FAKE2_AQU.xml
+  file_dir: TEST/data/Fake/
+  version: ''
+- group: testdataio
+  index: '57'
+  name: testdataio_057
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: 'INGV_AQU.xml'
+  ctype: ''
+  comment: Not overlapped, re-creates a second network. Overlapping 8/10
+  match: ''
+  action: PUT
+  file_name: INGV_AQU.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '58'
+  name: testdataio_058
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: 'INGV_ARPR.xml'
+  ctype: ''
+  comment: PUT ARPR in one of two net interval, recreating real MN. Overlapping 9/10
+  match: ''
+  action: PUT
+  file_name: INGV_ARPR.xml
+  file_dir: TEST/data/Station/
+  version: ''
+- group: testdataio
+  index: '59'
+  name: testdataio_059
+  method: DELETE
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: 'FAKE_AQU.xml'
+  ctype: ''
+  comment: Deleting in one of two network must not fail. Overlapping 10/10
+  match: ''
+  action: DELETE
+  file_name: FAKE_AQU.xml
+  file_dir: TEST/data/Fake/
+  version: ''
+- group: testdataio
+  index: '60'
+  name: testdataio_060
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: 'INGV_IT24Axml'
+  ctype: ''
+  comment: A station with newlines in elements, but inserting utf8 transformed in test code fix problems before?
+  match: ''
+  action: PUT
+  file_name: INGV_IT24A.xml
+  file_dir: TEST/data/Fake
+  version: ''
+- group: testdataio
+  index: '61'
+  name: testdataio_061
+  method: DELETE
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: INGV_IT24A.xml'
+  ctype: ''
+  comment: Removing INGV_IT24A
+  match: ''
+  action: DELETE
+  file_name: INGV_IT24A.xml
+  file_dir: TEST/data/Fake
+- group: testdataio
+  index: '62'
+  name: testdataio_062
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '200'
+  filename: 'INGV_BLY.xml'
+  ctype: ''
+  comment: A new station in MN, to try POST with many channels for issue 168
+  match: ''
+  action: PUT
+  file_name: INGV_BLY.xml
+  file_dir: TEST/data/Station
+  version: ''
+- group: testdataio
+  index: '63'
+  name: testdataio_063
+  method: PUT
+  path: /query
+  query: ''
+  expected_status: '409'
+  filename: ''
+  ctype: ''
+  comment: PUT FAKE1 station, fail for conflicting network, intercepts empty element in network
+  match: ''
+  action: PUT
+  file_name: INGV_FAKE1.xml
+  file_dir: TEST/data/Fake/
+  version: ''
+- group: testdataxml
+  index: '0'
+  name: testdataxml_000
+  method: GET
+  path: /query
+  query: level=network&net=MN&station=AQ*&format=xml&nodata=404
+  expected_status: '200'
+  filename: testdataxml_000.xml.golden
+  ctype: xml
+  comment: Network level for a double network station
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataxml
+  index: '1'
+  name: testdataxml_001
+  method: GET
+  path: /query
+  query: level=response&nodata=404&format=xml&station=AQT1
+  expected_status: '200'
+  filename: testdataxml_001.xml.golden
+  ctype: xml
+  comment: Response level single station
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataxml
+  index: '2'
+  name: testdataxml_002
+  method: GET
+  path: /query
+  query: level=network&net=*&format=xml&nodata=404
+  expected_status: '200'
+  filename: testdataxml_002.xml.golden
+  ctype: xml
+  comment: Network level for all networks
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataxml
+  index: '3'
+  name: testdataxml_003
+  method: GET
+  path: /query
+  query: level=station&nodata=404
+  expected_status: '200'
+  filename: testdataxml_003.xml.golden
+  ctype: xml
+  comment: All station in the database, level station
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataxml
+  index: '4'
+  name: testdataxml_004
+  method: GET
+  path: /query
+  query: level=channel&net=MN&format=xml&nodata=404
+  expected_status: '200'
+  filename: testdataxml_004.xml.golden
+  ctype: xml
+  comment: MN at channel level
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataxml
+  index: '5'
+  name: testdataxml_005
+  method: GET
+  path: /query
+  query: level=channel&net=MN,IV&format=xml&nodata=404&station=AQU,ACER&channel=HHZ,EHZ
+  expected_status: '200'
+  filename: testdataxml_005.xml.golden
+  ctype: xml
+  comment: ''
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataxml
+  index: '6'
+  name: testdataxml_006
+  method: GET
+  path: /query
+  query: level=station&net=MN,IV&format=xml&nodata=404&station=AQU,ACER&channel=HHZ,EHZ
+  expected_status: '200'
+  filename: testdataxml_006.xml.golden
+  ctype: xml
+  comment: Networks stations and channel for station on two networks
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataxml
+  index: '7'
+  name: testdataxml_007
+  method: GET
+  path: /query
+  query: format=xml&level=response&station=A319A
+  expected_status: '200'
+  filename: testdataxml_007.xml.golden
+  ctype: xml
+  comment: Query a single station
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataxml
+  index: '8'
+  name: testdataxml_008
+  method: GET
+  path: /query
+  query: level=response&net=*&nodata=404&format=xml&channel=HHZ&starttime=1988-01-01&endtime=1988-02-01
+  expected_status: '200'
+  filename: testdataxml_008.xml.golden
+  ctype: xml
+  comment: Response level selecting channel codes and epoch
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataxml
+  index: '9'
+  name: testdataxml_009
+  method: GET
+  path: /query
+  query: level=network&net=_MOST&format=xml&nodata=404
+  expected_status: '200'
+  filename: testdataxml_009.xml.golden
+  ctype: xml
+  comment: AlternateNetworks only net
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataxml
+  index: '10'
+  name: testdataxml_010
+  method: GET
+  path: /query
+  query: level=station&net=_MOST&format=xml&nodata=404
+  expected_status: '200'
+  filename: testdataxml_010.xml.golden
+  ctype: xml
+  comment: AlternateNetworks only net, level station
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataxml
+  index: '11'
+  name: testdataxml_011
+  method: GET
+  path: /query
+  query: level=station&format=xml&network=MN,_MOST&nodata=404&startbefore=2013-03-14T00:00:00
+  expected_status: '200'
+  filename: testdataxml_011.xml.golden
+  ctype: xml
+  comment: AlternateNetworks and regular network with time limit
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataxml
+  index: '12'
+  name: testdataxml_012
+  method: GET
+  path: /query
+  query: level=station&format=xml&network=_MOST,_NFOTABOO,GU&nodata=404&startafter=1987-03-14T00:00:00
+  expected_status: '200'
+  filename: testdataxml_012.xml.golden
+  ctype: xml
+  comment: Two AlternateNetworks and missing regular network  with time limit
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataxml
+  index: '13'
+  name: testdataxml_013
+  method: GET
+  path: /query
+  query: nodata=404&format=xml&level=station&lat=42&lon=12&minradius=0&maxradiuskm=130
+  expected_status: '200'
+  filename: testdataxml_013.xml.golden
+  ctype: xml
+  comment: Radius in km at Station level
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+#Skipped textdataxml_014.xml.golden fails can not be executed in the two cases true,true - false,false without changes .00000
+#Given test should not care of decimals in that dates, but look at TotalnumberChannels/SelectedNumberChannels when lacking in input
+#- group: testdataxml
+#  index: '14'
+#  name: testdataxml_014
+#  method: GET
+#  path: /query
+#  query: starttime=2004-01-06T15%3A55%3A02.658787&endtime=2010-02-05T15%3A55%3A02.658787&level=channel&format=xml&cha=*Z
+#  expected_status: '200'
+#  filename: testdataxml_014.xml.golden
+#  ctype: xml
+#  comment: Many stations for network , Channel level,  fix TotalnumberChannels/SelectedNumberChannels
+#    when lacking in input
+#  match: ''
+#  action: ''
+#  file_name: ''
+#  file_dir: ''
+#  version: ''
+- group: testdataxml
+  index: '15'
+  name: testdataxml_015
+  method: GET
+  path: /query
+  query: nodata=404&format=xml&level=network&lat=42&lon=12&minradius=0&maxradiuskm=130
+  expected_status: '200'
+  filename: testdataxml_015.xml.golden
+  ctype: xml
+  comment: Radius in km at Network level
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataxml
+  index: '16'
+  name: testdataxml_016
+  method: GET
+  path: /query
+  query: format=xml&net=TH&includerestricted=false&level=station
+  expected_status: '200'
+  filename: testdataxml_016.xml.golden
+  ctype: xml
+  comment: Partially open network, returns and counts only restricted stations
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataxml
+  index: '17'
+  name: testdataxml_017
+  method: GET
+  path: /query
+  query: level=station&sta=CMA
+  expected_status: '200'
+  filename: testdataxml_017.xml.golden
+  ctype: xml
+  comment: Network with namespace extension
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataxml
+  index: '18'
+  name: testdataxml_018
+  method: GET
+  path: /query
+  query: minlat=31&format=xml&maxlat=51&start=2019-01-02&minlon=6&maxlon=38&level=station&station=A*A
+  expected_status: '200'
+  filename: testdataxml_018.xml.golden
+  ctype: xml
+  comment: Looking up in netcache for station level
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '0'
+  name: testdatatxt_000
+  method: GET
+  path: /query
+  query: level=station&net=MN&format=text&nodata=404
+  expected_status: '200'
+  filename: testdatatxt_000.txt.golden
+  ctype: txt
+  comment: ''
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '1'
+  name: testdatatxt_001
+  method: GET
+  path: /query
+  query: level=network&net=MN&format=text&nodata=404
+  expected_status: '200'
+  filename: testdatatxt_001.txt.golden
+  ctype: txt
+  comment: ''
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '2'
+  name: testdatatxt_002
+  method: GET
+  path: /query
+  query: level=network&net=IV&format=text&nodata=404
+  expected_status: '200'
+  filename: testdatatxt_002.txt.golden
+  ctype: txt
+  comment: ''
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '3'
+  name: testdatatxt_003
+  method: GET
+  path: /query
+  query: level=channel&net=IV&station=AQU&format=text&nodata=404
+  expected_status: '200'
+  filename: testdatatxt_003.txt.golden
+  ctype: txt
+  comment: One station belong to two networks
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '4'
+  name: testdatatxt_004
+  method: GET
+  path: /query
+  query: level=channel&net=IV&station=AQU&format=text&nodata=404&matchtimeseries=false&includeavailability=false
+  expected_status: '200'
+  filename: testdatatxt_004.txt.golden
+  ctype: txt
+  comment: matchtimeseries includeavailability ignored for default false
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '5'
+  name: testdatatxt_005
+  method: GET
+  path: /query
+  query: level=channel&net=IV&station=AQU&format=text&nodata=404&includeavailability=false
+  expected_status: '200'
+  filename: testdatatxt_005.txt.golden
+  ctype: txt
+  comment: includeavailability ignored for default false
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '6'
+  name: testdatatxt_006
+  method: GET
+  path: /query
+  query: level=channel&net=IV&station=AQU&format=text&nodata=404&matchtimeseries=false
+  expected_status: '200'
+  filename: testdatatxt_006.txt.golden
+  ctype: txt
+  comment: matchtimeseries ignored for default false
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '7'
+  name: testdatatxt_007
+  method: GET
+  path: /query
+  query: level=channel&net=MN&format=text&nodata=404
+  expected_status: '200'
+  filename: testdatatxt_007.txt.golden
+  ctype: txt
+  comment: ''
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '8'
+  name: testdatatxt_008
+  method: GET
+  path: /query
+  query: level=channel&starttime=2000-01-01T00:00:00.0&endtime=2020-01-02&net=MN&format=text&nodata=404
+  expected_status: '200'
+  filename: testdatatxt_008.txt.golden
+  ctype: txt
+  comment: ''
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '9'
+  name: testdatatxt_009
+  method: GET
+  path: /query
+  query: level=channel&starttime=2000-01-01T00:00:00.0&endtime=2010-01-02&net=MN&format=text&minlat=41.0&maxlat=43.0&nodata=404
+  expected_status: '200'
+  filename: testdatatxt_009.txt.golden
+  ctype: txt
+  comment: ''
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '10'
+  name: testdatatxt_010
+  method: GET
+  path: /query
+  query: level=channel&net=MN&format=text&nodata=404&minlat=41&maxlatitude=45
+  expected_status: '200'
+  filename: testdatatxt_010.txt.golden
+  ctype: txt
+  comment: ''
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '11'
+  name: testdatatxt_011
+  method: GET
+  path: /query
+  query: level=channel&net=MN&startafter=1999-05-01&endbefore=2002-06-05T00:00:00.0&format=text&nodata=404&maxlatitude=45&minlat=42
+  expected_status: '200'
+  filename: testdatatxt_011.txt.golden
+  ctype: txt
+  comment: ''
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '12'
+  name: testdatatxt_012
+  method: GET
+  path: /query
+  query: level=channel&net=MN&startbefore=1999-05-01&endafter=2002-06-05T00:00:00.0&format=text&maxlatitude=45&minlat=42
+  expected_status: '204'
+  filename: ''
+  ctype: ''
+  comment: ''
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '13'
+  name: testdatatxt_013
+  method: GET
+  path: /query
+  query: sta=AQU&level=channel&starttime=2021-01-01T00:00:00.0&endtime=2021-01-02&net=MN&nodata=404&format=text
+  expected_status: '200'
+  filename: testdatatxt_013.txt.golden
+  ctype: txt
+  comment: ''
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '14'
+  name: testdatatxt_014
+  method: GET
+  path: /query
+  query: level=station&includerestricted=true&format=text
+  expected_status: '200'
+  filename: testdatatxt_014.txt.golden
+  ctype: txt
+  comment: Include restricted
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '15'
+  name: testdatatxt_015
+  method: GET
+  path: /query
+  query: level=station&includerestricted=false&format=text
+  expected_status: '200'
+  filename: testdatatxt_015.txt.golden
+  ctype: txt
+  comment: 'No restricted, no A319A '
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '16'
+  name: testdatatxt_016
+  method: GET
+  path: /query
+  query: starttime=2021-01-06T15%3A55%3A02.658787&endtime=2021-02-05T15%3A55%3A02.658787&level=channel&includerestricted=false&format=text
+  expected_status: '200'
+  filename: testdatatxt_016.txt.golden
+  ctype: txt
+  comment: Selection in the future
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '17'
+  name: testdatatxt_017
+  method: GET
+  path: /query
+  query: starttime=2004-01-06T15%3A55%3A02.658787&endtime=2010-02-05T15%3A55%3A02.658787&level=channel&format=text&cha=*Z
+  expected_status: '200'
+  filename: testdatatxt_017.txt.golden
+  ctype: txt
+  comment: Selection in the past
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '18'
+  name: testdatatxt_018
+  method: GET
+  path: /query
+  query: level=station&net=*&format=text&start=2020-05-08T11:42:00&channel=EH*
+  expected_status: '200'
+  filename: testdatatxt_018.txt.golden
+  ctype: txt
+  comment: 0 selected channels but station selected in output
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '19'
+  name: testdatatxt_019
+  method: GET
+  path: /query
+  query: level=channel&latitude=42&longitude=12&minradius=1.5&maxradius=2&format=text&nodata=404
+  expected_status: '200'
+  filename: testdatatxt_019.txt.golden
+  ctype: txt
+  comment: check minradius maxradius
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '20'
+  name: testdatatxt_020
+  method: GET
+  path: /query
+  query: level=station&latitude=42&longitude=12&minradius=1.5&maxradius=2&format=text&nodata=404
+  expected_status: '200'
+  filename: testdatatxt_020.txt.golden
+  ctype: txt
+  comment: check minradius maxradius level station
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '21'
+  name: testdatatxt_021
+  method: GET
+  path: /query
+  query: level=network&latitude=42&longitude=12&minradius=1.5&maxradius=2&format=text&nodata=404
+  expected_status: '200'
+  filename: testdatatxt_021.txt.golden
+  ctype: txt
+  comment: check minradius maxradius level network
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '22'
+  name: testdatatxt_022
+  method: GET
+  path: /query
+  query: level=channel&latitude=42&longitude=12&minradiuskm=166.8&maxradiuskm=222.4&format=text&nodata=404
+  expected_status: '200'
+  filename: testdatatxt_022.txt.golden
+  ctype: txt
+  comment: check minradiuskm maxradiuskm
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '23'
+  name: testdatatxt_023
+  method: GET
+  path: /query
+  query: sta=ABG1&nodata=404&level=channel&format=text
+  expected_status: '200'
+  filename: testdatatxt_023.txt.golden
+  ctype: txt
+  comment: query_core_single_station check of a station with two periods
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '24'
+  name: testdatatxt_024
+  method: GET
+  path: /query
+  query: level=channel&network=S&station=ELFMC&format=text
+  expected_status: '200'
+  filename: testdatatxt_024.txt.golden
+  ctype: txt
+  comment: check one character network code
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '25'
+  name: testdatatxt_025
+  method: GET
+  path: /query
+  query: level=channel&format=text&starttime=2000-09-18T03:09:54&endtime=2023-09-18T03:18:34&cha=C??,E??,H??,S??&nodata=404&lat=43&lon=12&maxradius=0.9
+  expected_status: '200'
+  filename: testdatatxt_025.txt.golden
+  ctype: txt
+  comment: maxradius and channel
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '26'
+  name: testdatatxt_026
+  method: GET
+  path: /query
+  query: level=station&format=geojson&station=ACER,ACOM
+  expected_status: '200'
+  filename: testdatatxt_026.json.golden
+  ctype: json
+  comment: geojson two station in three networks
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '27'
+  name: testdatatxt_027
+  method: GET
+  path: /query
+  query: level=station&format=geojson&net=IV&nodata=404
+  expected_status: '200'
+  filename: testdatatxt_027.json.golden
+  ctype: json
+  comment: 'Multiple stations issue #102, commas among features'
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '28'
+  name: testdatatxt_028
+  method: POST
+  path: /query
+  query: 'level=channel
+
+    format=text
+
+    nodata=404
+
+    * * * *Z 2004-01-06T15:55:02.658787 2010-02-05T15:55:02.658787'
+  expected_status: '200'
+  filename: testdatatxt_017.txt.golden
+  ctype: txt
+  comment: Selection in the past, verified POST
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '29'
+  name: testdatatxt_029
+  method: POST
+  path: /query
+  query: 'level=channel
+
+  format=text
+
+  MN * * * 2024-01-01T00:00:00 2024-01-01T01:00:00'
+  expected_status: '200'
+  filename: testdatatxt_029.txt.golden
+  ctype: txt
+  comment: Cross-checking POST
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '30'
+  name: testdatatxt_030
+  method: GET
+  path: /query
+  query: 'level=channel&format=text&net=MN&start=2024-01-01T00:00:00&end=2024-01-01T01:00:00'
+  expected_status: '200'
+  filename: testdatatxt_029.txt.golden
+  ctype: txt
+  comment: Cross-checking GET
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '31'
+  name: testdatatxt_031
+  method: POST
+  path: /query
+  query: 'level=channel
+
+  format=text
+
+  nodata=404
+
+  MN * * * 2000-01-01T00:00:00.0 2020-01-02'
+  expected_status: '200'
+  filename: testdatatxt_008.txt.golden
+  ctype: txt
+  comment: 'Cross checking POST for testdatatxt_008'
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '32'
+  name: testdatatxt_032
+  method: POST
+  path: /query
+  query: 'level=station
+
+  format=text
+
+  nodata=404
+
+  includerestricted=true
+
+  * * * * 1900-01-01T00:00:00 2900-01-01T00:00:00'
+  expected_status: '200'
+  filename: testdatatxt_014.txt.golden
+  ctype: txt
+  comment: 'Include restricted with POST'
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatatxt
+  index: '33'
+  name: testdatatxt_033
+  method: POST
+  path: /query
+  query: 'level=station
+
+  format=text
+
+  nodata=404
+
+  includerestricted=false
+
+  * * * * 1900-01-01T00:00:00 2900-01-01T00:00:00'
+  expected_status: '200'
+  filename: testdatatxt_015.txt.golden
+  ctype: txt
+  comment: 'No restricted, no A319A with POST '
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testendpoints
+  index: '0'
+  name: testendpoints_000
+  method: GET
+  path: /exist/apps/fdsn-station/virtualnetwork/1/codes
+  query: ''
+  expected_status: '200'
+  filename: testendpoints_000.xml.golden
+  ctype: xml
+  comment: 'list of virtualnetworks '
+  match: matches
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testendpoints
+  index: '1'
+  name: testendpoints_001
+  method: GET
+  path: /exist/apps/fdsn-station/fdsnws/station/1/application.wadl
+  query: ''
+  expected_status: '200'
+  filename: testendpoints_001.xml.golden
+  ctype: text
+  comment: application.wadl
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testendpoints
+  index: '2'
+  name: testendpoints_002
+  method: GET
+  path: /exist/apps/fdsn-station/fdsnws/station/1/swagger.json
+  query: ''
+  expected_status: '200'
+  filename: testendpoints_002.json.golden
+  ctype: json
+  comment: swagger.json
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testendpoints
+  index: '3'
+  name: testendpoints_003
+  method: GET
+  path: /exist/rest/apps
+  query: ''
+  expected_status: '403'
+  filename: testendpoints_003.xml.golden
+  ctype: text
+  comment: REST interface closed
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testendpoints
+  index: '4'
+  name: testendpoints_004
+  method: GET
+  path: /exist/apps/fdsn-station/fdsnws/station/1/query/version/a=1&b=2
+  query: ''
+  expected_status: '400'
+  filename: testendpoints_004.txt.golden
+  ctype: txt
+  comment: Intercept Jetty Error 500 parsing parameters in bad paths err:XPST0003
+    Invalid character (=) in entity name
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testendpoints
+  index: '5'
+  name: testendpoints_005
+  method: GET
+  path: /exist/apps/fdsn-station/fdsnws/station/1/querry
+  query: ''
+  expected_status: '400'
+  filename: testendpoints_005.txt.golden
+  ctype: txt
+  comment: 'Intercept Error XPTY0004: The actual cardinality for parameter 1 does
+    not match the cardinality'
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testendpoints
+  index: '6'
+  name: testendpoints_006
+  method: GET
+  path: /exist/apps/fdsn-station/fdsnws/station/1/
+  query: ''
+  expected_status: '200'
+  filename: testendpoints_006.xml.golden
+  ctype: text
+  comment: application entry point translated by xslt
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataerrors
+  index: '0'
+  name: testdataerrors_000
+  method: GET
+  path: /query
+  query: level=channel&net=MN&cha=SHZ&station=AQU&format=text&maxlatitude=45&minlat=42&nodata=404
+  expected_status: '404'
+  filename: testdataerrors_000.txt.golden
+  ctype: txt
+  comment: nodata text
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataerrors
+  index: '1'
+  name: testdataerrors_001
+  method: GET
+  path: /query
+  query: level=channel&net=MN&cha=SHZ&station=AQU&format=xml&maxlatitude=45&minlat=42&nodata=404
+  expected_status: '404'
+  filename: testdataerrors_001.txt.golden
+  ctype: txt
+  comment: nodata xml
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataerrors
+  index: '2'
+  name: testdataerrors_002
+  method: GET
+  path: /query
+  query: level=channel&net=MN&cha=SHZ&station=AQU&format=json&maxlatitude=45&minlat=42&nodata=404
+  expected_status: '404'
+  filename: testdataerrors_002.txt.golden
+  ctype: txt
+  comment: nodata xml
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataerrors
+  index: '3'
+  name: testdataerrors_003
+  method: GET
+  path: /query
+  query: level=channel&net=&sta=ACER&loc=??&format=json&maxlatitude=45&minlat=42&nodata=404
+  expected_status: '400'
+  filename: testdataerrors_003.txt.golden
+  ctype: txt
+  comment: empty network parameter
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataerrors
+  index: '4'
+  name: testdataerrors_004
+  method: GET
+  path: /query
+  query: level=channel&net=*&sta=&loc=*&format=json&maxlatitude=45&minlat=42&nodata=404
+  expected_status: '400'
+  filename: testdataerrors_004.txt.golden
+  ctype: txt
+  comment: empty station parameter
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataerrors
+  index: '5'
+  name: testdataerrors_005
+  method: GET
+  path: /query
+  query: level=channel&net=*&cha=&loc=??&format=json&maxlatitude=45&minlat=42&nodata=404
+  expected_status: '400'
+  filename: testdataerrors_005.txt.golden
+  ctype: txt
+  comment: empty channelparameter
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataerrors
+  index: '6'
+  name: testdataerrors_006
+  method: GET
+  path: /query
+  query: level=channel&net=*&sta=ACER&loc=&format=json&maxlatitude=45&minlat=42&nodata=404
+  expected_status: '400'
+  filename: testdataerrors_006.txt.golden
+  ctype: txt
+  comment: empty location
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataerrors
+  index: '7'
+  name: testdataerrors_007
+  method: GET
+  path: /query
+  query: level=channel&net=*&sta=ACER&format=json&maxlatitude=45&minlat=42&nodata=404&matchtimeseries=true
+  expected_status: '400'
+  filename: testdataerrors_007.txt.golden
+  ctype: txt
+  comment: matchtimeseries is not supported
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataerrors
+  index: '8'
+  name: testdataerrors_008
+  method: GET
+  path: /query
+  query: level=channel&net=*&sta=ACER&format=json&maxlatitude=45&minlat=42&nodata=404&includeavailability=true
+  expected_status: '400'
+  filename: testdataerrors_008.txt.golden
+  ctype: txt
+  comment: includeavailability is not supported
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataerrors
+  index: '9'
+  name: testdataerrors_009
+  method: GET
+  path: /query
+  query: format=text&nodata=404&station=ACER&station=ACATE
+  expected_status: '400'
+  filename: testdataerrors_009.txt.golden
+  ctype: txt
+  comment: Multiplicity in parameter
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataerrors
+  index: '10'
+  name: testdataerrors_010
+  method: GET
+  path: /query
+  query: format=text&nodata=404&station=ACER&sta=ACATE
+  expected_status: '400'
+  filename: testdataerrors_010.txt.golden
+  ctype: txt
+  comment: Alias abuse on station
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataerrors
+  index: '11'
+  name: testdataerrors_011
+  method: GET
+  path: /query
+  query: format=text&nodata=404&network=IV&net=MN
+  expected_status: '400'
+  filename: testdataerrors_011.txt.golden
+  ctype: txt
+  comment: Alias abuse on network
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataerrors
+  index: '12'
+  name: testdataerrors_012
+  method: GET
+  path: /query
+  query: format=text&nodata=404&lat=42&longitude=12&minradius=10&minradiuskm=200
+  expected_status: '400'
+  filename: testdataerrors_012.txt.golden
+  ctype: txt
+  comment: Alias abuse on minradius
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatapostxml
+  index: '0'
+  name: testdatapostxml_000
+  method: POST
+  path: /query
+  query: 'minlat=15
+
+    maxlat=55
+
+    level=station
+
+    format=xml
+
+    nodata=404
+
+    * * * * 2009-01-01T00:00:00.0 2010-01-01T00:00:00.0
+
+    MN * * * 1988-01-01T00:00:00.0 2002-01-01T00:00:00.0
+
+    * ABSI * * 1990-01-01T00:00:00.0 2005-01-01T00:00:00.0'
+  expected_status: '200'
+  filename: testdatapostxml_000.xml.golden
+  ctype: xml
+  comment: POST 2
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatapostxml
+  index: '1'
+  name: testdatapostxml_001
+  method: POST
+  path: /query
+  query: 'minlat=15
+
+    maxlat=55
+
+    level=station
+
+    format=xml
+
+    nodata=404
+
+    _MOST * * * 1988-01-01T00:00:00.0 2030-01-01T00:00:00.0'
+  expected_status: '200'
+  filename: testdatapostxml_001.xml.golden
+  ctype: xml
+  comment: POST AlternateNetworks, only one virtual
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatapostxml
+  index: '2'
+  name: testdatapostxml_002
+  method: POST
+  path: /query
+  query: 'minlat=15
+
+    maxlat=55
+
+    level=station
+
+    format=xml
+
+    nodata=404
+
+    _MOST * * * 1988-01-01T00:00:00.0 2030-01-01T00:00:00.0'
+  expected_status: '200'
+  filename: testdatapostxml_002.xml.golden
+  ctype: xml
+  comment: POST AlternateNetworks, only one virtual, matchtimeseries and includeavailability
+    false
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatapostxml
+  index: '3'
+  name: testdatapostxml_003
+  method: POST
+  path: /query
+  query: 'level=channel
+
+    MN AQU -- BHE 2023-01-07T01:49:38.200000 2023-01-07T02:19:38.200000
+
+    MN AQU -- BHN 2023-01-07T01:49:38.200000 2023-01-07T02:19:38.200000
+
+    '
+  expected_status: '200'
+  filename: testdatapostxml_003.xml.golden
+  ctype: xml
+  comment: POST same station in two lines
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatapostxml
+  index: '4'
+  name: testdatapostxml_004
+  method: POST
+  path: /query
+  query: 'level=response
+
+    MN AQU -- BHE 2023-01-07T01:49:38.200000 2023-01-07T02:19:38.200000
+
+    MN AQU -- BHN 2023-01-07T01:49:38.200000 2023-01-07T02:19:38.200000
+
+    '
+  expected_status: '200'
+  filename: testdatapostxml_004.xml.golden
+  ctype: xml
+  comment: POST response level
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatapost
+  index: '0'
+  name: testdatapost_000
+  method: POST
+  path: /query
+  query: 'minlat=10
+
+    maxlat=62
+
+    level=station
+
+    format=text
+
+    nodata=404
+
+    * ACER * * 1920-01-01T00:00:00.0 2020-01-01T00:00:00.0'
+  expected_status: '200'
+  filename: testdatapost_000.txt.golden
+  ctype: txt
+  comment: POST level station
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatapost
+  index: '1'
+  name: testdatapost_001
+  method: POST
+  path: /query
+  query: 'minlat=10
+
+    maxlat=62
+
+    level=station
+
+    format=text
+
+    nodata=404
+
+    updatedafter=2000-01-01T00:00:00
+
+    * * * * 1920-01-01T00:00:00.0 2020-01-01T00:00:00.0'
+  expected_status: '200'
+  filename: testdatapost_001.txt.golden
+  ctype: txt
+  comment: POST updatedafter
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatapost
+  index: '2'
+  name: testdatapost_002
+  method: POST
+  path: /query
+  query: 'minlat=10
+
+    maxlat=62
+
+    level=station
+
+    format=text
+
+    nodata=404
+
+    updatedafter=1900-01-01T00:00:00
+
+    includerestricted=False
+
+    * ACER * * 2006-01-01T00:00:00.0 2020-01-01T00:00:00.0
+
+    * ACATE * * 1988-01-01T00:00:00.0 2020-01-01T00:00:00.0
+
+    * ABSI * * 1990-01-01T00:00:00.0 2005-01-01T00:00:00.0'
+  expected_status: '200'
+  filename: testdatapost_002.txt.golden
+  ctype: txt
+  comment: ''
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatapost
+  index: '3'
+  name: testdatapost_003
+  method: POST
+  path: /query
+  query: 'latitude=42
+
+    longitude=12
+
+    level=channel
+
+    format=text
+
+    minradiuskm=166.8
+
+    maxradiuskm=222.4
+
+    nodata=404
+
+    * * * * 1900-01-01T00:00:00.0 2140-01-01T00:00:00.0'
+  expected_status: '200'
+  filename: testdatapost_003.txt.golden
+  ctype: txt
+  comment: Check min/maxradiuskm in POST
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatapost
+  index: '4'
+  name: testdatapost_004
+  method: POST
+  path: /query
+  query: 'latitude=42
+
+    longitude=12
+
+    level=channel
+
+    format=text
+
+    minradius=1.5
+
+    maxradius=2.0
+
+    nodata=404
+
+    * * * * 1988-01-01T00:00:00.0 2040-01-01T00:00:00.0'
+  expected_status: '200'
+  filename: testdatapost_004.txt.golden
+  ctype: txt
+  comment: Check min/maxradius in POST
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatapost
+  index: '5'
+  name: testdatapost_005
+  method: POST
+  path: /query
+  query: 'latitude=42
+
+    longitude=12
+
+    level=channel
+
+    format=text
+
+    minradius=1.5
+
+    maxradius=2.0
+
+    nodata=404
+
+    _MOST * * * 1988-01-01T00:00:00.0 2040-01-01T00:00:00.0'
+  expected_status: '200'
+  filename: testdatapost_005.txt.golden
+  ctype: txt
+  comment: Check min/maxradius in POST with virtual network
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatapost
+  index: '6'
+  name: testdatapost_006
+  method: POST
+  path: /query
+  query: 'minlat=0
+
+    maxlat=45
+
+    level=channel
+
+    format=text
+
+    nodata=404
+
+    MN * * H*Z 1900-01-01T00:00:00.0 2030-01-01T00:00:00.0
+
+    IV * * B*E 1900-01-01T00:00:00.0 2030-01-01T00:00:00.0'
+  expected_status: '200'
+  filename: testdatapost_006.txt.golden
+  ctype: txt
+  comment: Different networks and channel patterns
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatapost
+  index: '7'
+  name: testdatapost_007
+  method: POST
+  path: /query
+  query: 'minlat=0
+
+    maxlat=45
+
+    level=channel
+
+    format=text
+
+    nodata=404
+
+    MN * * H*Z 1900-01-01T00:00:00.0 2030-01-01T00:00:00.0
+
+    _NFOTABOO * * ?N? 1900-01-01T00:00:00.0 2030-01-01T00:00:00.0
+
+    IV * * B*E 1900-01-01T00:00:00.0 2030-01-01T00:00:00.0'
+  expected_status: '200'
+  filename: testdatapost_007.txt.golden
+  ctype: txt
+  comment: Different networks and channel patterns virtual networks
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatapost
+  index: '8'
+  name: testdatapost_008
+  method: POST
+  path: /query
+  query: 'minlat=0
+
+    maxlat=42
+
+    level=channel
+
+    format=text
+
+    nodata=404
+
+    updatedafter=1900-01-01T00:00:00
+
+    MN * * * 1900-01-01T00:00:00.0 2030-01-01T00:00:00.0
+
+    _MOST * * * 1900-01-01T00:00:00.0 2030-01-01T00:00:00.0
+
+    _NFOTABOO * * * 1900-01-01T00:00:00.0 2030-01-01T00:00:00.0'
+  expected_status: '200'
+  filename: testdatapost_008.txt.golden
+  ctype: txt
+  comment: Two virtual, one FDSN networks
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatapost
+  index: '9'
+  name: testdatapost_009
+  method: POST
+  path: /query
+  query: 'minlat=0
+
+    maxlat=42
+
+    level=channel
+
+    format=text
+
+    nodata=404
+
+    updatedafter=1900-01-01T00:00:00
+
+    MN * * BH* 1900-01-01T00:00:00.0 2030-01-01T00:00:00.0
+
+    _MOST * * * 1900-01-01T00:00:00.0 2030-01-01T00:00:00.0
+
+    _NFOTABOO * * * 1900-01-01T00:00:00.0 2030-01-01T00:00:00.0'
+  expected_status: '200'
+  filename: testdatapost_009.txt.golden
+  ctype: txt
+  comment: Two virtual, one FDSN networks, channels
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdatapost
+  index: '10'
+  name: testdatapost_010
+  method: POST
+  path: /query
+  query: 'minlat=0
+
+    maxlat=42
+
+    level=channel
+
+    format=text
+
+    nodata=404
+
+    updatedafter=1900-01-01T00:00:00
+
+    _NFOTABOO * * * 1900-01-01T00:00:00.0 2030-01-01T00:00:00.0
+
+    _MOST * * * 1900-01-01T00:00:00.0 2030-01-01T00:00:00.0
+
+    MN * * * 1900-01-01T00:00:00.0 2030-01-01T00:00:00.0'
+  expected_status: '200'
+  filename: testdatapost_010.txt.golden
+  ctype: txt
+  comment: Two virtual, one FDSN networks
+  match: ''
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataposterrors
+  index: '0'
+  name: testdataposterrors_000
+  method: POST
+  path: /query
+  query: 'minlat=10
+
+    maxlat=62
+
+    level=station
+
+    format=text
+
+    nodata=404
+
+    updatedafter=2100-01-01T00:00:00
+
+    * * * * 1920-01-01T00:00:00.0 2020-01-01T00:00:00.0'
+  expected_status: '404'
+  filename: testdataposterrors_000.txt.golden
+  ctype: txt
+  comment: 'nodata on post format text '
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataposterrors
+  index: '1'
+  name: testdataposterrors_001
+  method: POST
+  path: /query
+  query: 'minlat=10
+
+    maxlat=62
+
+    level=station
+
+    format=text
+
+    nodata=404
+
+    updatedafter=2100-01-01T00:00:00
+
+    matchtimeseries=true
+
+    * * * * 1920-01-01T00:00:00.0 2020-01-01T00:00:00.0'
+  expected_status: '400'
+  filename: testdataposterrors_001.txt.golden
+  ctype: txt
+  comment: Error 400 matchtimeseries not supported
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataposterrors
+  index: '2'
+  name: testdataposterrors_002
+  method: POST
+  path: /query
+  query: 'minlat=10
+
+    maxlat=62
+
+    maxlatitude=63
+
+    level=station
+
+    format=text
+
+    nodata=404
+
+    updatedafter=2000-01-01T00:00:00
+
+    * * * * 1920-01-01T00:00:00.0 2020-01-01T00:00:00.0'
+  expected_status: '400'
+  filename: testdataposterrors_002.txt.golden
+  ctype: txt
+  comment: Error 400 alias abuse in POST
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataposterrors
+  index: '3'
+  name: testdataposterrors_003
+  method: POST
+  path: /query
+  query: 'lat=10
+
+    lon=62
+
+    maxradius=10
+
+    maxradiuskm=5
+
+    level=station
+
+    format=text
+
+    nodata=404
+
+    updatedafter=2000-01-01T00:00:00
+
+    * * * * 1920-01-01T00:00:00.0 2020-01-01T00:00:00.0'
+  expected_status: '400'
+  filename: testdataposterrors_003.txt.golden
+  ctype: txt
+  comment: Error 400 quasi-alias abuse in POST
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataposterrors
+  index: '4'
+  name: testdataposterrors_004
+  method: POST
+  path: /query
+  query: 'minlat=10
+
+    minlat=62
+
+    maxlatitude=63
+
+    level=station
+
+    format=text
+
+    nodata=404
+
+    updatedafter=2000-01-01T00:00:00
+
+    * * * * 1920-01-01T00:00:00.0 2020-01-01T00:00:00.0'
+  expected_status: '400'
+  filename: testdataposterrors_004.txt.golden
+  ctype: txt
+  comment: Error 400 duplicate params in POST
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataposterrors
+  index: '5'
+  name: testdataposterrors_005
+  method: POST
+  path: /query
+  query: 'level=channel
+
+    includerestricted=false
+
+    nodata=404
+
+    AC PHP * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    AC PUK * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    AC LSK * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    AC SRN * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU BHB * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    AC VLO * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU BLANC * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU BURY * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU CANO * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU CARD * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU CIRO * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU ENR * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU EQUI * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU GORR * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU GBOS * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU ZORR * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00'
+  expected_status: '404'
+  filename: testdataposterrors_005.txt.golden
+  ctype: txt
+  comment: 'nodata on post format text '
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testdataposterrors
+  index: '6'
+  name: testdataposterrors_006
+  method: POST
+  path: /query
+  query: 'level=channel
+
+    includerestricted=false
+
+    nodata=404
+
+    AC BCI * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    AC KBN * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    AC PHP * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    AC PUK * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    AC LSK * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    AC SRN * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU BHB * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    AC VLO * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU BKB * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    AC VLOS * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU BLANC * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU BURY * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU CANO * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU CARD * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU CIRO * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU ENR * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU EQUI * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU GORR * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU GBOS * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU STOS * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU EQUA * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU GOR * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU GBO * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU STO * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00
+
+    GU ZORR * BHZ,HHZ 2021-01-01T00:00:00 2021-12-31T00:00:00'
+  expected_status: '404'
+  filename: testdataposterrors_006.txt.golden
+  ctype: txt
+  comment: nodata on post format text too long
+  match: startswith
+  action: ''
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '0'
+  name: test_management_000
+  method: PUT
+  path: /exist/apps/fdsn-station/management/network?
+  query: code=IV&startDate=1988-01-01T00:00:01
+  expected_status: '204'
+  filename: ''
+  ctype: ''
+  comment: No matching network in DB
+  match: ''
+  action: PUT
+  file_name: INGV_NET_002.xml
+  file_dir: TEST/data/Fake
+  version: ''
+- group: test_management
+  index: '1'
+  name: test_management_001
+  method: PUT
+  path: /exist/apps/fdsn-station/management/network?
+  query: code=MN&startDate=1988-01-01T00:00:00
+  expected_status: '400'
+  filename: ''
+  ctype: ''
+  comment: Parameters and file content mismatch
+  match: ''
+  action: PUT
+  file_name: INGV_NET_001.xml
+  file_dir: TEST/data/Fake
+  version: ''
+- group: test_management
+  index: '2'
+  name: test_management_002
+  method: PUT
+  path: /exist/apps/fdsn-station/management/network?
+  query: code=IV&startDate=1988-01-01T00:00:00
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: Change elements in IV network
+  match: ''
+  action: PUT
+  file_name: INGV_NET_001.xml
+  file_dir: TEST/data/Fake
+  version: ''
+- group: test_management
+  index: '3'
+  name: test_management_003
+  method: PUT
+  path: /exist/apps/fdsn-station/management/network?
+  query: code=IV&startDate=1988-01-01
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: Change elements in IV network, with different format (YYYY-MM-DD)
+  match: ''
+  action: PUT
+  file_name: INGV_NET_001.xml
+  file_dir: TEST/data/Fake
+  version: ''
+- group: test_management
+  index: '4'
+  name: test_management_004
+  method: PUT
+  path: /exist/apps/fdsn-station/management/network?
+  query: code=IV&startDate=1988-01-01T00:00:00
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: Change elements in IV network, with different format (YYYY-MM-DD)
+  match: ''
+  action: PUT
+  file_name: INGV_NET_001.xml
+  file_dir: TEST/data/Fake
+  version: ''
+- group: test_management
+  index: '5'
+  name: test_management_005
+  method: PUT
+  path: /exist/apps/fdsn-station/management/network?
+  query: code=IV&startDate=1988-01-01T00:00:00.000000
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: Change elements in IV network, with different format (.000000)
+  match: ''
+  action: PUT
+  file_name: INGV_NET_001.xml
+  file_dir: TEST/data/Fake
+  version: ''
+- group: test_management
+  index: '6'
+  name: test_management_006
+  method: PUT
+  path: /exist/apps/fdsn-station/management/network?
+  query: code=IV&startDate=1988-01-01T00:00:00.000000Z
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: Change elements in IV network, with different format (.000000Z)
+  match: ''
+  action: PUT
+  file_name: INGV_NET_001.xml
+  file_dir: TEST/data/Fake
+  version: ''
+- group: test_management
+  index: '7'
+  name: test_management_007
+  method: PUT
+  path: /exist/apps/fdsn-station/management/network?
+  query: code=IV&startDate=1988-01-01T00:00:01.000000Z
+  expected_status: '204'
+  filename: ''
+  ctype: ''
+  comment: Cannot change elements in IV network mismatch in startDate
+  match: ''
+  action: PUT
+  file_name: INGV_NET_001.xml
+  file_dir: TEST/data/Fake
+  version: ''
+- group: test_management
+  index: '8'
+  name: test_management_008
+  method: PUT
+  path: /exist/apps/fdsn-station/management/network?
+  query: code=IV&startDate=1988-01-01T00:00:00.00000
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: Change elements in IV network, with different format (.00000)
+  match: ''
+  action: PUT
+  file_name: INGV_NET_001.xml
+  file_dir: TEST/data/Fake
+  version: ''
+- group: test_management
+  index: '9'
+  name: test_management_009
+  method: PUT
+  path: /exist/apps/fdsn-station/management/network?
+  query: code=IV&startDate=1988-01-01T00:00:00.001000Z
+  expected_status: '204'
+  filename: ''
+  ctype: ''
+  comment: Change elements in IV network, with different format (.0001000Z) and mismatch
+  match: ''
+  action: PUT
+  file_name: INGV_NET_001.xml
+  file_dir: TEST/data/Fake
+  version: ''
+- group: test_management
+  index: '10'
+  name: test_management_010
+  method: PUT
+  path: /exist/apps/fdsn-station/management/network?
+  query: code=IV&startDate=1988-01-01T00:00:00.000100Z
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: Change elements in IV network, with different format (.000100Z) unable
+    to view under millisecond, sorry
+  match: ''
+  action: PUT
+  file_name: INGV_NET_001.xml
+  file_dir: TEST/data/Fake
+  version: ''
+- group: test_management
+  index: '11'
+  name: test_management_011
+  method: GET
+  path: /query
+  query: format=xml&net=IV&level=network
+  expected_status: '200'
+  filename: test_management_011.xml.golden
+  ctype: xml
+  comment: Look for changed elements in IV network
+  match: ''
+  action: GETXML
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '12'
+  name: test_management_012
+  method: GET
+  path: /query
+  query: format=text&net=Z3&includerestricted=false
+  expected_status: '200'
+  filename: test_management_012.txt.golden
+  ctype: txt
+  comment: Verifying restrictedStatus for A319A
+  match: ''
+  action: GETTEXT
+  file_name: INGV_NET_003.xml
+  file_dir: TEST/data/Fake
+  version: ''
+- group: test_management
+  index: '13'
+  name: test_management_013
+  method: PUT
+  path: /exist/apps/fdsn-station/management/network?
+  query: code=Z3&startDate=2015-01-01T00:00:00
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: Opening restrictedStatus previously closed
+  match: ''
+  action: PUT
+  file_name: INGV_NET_003.xml
+  file_dir: TEST/data/Fake
+  version: ''
+- group: test_management
+  index: '14'
+  name: test_management_014
+  method: GET
+  path: /query
+  query: format=text&net=Z3&includerestricted=false
+  expected_status: '200'
+  filename: test_management_014.txt.golden
+  ctype: txt
+  comment: Verifying restrictedStatus for A319A after opening with test 13
+  match: ''
+  action: GETTEXT
+  file_name: INGV_NET_003.xml
+  file_dir: TEST/data/Fake
+  version: ''
+- group: test_management
+  index: '15'
+  name: test_management_015
+  method: PUT
+  path: /exist/apps/fdsn-station/management/network?
+  query: code=Z3&startDate=2015-01-01T00:00:00
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: Moving StartDate
+  match: ''
+  action: PUT
+  file_name: INGV_NET_004.xml
+  file_dir: TEST/data/Fake
+  version: ''
+- group: test_management
+  index: '16'
+  name: test_management_016
+  method: GET
+  path: /query
+  query: format=text&net=Z3&includerestricted=false
+  expected_status: '200'
+  filename: test_management_016.txt.golden
+  ctype: txt
+  comment: Verifying restrictedStatus for A319A after moving date and closing
+  match: ''
+  action: GETTEXT
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '17'
+  name: test_management_017
+  method: GET
+  path: /query
+  query: level=network&net=Z3&format=text&includerestricted=true
+  expected_status: '200'
+  filename: test_management_017.txt.golden
+  ctype: txt
+  comment: Verifying moved date
+  match: ''
+  action: GETTEXT
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '18'
+  name: test_management_018
+  method: PUT
+  path: /exist/apps/fdsn-station/management/network?
+  query: code=Z3&startDate=2014-12-31T00:00:00
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: Back to 2015 and open restrictedStatus
+  match: ''
+  action: PUT
+  file_name: INGV_NET_003.xml
+  file_dir: TEST/data/Fake
+  version: ''
+- group: test_management
+  index: '19'
+  name: test_management_019
+  method: GET
+  path: /query
+  query: level=network&net=Z3&format=text
+  expected_status: '200'
+  filename: test_management_019.txt.golden
+  ctype: txt
+  comment: Verifying moved date again after test 18
+  match: ''
+  action: GETTEXT
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '20'
+  name: test_management_020
+  method: GET
+  path: /query
+  query: format=text&net=Z3&includerestricted=false
+  expected_status: '200'
+  filename: test_management_020.txt.golden
+  ctype: txt
+  comment: Verifying restrictedStatus previously closed
+  match: ''
+  action: GETTEXT
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '21'
+  name: test_management_021
+  method: PUT
+  path: /exist/apps/fdsn-station/management/network?
+  query: code=IV&startDate=1988-01-01T00:00:00
+  expected_status: '200'
+  filename: ''
+  ctype: ''
+  comment: Close an open network
+  match: ''
+  action: PUT
+  file_name: test_management_021.xml.golden
+  file_dir: TEST/expected/
+  version: ''
+- group: test_management
+  index: '22'
+  name: test_management_022
+  method: GET
+  path: /query
+  query: level=network&net=IV&format=text
+  expected_status: '200'
+  filename: test_management_022.txt.golden
+  ctype: txt
+  comment: Verifying moved date again after test 18
+  match: ''
+  action: GETTEXT
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '25'
+  name: test_management_025
+  method: GET
+  path: /management/database/cache_clean
+  query: ''
+  expected_status: '405'
+  filename: '' #No golden
+  ctype: txt
+  comment: Fails cache rebuild
+  match: ''
+  action: GET
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '26'
+  name: test_management_026
+  method: GET
+  path: /management/database/fix
+  query: ''
+  expected_status: '405'
+  filename: '' #No golden
+  ctype: txt
+  comment: Fail fix database collections
+  match: ''
+  action: GET
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '27'
+  name: test_management_027
+  method: GET
+  path: /management/database/touch
+  query: ''
+  expected_status: '405'
+  filename: '' #No golden
+  ctype: txt
+  comment: Fail touch creation dates
+  match: ''
+  action: GET
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '28'
+  name: test_management_028
+  method: GET
+  path: /management/database/change_date_format
+  query: ''
+  expected_status: '405'
+  filename: '' #No golden
+  ctype: txt
+  comment: Fails change date format (TZ settings)
+  match: ''
+  action: GET
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '29'
+  name: test_management_029
+  method: GET
+  path: /management/database/purge
+  query: ''
+  expected_status: '405'
+  filename: '' #No golden
+  ctype: txt
+  comment: Fails purge the database content
+  match: ''
+  action: GET
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '30'
+  name: test_management_030
+  method: POST
+  path: /management/database/cache_clean
+  query: ''
+  expected_status: '200'
+  filename: '' #No golden
+  ctype: txt
+  comment: Rebuild cache
+  match: ''
+  action: POST
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '31'
+  name: test_management_031
+  method: POST
+  path: /management/database/fix
+  query: ''
+  expected_status: '200'
+  filename: '' #No golden
+  ctype: txt
+  comment: Fix database collections
+  match: ''
+  action: POST
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '32'
+  name: test_management_032
+  method: POST
+  path: /management/database/touch
+  query: ''
+  expected_status: '200'
+  filename: '' #No golden
+  ctype: txt
+  comment: Touch creation dates
+  match: ''
+  action: POST
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '33'
+  name: test_management_033
+  method: POST
+  path: /management/database/change_date_format
+  query: ''
+  expected_status: '200'
+  filename: '' #No golden
+  ctype: txt
+  comment: Change date format (TZ settings)
+  match: ''
+  action: POST
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '34'
+  name: test_management_034
+  method: GET
+  path: /query
+  query: 'net=IV&level=station&sta=AC*&format=text'
+  expected_status: '200'
+  filename: 'testdatapost_002.txt.golden'
+  ctype: txt
+  comment: Check format change
+  match: ''
+  action: GET
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '35'
+  name: test_management_035
+  method: DELETE
+  path: /management/database/purge
+  query: ''
+  expected_status: '200'
+  filename: '' #No golden
+  ctype: txt
+  comment: Purge the database content
+  match: ''
+  action: DELETE
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: test_management
+  index: '36'
+  name: test_management_036
+  method: GET
+  path: /query
+  query: 'net=*&level=station&nodata=404'
+  expected_status: '404'
+  filename: '' #No golden
+  ctype: txt
+  comment: Check empty database content
+  match: ''
+  action: GET
+  file_name: ''
+  file_dir: ''
+  version: ''
+# ===== Settings API =====
+- group: testsettings
+  index: '0'
+  name: testsettings_000_reset_all
+  method: PUT
+  path: /management/settings
+  query: ''
+  expected_status: '200'
+  filename: testsettings_000.json.golden
+  ctype: json
+  comment: PUT full settings (reset to defaults)
+  match: ''
+  action: PUT
+  file_name: settings_put_defaults.json
+  file_dir: TEST/data/Settings/
+  version: ''
+- group: testsettings
+  index: '1'
+  name: testsettings_001_get_all
+  method: GET
+  path: /management/settings
+  query: ''
+  expected_status: '200'
+  filename: testsettings_001.json.golden
+  ctype: json
+  comment: GET full settings after reset
+  match: ''
+  action: GET
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testsettings
+  index: '2'
+  name: testsettings_002_keys
+  method: GET
+  path: /management/settings/keys
+  query: ''
+  expected_status: '200'
+  filename: ''            # no golden: order of keys may vary
+  ctype: json
+  comment: GET list of setting keys (order not guaranteed)
+  match: ''
+  action: GET
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testsettings
+  index: '3'
+  name: testsettings_003_get_strip_zero
+  method: GET
+  path: /management/settings/strip_zero
+  query: ''
+  expected_status: '200'
+  filename: testsettings_003.json.golden
+  ctype: json
+  comment: GET single boolean key (default false)
+  match: ''
+  action: GET
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testsettings
+  index: '4'
+  name: testsettings_004_put_strip_zero_true
+  method: PUT
+  path: /management/settings/strip_zero
+  query: ''
+  expected_status: '200'
+  filename: testsettings_004.json.golden
+  ctype: json
+  comment: PUT single boolean key -> true; API returns full settings doc
+  match: ''
+  action: PUT
+  file_name: settings_bool_true.json
+  file_dir: TEST/data/Settings/
+  version: ''
+- group: testsettings
+  index: '5'
+  name: testsettings_005_get_strip_zero_true
+  method: GET
+  path: /management/settings/strip_zero
+  query: ''
+  expected_status: '200'
+  filename: testsettings_005.json.golden
+  ctype: json
+  comment: GET single boolean key now true
+  match: ''
+  action: GET
+  file_name: ''
+  file_dir: ''
+  version: ''
+- group: testsettings
+  index: '6'
+  name: testsettings_006_put_post_limit_rows_500
+  method: PUT
+  path: /management/settings/post_limit_rows
+  query: ''
+  expected_status: '200'
+  filename: testsettings_006.json.golden
+  ctype: json
+  comment: PUT single integer key -> 500; API returns full settings doc
+  match: ''
+  action: PUT
+  file_name: settings_int_500.json
+  file_dir: TEST/data/Settings/
+  version: ''
+- group: testsettings
+  index: '7'
+  name: testsettings_007_get_post_limit_rows_500
+  method: GET
+  path: /management/settings/post_limit_rows
+  query: ''
+  expected_status: '200'
+  filename: testsettings_007.json.golden
+  ctype: json
+  comment: GET single integer key now 500
+  match: ''
+  action: GET
+  file_name: ''
+  file_dir: ''
+  version: ''

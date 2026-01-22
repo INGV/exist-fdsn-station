@@ -159,7 +159,7 @@ will fail installation otherwise.
 
 ## Station Database maintenance
 The application interface exposes some basic database maintenance
-operation through the "Manage" page.
+operation through the "Manage" page. More are exposed by the API.
 
 ### Purge the database
 A dummy station is contained in the fdsn-station-data package, it is necessary to remove it
@@ -188,7 +188,18 @@ This function permits to update all modification time of all documents
 in the database at the same time. Use it whenever you want to force all
 your data to a given update time.
 
-### Log verbosity
+
+### Change date format in database
+This feature  is available starting from 1.1.63.1 release. You can change the format 
+of dates in the stationXML files and query results. The format is defined by the two
+configuration settings remove_tz and strip_zero. After changing that settings the application 
+of the configuration is valid for new data entered into the database. To apply it also to
+data already in the database you need to perform this operation clicking on the change
+button. Depending on data size the operation could require some time to complete.
+
+### Configuration
+
+#### Log verbosity
 
 To change the logs verbosity of the application you must check one or
 more desired levels, then click apply. Changes are applied immediately,
@@ -199,6 +210,15 @@ starting from the next query to the service.
 -   Enable debug: enable logging of internal calls of the application,
     use it only when trying to debug the software.
 -   Enable query: enables GET and POST query logs by the service.
+
+#### Datetime configuration
+
+- remove_tz remove the Z indicator of the UTC timezone from all the datetimes during ingestion of 
+  station files
+- strip-zero remove unnecessary leading zeroes in the fractional part of seconds in datetimes.
+
+
+
 
 #### Where are my logs?
 
@@ -271,18 +291,6 @@ network code:
 $ curl -v -X DELETE "http://127.0.0.1:80/fdsnws/station/1/query?provider=INGV&net=*" -u fdsn:fdsn
 ```
 
-For a complete reference of the extension of the API implemented in
-exist-fdsn-station see Table 1.
-
-|        |                |                  |                                                                             |
-|--------|----------------|------------------|-----------------------------------------------------------------------------|
-| Method | Parameter      | Header           | Description                                                                 |
-| PUT    | None requested | filename         | Add a station to the database. <br/>The filename of the stationXML passed is in the format PROVIDER_STATIONCODE.xml|
-| DELETE | None requested | filename         | Delete a   station, the name of the stationXML to be removed is  passed in the format PROVIDER_STATIONCODE.xml |
-| DELETE | provider       | None requested   | Provider of the  stations to be removed, as per the prefix of the station file previously inserted.|
-| DELETE | net    | None requested | Select one network code to delete all stations of the network of the  given provider., '*'  to delete all stations of the given provider. |
-
-Table 1: fdsnws/station API extension provided.
 
 ### Network management 
 
@@ -295,20 +303,37 @@ Description, Identifier, Comment and Operator.
 Elements like Station, TotalNumberStation and SelectedNumberStation will be ignored if present in the 
 passed file.
 
-The entry point to use is: fdsnws/station/1/management/network
-
-|         |                 |                  |                                                                                                                                                                         |
-|---------|-----------------|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Method  | Parameter       | Header           | Description                                                                                                                                                             |
-| PUT    | code, startDate | None requested    | Modify the network of the given code and corresponding startDate. <br/>The input StationXML file with the network element to update must be passed in the request body. |
-
-Table 2: network management entry point and syntax
-
 Example of use, the new network data is in the IV_FIX.xml file:
 ```
 curl -X PUT "http://127.0.0.1/fdsnws/station/1/management/network/?code=IV&startDate=1988-01-01T00%3A00%3A00"
 -H "accept: application/xml" -H "Content-Type:application/octet-stream" --data-binary @IV_FIX.xml -ufdsn:password
 ```
+
+## API extension
+
+For a complete reference of the extension of the API implemented in
+exist-fdsn-station see Table 1.
+
+|        |                                        |                 |                |                                                                                                                                                                         |
+|--------|----------------------------------------|-----------------|----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Method | Endpoint                               | Parameter       | Header         | Description                                                                                                                                                             |
+| PUT    | query                                  | None requested  | filename       | Add a station to the database. <br/>The filename of the stationXML passed is in the format PROVIDER_STATIONCODE.xml                                                     |
+| DELETE | query                                  | None requested  | filename       | Delete a   station, the name of the stationXML to be removed is  passed in the format PROVIDER_STATIONCODE.xml                                                          |
+| DELETE | query                                  | provider        | None requested | Provider of the  stations to be removed, as per the prefix of the station file previously inserted.                                                                     |
+| DELETE | query                                  | net             | None requested | Select one network code to delete all stations of the network of the  given provider., '*'  to delete all stations of the given provider.                               |
+| PUT    | management/network                     | code, startDate | None requested | Modify the network of the given code and corresponding startDate. <br/>The input StationXML file with the network element to update must be passed in the request body. |
+| DELETE | management/database/purge              | None requested  | None requested | Empties collections content                                                                                                                                             |
+| POST   | management/database/cache_clean        | None requested  | None requested | Rebuild after re-scan collections content                                                                                                                               |
+| POST   | management/database/fix                | None requested  | None requested | Attempt to fix database collections. May affect 'updatedafter' semantics.                                                                                               |
+| POST   | management/database/touch              | None requested  | None requested | Reset creation dates to the current server time                                                                                                                         |
+| POST   | management/database/change_date_format | None requested  | None requested | Normalize stored date strings according to current 'remove_tz' and 'strip_zero' settings.                                                                               |
+| GET    | management/settings                    | None requested  | None requested | Get current settings                                                                                                                                                    |
+| PUT    | management/settings                    | None requested  | None requested | Load the request body JSON settings file                                                                                                                                |
+| GET    | management/settings/{key}              | key             | None requested | Retrieve the corresponding settings value                                                                                                                               |
+| PUT    | management/settings/{key}              | key=value       | None requested | Set the key setting to value                                                                                                                                            |
+
+
+Table 1: fdsnws/station API extension provided.
 
 **The restricted status**
 
@@ -323,7 +348,7 @@ You need to set it to true, if you want to enable this transition, otherwise the
 
 Just after station loading, querying your service will start to give
 some meaningful results. The entry points differ depending on the server
-you interrogate, see Table 3 for reference.
+you interrogate, see Table 2 for reference.
 
 |     |     |
 |-----|-----|

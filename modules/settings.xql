@@ -10,6 +10,8 @@ declare option exist:serialize "method=xhtml media-type=text/html indent=yes";
 let $enable_log      := if (request:get-parameter("enable_log","off") = "on") then true() else false()
 let $enable_debug    := if (request:get-parameter("enable_debug","off") = "on") then true() else false()
 let $enable_query_log:= if (request:get-parameter("enable_query_log","off") = "on") then true() else false()
+let $remove_tz := if (request:get-parameter("remove_tz","off") = "on") then true() else false()
+let $strip_zero := if (request:get-parameter("strip_zero","off") = "on") then true() else false()
 
 (:let $log:=util:log("info","New setting applied"):)
 (:Reading from JSON file declares the map :)
@@ -30,7 +32,9 @@ let $settings := json-doc("/db/apps/fdsn-station/config/settings.json")
 let $passed:= map {
     "enable_log": $enable_log,
     "enable_debug": $enable_debug,
-    "enable_query_log": $enable_query_log
+    "enable_query_log": $enable_query_log,
+    "remove_tz" : $remove_tz,
+    "strip_zero" : $strip_zero
 }
 
 let $new_settings:=map:merge( ($settings,$passed))
