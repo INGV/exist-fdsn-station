@@ -406,22 +406,21 @@ as xs:string
 
 
 (:~
- :  Adjust datetime strings to fdsn standard format YYYY-MM-DDThh:mm:ss.d or YYYY-MM-DDThh:mm:ss
+ :  Adjust datetime strings to fdsn standard format YYYY-MM-DDThh:mm:ss.d or YYYY-MM-DDThh:mm:ss preserving timezone coherency
  :)
-declare function stationutil:time_adjust( $mydatetime as xs:string ) as xs:string {
-
-
-    if ((matches($mydatetime,"..-..-..T..:..:..*"))) then
-        if ((matches($mydatetime,"..-..-..T..:..:...000000Z"))) then
-            functx:substring-before-if-contains($mydatetime,'.000000Z')
-        else
-            $mydatetime
-    else
-        if (matches($mydatetime,"..-..-..")) then
-            $mydatetime||"T"||"00:00:00"
-        else
-            ""
+declare function stationutil:time_adjust($mydatetime as xs:string) as xs:string {
+  let $ret0 :=
+    if (matches($mydatetime, "..-..-..T..:..:..")) then $mydatetime
+    else if (matches($mydatetime, "..-..-..")) then concat($mydatetime, "T00:00:00")
+    else ""
+  let $ret1 :=
+    if ($stationutil:settings("strip_zero")) then
+      let $s1 := replace($ret0, "(\.\d*[1-9])0+(Z|[+\-]\d{2}:\d{2})?$", "$1$2")
+      return      replace($s1,  "\.0+(Z|[+\-]\d{2}:\d{2})?$",           "$1")
+    else $ret0
+  return stationutil:toggle-z($ret1, not($stationutil:settings("remove_tz")))
 };
+
 
 
 
@@ -1790,6 +1789,21 @@ Syntax Error in Request"
 
 };
 
+declare function stationutil:method-not-allowed_error( $allowed-methods as item()*) as item()* {
+  let $allow-header :=
+    if (count($allowed-methods) = 1)
+    then string($allowed-methods)
+    else string-join($allowed-methods, ", ")
+  return (
+    response:set-status-code(405),
+    response:set-header("Allow", $allow-header),
+    response:set-header("Content-Type", "text/plain"),
+    util:declare-option("exist:serialize", "method=text media-type=text/plain"),
+    concat("Method Not Allowed. Allowed method(s): ", $allow-header)
+  )
+
+};
+
 declare function stationutil:get-parameter($k as xs:string) as xs:string
 {
       if ( empty($stationutil:parameter_list($k))  ) then  "" || $k  else  $stationutil:parameter_list($k)
@@ -2295,8 +2309,15 @@ if (not(empty($content))) then
             else
                 <ModuleURI>{request:get-uri()}?{request:get-query-string() }</ModuleURI>
 (: Modificato per togliere i doppi apici per json        <ModuleURI>{request:get-uri()}?{request:get-query-string() }</ModuleURI>:)
+
+(:TODO:)
+            ,
+            if ($stationutil:settings("remove_tz"))
+            then
+                <Created>{format-dateTime(current-dateTime(), "[Y0001]-[M01]-[D01]T[H01]:[m01]:[s01].[f]")}</Created>
+            else
+                <Created>{format-dateTime(current-dateTime(), "[Y0001]-[M01]-[D01]T[H01]:[m01]:[s01].[f]Z")}</Created>
 }
-<Created>{format-dateTime(current-dateTime(), "[Y0001]-[M01]-[D01]T[H01]:[m01]:[s01].[f]")}</Created>
 {$content}
 </FDSNStationXML>
 else
@@ -3990,7 +4011,7 @@ declare function stationutil:query_core_virtual_network_POST($NSLCSE as map()*, 
 (:                    stationutil:check_radius($condition, $lat,$lon) and:)
                     stationutil:check_restricted($condition,$channelrestrictedStatus) and
                     stationutil:constraints_onchannel( $condition, $CreationDate, $TerminationDate )
-                    group by $channel
+(:                    group by $channel:)
                 return
                          $channel
         where
@@ -4227,7 +4248,7 @@ declare function stationutil:query_core_POST($NSLCSE as map()*, $level as xs:str
 (:                    stationutil:check_radius($condition, $lat,$lon) and:)
                     stationutil:check_restricted($condition,$channelrestrictedStatus) and
                     stationutil:constraints_onchannel( $condition, $CreationDate, $TerminationDate )
-                    group by $channel
+(:                    group by $channel:)
                 return
                          $channel
         where
@@ -4458,7 +4479,7 @@ declare function stationutil:query_core_channel_POST($NSLCSE as map()*, $level a
 (:                    stationutil:check_radius($condition, $lat,$lon) and:)
                     stationutil:check_restricted($condition,$channelrestrictedStatus) and
                     stationutil:constraints_onchannel( $condition, $CreationDate, $TerminationDate )
-                    group by $channel
+(:                    group by $channel:)
                 return
                          $channel
         where
@@ -5254,50 +5275,78 @@ declare function  stationutil:units_1.2($element as element()) as element() {
       }
 };
 
-(:mimics functx:remove-attributes-deep:)
+
+(: Toggle only the trailing Z; preserve fractional seconds exactly :)
+declare function stationutil:toggle-z(
+  $lexical as xs:string,
+  $want-z  as xs:boolean
+) as xs:string {
+  let $no-tz := replace($lexical, '(Z|[+\-]\d{2}:\d{2})$', '')
+  return if ($want-z) then concat($no-tz, 'Z') else $no-tz
+};
+
+(: helper: remove trailing zeroes in fractional seconds; keep non-zero digits :)
+declare function stationutil:strip-trailing-fraction-zeros($s as xs:string) as xs:string {
+  let $s1 := replace($s, '(\.\d*[1-9])0+(Z|[+\-]\d{2}:\d{2})?$', '$1$2')
+  return        replace($s1,'\.0+(Z|[+\-]\d{2}:\d{2})?$',           '$1')
+};
+
+(: Decide Z mode from duration:
+   () -> no TZ ; PT0S -> Z :)
 declare function stationutil:change-dates-deep
-  ( $nodes as node()* ,
-    $names as xs:string* )  as node()* {
+  ( $nodes    as node()*,
+    $names    as xs:string*,
+    $duration as xs:dayTimeDuration? )  as node()* {
 
-   for $node in $nodes
-   return if ($node instance of element())
-          then  element { node-name($node)}
-                {
-                    (:RAN    css30:netType nor a valid attribute name           :)
-                    try {
-(:                    let $log:= if (matches(node-name($node), "Network")) then util:log("info", "Examining " || node-name($node)) else ():)
-                    for $attribute in $node/@*
-(:                    let $log:=util:log("info", "Examining " || name($attribute) || " " || string($attribute)):)
-                    let $found-attribute-name := name($attribute)
-                    let $found-attribute-value := string($attribute)
-                    return
-                       if ($found-attribute-name = $names )
-                       then attribute {$found-attribute-name} { fn:adjust-dateTime-to-timezone(xs:dateTime($found-attribute-value),())}
-                       else attribute {$found-attribute-name} {$found-attribute-value}
-                    }
-                    catch err:* {
-                        $node/@*
-                    }
-                    ,  stationutil:change-dates-deep($node/node(), $names)
+  let $want-z := exists($duration) and $duration = xs:dayTimeDuration('PT0S')
+  for $node in $nodes
+  return
+    typeswitch($node)
+      case element() return
+        let $is-target-elem := name($node) = $names
+        return element { node-name($node) } {
+          (: attributes :)
+          for $attribute in $node/@*
+          let $attr-name  := name($attribute)
+          let $attr-value := string($attribute)
+          let $lex := if ($stationutil:settings("strip_zero"))
+                      then stationutil:strip-trailing-fraction-zeros($attr-value)
+                      else $attr-value
+          return
+            if ($attr-name = $names and $attr-value castable as xs:dateTime)
+            then attribute { $attr-name } { stationutil:toggle-z($lex, $want-z) }
+            else $attribute,
 
-                }
-          else if ($node instance of document-node())
-          then stationutil:change-dates-deep($node/node(), $names)
-          else $node
- } ;
+          (: children :)
+          for $c in $node/node()
+          return
+            if ($is-target-elem and $c instance of text()) then
+              let $val := string($c)
+              let $lex := if ($stationutil:settings("strip_zero"))
+                          then stationutil:strip-trailing-fraction-zeros($val)
+                          else $val
+              return
+                if ($val castable as xs:dateTime)
+                then text { stationutil:toggle-z($lex, $want-z) }
+                else $c
+            else stationutil:change-dates-deep($c, $names, $duration)
+        }
+      case document-node() return
+        document { stationutil:change-dates-deep($node/node(), $names, $duration) }
+      default return $node
+};
 
 
 
 declare function stationutil:put()
 {
 try {
-(:    let $o:=util:declare-option("exist:serialize","method=xml indent=no"):)
     (:Explicitly passed the filename in a custom http header  :)
     let $filename := request:get-header('filename')
     let $lock := request:get-header('lockseconds')
     let $lock_seconds:=if (empty($lock)) then "" else $lock
     let $log:=util:log("info", "Request to insert " || $filename || " lock_seconds:" || $lock_seconds)
-
+    let $attributes_list := ("startDate","endDate", "Created", "CreationDate", "TerminationDate", "InstallationDate", "RemovalDate", "CalibrationDate", "BeginEffectiveTime", "EndEffectiveTime", "start", "end" )
     let $decoded :=
     if ($stationutil:settings("translate_units")) then
         let $content := request:get-data()
@@ -5308,12 +5357,12 @@ try {
 
     return
         if($stationutil:settings("remove_tz")) then
-(:            let $log:=util:log("info", "Before serialize " || $filename) return:)
-(:            fn:serialize(stationutil:change-dates-deep($modified_xml,("startDate","endDate")), $o):)
-            fn:serialize(stationutil:change-dates-deep($modified_xml,("startDate","endDate")))
+(:            let $log:=util:log("info", "Before serialize true" || $filename) return:)
+            fn:serialize(stationutil:change-dates-deep($modified_xml,$attributes_list, ()))
         else
-(:            fn:serialize($modified_xml, $o ):)
-            fn:serialize($modified_xml)
+(:            let $log:=util:log("info", "Before serialize false" || $filename) return:)
+            fn:serialize(stationutil:change-dates-deep($modified_xml,$attributes_list, xs:duration('PT0H')))
+
 
 (: TODO END :)
     else
@@ -5390,57 +5439,111 @@ declare function stationutil:check-validity_or_skip($station){
   if ($stationutil:settings("enable_check_validity")) then stationutil:check-validity($station) else true()
 };
 
-(: Look for duplicate networks with same code and startDate but different other attributes or elements :)
-declare function stationutil:check-validity($station){
+(:
+ : Look for intervals of networks overlapping.
+ : If no overlap exists station could enter the collection
+ : If station has exactly the same interval already existing, it could enter the collection
+ : Otherwise the station is not valid - belong to a not valid network. :)
+
+declare function stationutil:check-validity($station) {
   let $log := stationutil:log("info", "check-validity")
-  for $net in  $station//Network
-      (: Eliminate not unique elements :)
-      let $netpruned := stationutil:remove-multi($net,("Station","TotalNumberStations","SelectedNumberStations",'restrictedStatus'))
-      let $netpruned := functx:remove-attributes($netpruned, ('restrictedStatus'))
-      (: TODO fix the remove-multi , remove-attributes if possible:)
+  for $net in $station//Network
+  (: Eliminate not unique elements :)
+  let $netpruned := stationutil:remove-multi(
+                      $net,
+                      ("Station","TotalNumberStations","SelectedNumberStations","restrictedStatus")
+                    )
+  let $netpruned := functx:remove-attributes($netpruned, ('restrictedStatus'))
 
-(:      let $log := stationutil:log("info", "netpruned:"|| string-join($netpruned)):)
+  let $netprunedcode := $netpruned/@code
+  let $netprunedstartDate := $netpruned/@startDate
+  let $netprunedendDate := if (exists($netpruned/@endDate)) then $netpruned/@endDate else ()
 
-      let $netprunedcode := $netpruned/@code
-      let $netprunedstartDate := $netpruned/@startDate
+  (: take netcache correspondent with same start :)
+  let $n-cached :=
+        doc($stationutil:netcache_collection || "/net.xml")
+        //Network[@code = $netprunedcode][@startDate = $netprunedstartDate]
+  (: take netcache correspondent with same code :)
+  let $omonym :=
+        doc($stationutil:netcache_collection || "/net.xml")
+        //Network[@code = $netprunedcode]
+  let $omonymstartDate := $omonym/@startDate
+  let $omonymendDate := $omonym/@endDate
 
-      (: take netcache correspondent :)
-      let $n-cached := doc($stationutil:netcache_collection||"/net.xml")//Network[@code=$netprunedcode][@startDate=$netprunedstartDate]
-(:      let $log := stationutil:log("info", "n-cached:"|| string-join($n-cached)):)
+  let $net-in-cache := stationutil:remove-multi(
+                          $n-cached,
+                          ("Station","TotalNumberStations","SelectedNumberStations","restrictedStatus")
+                       )
+  let $net-in-cache := functx:remove-attributes($net-in-cache, ('restrictedStatus'))
+  let $log := stationutil:log("info", "net-in-cache:" || fn:normalize-space(string-join($net-in-cache)))
 
+  let $is_valid := functx:sequence-deep-equal($netpruned, $net-in-cache)
+  let $output := if ($is_valid) then "valid" else "Not valid"
 
-      let $net-in-cache := stationutil:remove-multi($n-cached,("Station","TotalNumberStations","SelectedNumberStations",'restrictedStatus'))
+  let $s3 := fn:normalize-space(functx:trim(string-join($net-in-cache/*)))
+  let $s4 := fn:normalize-space(functx:trim(string-join($netpruned/*)))
 
-      let $net-in-cache := functx:remove-attributes($net-in-cache, ('restrictedStatus'))
-      let $log := stationutil:log("info", "net-in-cache:"|| fn:normalize-space(string-join($net-in-cache)))
+  let $same := if ($s3 = $s4) then "same" else "diverse"
+  (: added count check to take care of empty elements  :)
+  let $same_network_corresponds :=empty($n-cached) or (($is_valid) or ($same = 'same')) and (count($netpruned/*) = count($net-in-cache/*))
 
-(:      let $is_valid := functx:is-node-in-sequence-deep-equal( $netpruned , $net-in-cache )  :)
-      let $is_valid := functx:sequence-deep-equal( $netpruned , $net-in-cache )
-      let $output := if ($is_valid) then "valid" else "Not valid"
+  (: ======================= DATE INTERVAL NON-OVERLAP CHECK ======================= :)
 
-(:      let $c1:=count($net-in-cache/@*):)
-(:      let $c2:=count($netpruned/@*):)
-(:      let $c3:=count($net-in-cache/*):)
-(:      let $c4:=count($netpruned/*):)
+  let $S1 := data($netprunedstartDate)          (: xs:dateTime :)
+  let $E1 := if ($netprunedendDate) then data($netprunedendDate) else ()  (: xs:dateTime? :)
 
-(:      let $s1:=fn:normalize-space(functx:trim(string-join($net-in-cache/@*))):)
-(:      let $s2:=fn:normalize-space(functx:trim(string-join($netpruned/@*))):)
-      let $s3:=fn:normalize-space(functx:trim(string-join($net-in-cache/*)))
-      let $s4:=fn:normalize-space(functx:trim(string-join($netpruned/*)))
-(:      let $s5:=fn:normalize-space(functx:trim(string-join($net-in-cache))):)
-(:      let $s6:=fn:normalize-space(functx:trim(string-join($netpruned))):)
+  (: Other homonymous networks (exclude the exact same interval) :)
+  let $others :=
+        $omonym[
+          not(@startDate = $netprunedstartDate) or
 
+          (exists(@endDate) and exists($netprunedendDate) and @endDate ne $netprunedendDate)
+        ]
 
-(:      let $log := stationutil:log("info", "Pruned:"|| functx:trim(string-join($netpruned))):)
-(:      let $log := stationutil:log("info", "Cache :"|| fn:normalize-space(functx:trim(string-join($net-in-cache)))):)
+  (: Overlap predicate per requirements:
+       - Exact matches are NON-overlap
+       - Overlap only if there is interior intersection (strict inequalities)
+       - Touching endpoints (E1 = S2 or E2 = S1) are NON-overlap
+       - If either interval is open-ended is overlap
+   :)
+  let $overlaps :=
+        function($aS as xs:dateTime,
+                 $aE as xs:dateTime?,
+                 $bS as xs:dateTime,
+                 $bE as xs:dateTime?) as xs:boolean {
+          if ( $aS eq $bS and (
+                 (empty($aE) and empty($bE)) or
+                 (exists($aE) and exists($bE) and $aE eq $bE)
+               ) )
+          then false() (: Same interval, it is not a bad case :)
+          else if (exists($aE) and exists($bE)) then  (: two closed intervals :)
+            ($aS lt $bE) and ($bS lt $aE)    (: strict → touching is non-overlap :)
+          (: treat open–open with different starts as overlap :)
+            else if (empty($aE) and empty($bE)) then (: two open intervals :)
+                not($aS eq $bS)          (: same start = exact match → non-overlap; otherwise overlap :)
+          else if (empty($aE) ) then (: only one open interval :)
+            $bE ge $aS
+          else if (empty($bE) ) then (: only one open interval :)
+            $aE ge $bS
+          else
+            false()
+        }
 
-      let $same:=if ($s3=$s4) then "same" else "diverse"
+  let $no_overlap :=
+        every $n in $others satisfies
+          let $S2 := data($n/@startDate)
+          let $E2 := if ($n/@endDate) then data($n/@endDate) else ()
+          return not($overlaps($S1, $E1, $S2, $E2))
+  (: ===================== END DATE INTERVAL NON-OVERLAP CHECK ===================== :)
 
-(:      let $log := stationutil:log("info", "Elements in netcache: " || $c1 || ":" || $c2 || ":" || $c3 || ":" || $c4 || ":" || $s1 || ":" || $s2 || ":" || $s3 || ":" || $s4 || ":"|| $s5 || ":" || $s6 || ":" || $output || ":" || count($net/*) || ":" || count($n-cached/*) || ":" || $same ):)
-    return if (($is_valid) or empty($n-cached) or $same='same' ) then true() else fn:error(fn:QName('http://exist-db.org/apps/fdsn-station/modules/stationutil', 'err:001'), 'Refusing to insert station to avoid duplicate network')
-
+  return
+    if ($same_network_corresponds and $no_overlap)
+    then true()
+    else fn:error(
+           fn:QName('http://exist-db.org/apps/fdsn-station/modules/stationutil', 'err:001'),
+           'Refusing to insert station to avoid duplicate/overlapping network'
+         )
 };
-
 
 declare function stationutil:real_put($decoded as xs:string, $filename as xs:string, $lock_seconds as xs:string){
 (:    let $s1:=stationutil:log("info", "real_put"):)
@@ -5468,7 +5571,7 @@ declare function stationutil:real_put($decoded as xs:string, $filename as xs:str
 (:        let $log:=stationutil:log("info", "Read in " || $filename || " net code: " || $stationindb//Network/@code[1] )  :)
 (: issue #133  check only when is already in the database, that fails with bad xml    :)
 (:        let $acceptable := if ($alreadyindb) then  stationutil:check-validity_or_skip($station) else ():)
-        let $acceptable := stationutil:check-validity_or_skip($station)
+        let $acceptable := every $b in stationutil:check-validity_or_skip($station) satisfies $b
 (:        let $oldnetcode := if ($alreadyindb) then $stationindb//Network/@code[1] else $netcode:)
 (:        let $store1:=xmldb:store($stationutil:station_collection, $filename, $decoded):)
 (:        let $store2:=xmldb:store($stationutil:station_pruned_collection, $filename, $pruned):)
@@ -5476,7 +5579,7 @@ declare function stationutil:real_put($decoded as xs:string, $filename as xs:str
 
         let $todo :=
         (
-            if (count($netcode)>1 or not(matches($oldnetcode,$netcode)) or not(matches($oldnetstartDate,$startDate))  )
+            if ( (count($netcode)>1 or not(matches($oldnetcode,$netcode)) or not(matches($oldnetstartDate,$startDate))) and $acceptable)
         then
             let $store1:=xmldb:store($stationutil:station_collection, $filename, $decoded)
             let $store2:=xmldb:store($stationutil:station_pruned_collection, $filename, $pruned)
@@ -5490,7 +5593,8 @@ declare function stationutil:real_put($decoded as xs:string, $filename as xs:str
             let $store1:=xmldb:store($stationutil:station_collection, $filename, $decoded)
             let $store2:=xmldb:store($stationutil:station_pruned_collection, $filename, $pruned)
             for $net in $netcode, $start in $startDate
-            let $net_in_cache := stationutil:netcache_exists($net,$station//Network[@code=$net]/@startDate,if (exists($station//Network[@code=$net]/@endDate)) then ($station//Network[@code=$net]/@endDate) else ())
+(:            let $net_in_cache := stationutil:netcache_exists($net,$station//Network[@code=$net]/@startDate,if (exists($station//Network[@code=$net]/@endDate)) then ($station//Network[@code=$net]/@endDate) else ()):)
+            let $net_in_cache := stationutil:netcache_exists($net,$station//Network[@code=$net]/@startDate)
             let $cached :=
                 if ( $net_in_cache and $alreadyindb and count($netcode)=1) then
                     (:before did nothing here, now must update info in cache for the station:)
@@ -5898,14 +6002,17 @@ declare function stationutil:netcache_get_common_station_args($code,$startDate,$
    doc($stationutil:netcache_collection||"/net.xml")//Network[@code=$netcode][@startDate=$netstartDate][(if (exists(@endDate) and exists($netendDate)) then @endDate=$netendDate else false()) or (if (not(exists(@endDate)) and not(exists($netendDate))) then true() else false()) ]/Station[@code=$code][@startDate=$startDate]/@*
 };
 
-declare function stationutil:netcache_exists($netcode as xs:string*, $startDate as xs:string*, $endDate as xs:string*) as xs:boolean{
+(:Return true if a matching network is in cache: can not find a similar network which only have a startDate match:)
+declare function stationutil:netcache_exists($netcode as xs:string*, $startDate as xs:string*) as xs:boolean{
+(:    declare function stationutil:netcache_exists($netcode as xs:string*, $startDate as xs:string*, $endDate as xs:string*) as xs:boolean{:)
   let $docavailable:=doc-available($stationutil:netcache_collection||"/net.xml")
   let $xml:= if ( $docavailable ) then doc($stationutil:netcache_collection||"/net.xml") else ()
   let $netfile := if ($xml=())
     then ()
     else
     (
-        for $network in $xml//Network[@code=$netcode][@startDate=$startDate][(if (exists(@endDate) and exists($endDate)) then @endDate=$endDate else false()) or (if (not(exists(@endDate)) and not(exists($endDate))) then true() else false()) ]
+(:        for $network in $xml//Network[@code=$netcode][@startDate=$startDate][(if (exists(@endDate) and exists($endDate)) then @endDate=$endDate else false()) or (if (not(exists(@endDate)) and not(exists($endDate))) then true() else false()) ]:)
+        for $network in $xml//Network[@code=$netcode][@startDate=$startDate]
             let $code:=$network/@code
         return string-join($code)
     )
@@ -5965,12 +6072,12 @@ declare function stationutil:fix_collections()  {
                 return ())
 
             let $cache_created := stationutil:netcache_create()
-            return ()
+            return true()
    }
     catch err:* {
           let $log := stationutil:log("error", "Fixing failed" )
           let $log:=util:log("error", "Caught error " || $err:code || " " || $err:description)
-          return ()
+          return false()
      }
 };
 
@@ -5998,18 +6105,19 @@ declare function stationutil:update_collections($code, $startDate)  {
 declare function stationutil:touch_collections()  {
    try {
 
-   let $fix_document:= (
+   let $fix_document:= sum(
        for $collection in ( $stationutil:station_collection, $stationutil:station_pruned_collection, $stationutil:netcache_collection)
        for $doc in collection($collection)
          let $filename :=util:document-name($doc)
          let $touched:=xmldb:touch($collection, $filename, fn:current-dateTime())
 (:         let $log:=util:log("info","Filename: " || $filename):)
-        return ())
-    return ()
+        return if ($touched) then 1 else 0
+   )
+    return ($fix_document>0)
    }
     catch err:* {
           let $log := stationutil:log("error", "Touching failed" )
-          return ()
+          return false()
      }
 };
 
@@ -6125,7 +6233,8 @@ try {
         let $store:=xmldb:store( $stationutil:netcache_collection,"net.xml",$netfile )
     (:    let $log:=stationutil:log("info", "Ending netcache_create_new"):)
         return $netfile
-    else ""
+    else
+        let $log:=stationutil:debug("info", "cache locked" ) return ""
 }
     catch err:* {
           let $log := stationutil:log("error", "Cache creating failed" )
@@ -6135,3 +6244,36 @@ try {
 
 
 };
+
+
+declare %private function stationutil:_rewrite_collection(
+  $coll,
+  $names as xs:string*,
+  $duration
+) {
+  for $doc in collection($coll)
+  let $filename := util:document-name($doc)
+  let $log1 := util:log("info", "Rewriting dates in " || $coll || $filename)
+  let $fixed := stationutil:change-dates-deep($doc, $names, $duration)
+  let $store := xmldb:store($coll, $filename, $fixed)  (: overwrite :)
+  return ()
+};
+
+(: Public: rewrite both collections; takes duration parameter :)
+declare function stationutil:rewrite_collections_change_dates() {
+  try {
+    let $duration :=  if ($stationutil:settings("remove_tz")) then () else xs:duration('PT0H')
+    let $names := ("startDate","endDate", "Created", "CreationDate", "TerminationDate", "InstallationDate", "RemovalDate", "CalibrationDate", "BeginEffectiveTime", "EndEffectiveTime", "start", "end" )
+    let $rewrite1 := stationutil:_rewrite_collection($stationutil:station_collection, $names, $duration)
+    let $rewrite2 := stationutil:_rewrite_collection($stationutil:station_pruned_collection, $names, $duration)
+    let $cache := stationutil:netcache_create()
+    return true()
+  }
+  catch err:* {
+    let $log0 := stationutil:log("error", "Rewrite (change dates) failed")
+    let $log1 := util:log("error", "Caught error " || $err:code || " " || $err:description)
+    return false()
+  }
+};
+
+
