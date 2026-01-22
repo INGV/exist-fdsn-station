@@ -26,7 +26,7 @@ else if ($exist:path = "/") then(
 (:
     restricted.html is secured by the following rules
 :)
-else if (ends-with($exist:path, "restricted.html") or ends-with($exist:path,".xql")) then (
+else if (ends-with($exist:path, "restricted.html") or ends-with($exist:path, "manage.html")  or ends-with($exist:path,".xql")) then (
         (: login:set-user creates a authenticated session for a user :)
         login:set-user("org.exist.login", (), true()),
 
@@ -40,8 +40,9 @@ else if (ends-with($exist:path, "restricted.html") or ends-with($exist:path,".xq
         let $userParam := request:get-parameter("user","")
 
         (: in case of a logout we get a request param 'logout' :)
-        let $logout := request:get-parameter("logout",())
-        (:let $result := if (not($userParam != data($user))) then "true" else "false":)
+        let $logout := request:get-parameter("logout",'false')
+(:        let $log:=util:log("info","Received logout parameter" || $logout ):)
+
 
         return
             (:
@@ -54,7 +55,7 @@ else if (ends-with($exist:path, "restricted.html") or ends-with($exist:path,".xq
                 When there is a logout request parameter we send the user back to the unrestricted page.
                 :)
                 <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
-                    <redirect url="index.html"/>
+                    <redirect url="index.html?logout=true"/>
                 </dispatch>
             )
             else if ($user and sm:is-dba($user)) then
@@ -218,7 +219,7 @@ else if ( $exist:path = "/fdsnws/station/1/" )  then (
         <forward url="{$exist:controller}/modules/document_index.xql" method="get"/>
     </dispatch>
 )
-  else if ( matches($exist:path ,"/management/network"))  then (
+  else if ( matches($exist:path ,"/management"))  then (
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
         <forward url="{$exist:controller}/modules/management.xql">
 <!--            <set-header name="Cache-Control" value="max-age=60, must-revalidate"/>-->
@@ -226,6 +227,7 @@ else if ( $exist:path = "/fdsnws/station/1/" )  then (
         </forward>
     </dispatch>
 )
+
 else if (ends-with($exist:resource, ".xml") ) then (
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
 <!--        <view> TODO REMOVE view_xml.xql-->
