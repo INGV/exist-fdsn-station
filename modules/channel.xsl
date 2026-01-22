@@ -32,40 +32,16 @@
     </xsl:apply-templates>
 </xsl:template>
 
-
-<!--  <Response>-->
-<!--                    <InstrumentSensitivity>-->
-<!-- Scale                          <Value>251652000</Value>-->
-<!-- ScaleFrequency                 <Frequency>10</Frequency>-->
-
 <xsl:template match="x:Channel">
-    <xsl:value-of select="../../@code"/>
-    <xsl:text>|</xsl:text>
-    <xsl:value-of select="../@code"/>
-    <xsl:text>|</xsl:text>
-    <xsl:value-of select="@locationCode"/>
-    <xsl:value-of select="concat('|', @code, '|'  )"/>
-    <xsl:value-of select="x:Latitude"/>
-    <xsl:text>|</xsl:text>
-    <xsl:value-of select="x:Longitude"/>
-    <xsl:text>|</xsl:text>
-    <xsl:value-of select="x:Elevation"/>
-    <xsl:text>|</xsl:text>
-    <xsl:value-of select="x:Depth"/>
-    <xsl:text>|</xsl:text>
-    <xsl:value-of select="x:Azimuth"/>
-    <xsl:text>|</xsl:text>
-    <xsl:value-of select="x:Dip"/>
-    <xsl:text>|</xsl:text>
+
+    <xsl:value-of select="concat( ../../@code, '|', ../@code, '|', @locationCode, '|', @code, '|', x:Latitude, '|', x:Longitude, '|', x:Elevation, '|', x:Depth, '|', x:Azimuth, '|', x:Dip, '|'   )"/>
     <xsl:apply-templates select="x:Sensor"/>
     <xsl:text>|</xsl:text>
     <xsl:apply-templates select="x:Response"/>
     <xsl:text>|</xsl:text>
     <xsl:value-of select="x:SampleRate"/>
-    <xsl:text>|</xsl:text>
-    <xsl:value-of select="@startDate"/>
-    <xsl:text>|</xsl:text>
-    <xsl:value-of select="@endDate"/>
+    <xsl:value-of select="concat('|', replace(@startDate,'Z',''), '|', replace(@endDate,'Z',''))"/>
+
 
 <!-- Do not indent : next two lines to get newlines -->
 <xsl:text>
@@ -91,7 +67,5 @@
 <!--  Catch all -->
 <xsl:template match="text()|@*">
  </xsl:template>
-
-
 
 </xsl:stylesheet>
