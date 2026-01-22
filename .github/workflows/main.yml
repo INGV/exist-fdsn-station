@@ -10,20 +10,6 @@ jobs:
     name: build
     runs-on: ubuntu-latest
 
-    services:
-      docker:
-        image: docker:dind
-        options: --privileged
-        ports:
-          - 2375:2375
-          - 8080:8080
-        env:
-          DOCKER_TLS_CERTDIR: ""
-
-    env:
-      DOCKER_TLS_CERTDIR: ""
-      DOCKER_HOST: tcp://localhost:2375
-
     steps:
       - name: Install base tools (git, curl, tar/zstd)
         shell: sh
@@ -44,18 +30,6 @@ jobs:
           key: ${{ runner.os }}-exist-fdsn-${{ github.ref_name }}
           restore-keys: |
             ${{ runner.os }}-exist-fdsn-
-
-      - name: Wait for Docker daemon (dind) to be ready
-        shell: sh
-        run: |
-          set -eu
-          for i in $(seq 1 60); do
-            docker info >/dev/null 2>&1 && exit 0
-            sleep 1
-          done
-          echo "Docker daemon did not become ready in time" >&2
-          docker version || true
-          exit 1
 
       - name: Build Docker image (with buildx cache when available)
         shell: sh
@@ -79,7 +53,7 @@ jobs:
         run: |
           set -eu
           docker rm -f exist-fdsn-station >/dev/null 2>&1 || true
-          docker run -d -p 8080:8080/tcp --name exist-fdsn-station exist-fdsn-station
+          docker run -d -p 8080:8080 --name exist-fdsn-station exist-fdsn-station
 
       - name: Install test dependencies
         shell: sh
@@ -87,15 +61,10 @@ jobs:
           set -eu
           sudo DEBIAN_FRONTEND=noninteractive apt-get update
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            build-essential libxml2-dev libxslt1-dev zlib1g-dev python3-dev libpython3.12-dev pkg-config
-          # Upgrade packaging tools so pip can pull modern binary wheels when available
+            build-essential libxml2-dev libxslt1-dev zlib1g-dev python3-dev pkg-config
           python3 -m pip install --upgrade pip setuptools wheel --disable-pip-version-check
-          # Install test tools. Do not pin lxml to an old version that lacks wheels for modern Python.
           python3 -m pip install --user --no-cache-dir pytest==7.1.2 lxml xmldiff requests
-          # Ensure ~/.local/bin is on PATH for subsequent steps
           echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
-          # Optional check to help debugging: print Python include dir and confirm longintrepr.h present (non-fatal)
-          python3 -c 'import sysconfig, os; inc = sysconfig.get_config_var("INCLUDEPY"); print("INCLUDEPY:", inc); print(os.path.exists(os.path.join(inc, "longintrepr.h")) or os.path.exists(os.path.join(inc, "cpython","longintrepr.h")))' || true
 
       - name: Wait for service to respond (up to 120s)
         shell: sh
