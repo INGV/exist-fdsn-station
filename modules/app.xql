@@ -73,8 +73,10 @@ let $history := $versioning_module?functions?(xs:QName("v:history"))?1
 let $revisions := $versioning_module?functions?(xs:QName("v:revisions"))?1
 let $dates:=$versioning_module?functions?(xs:QName("v:dates"))?1
 let $loaded:=true()
+ let $user := request:get-attribute("org.exist.login.user")
 
 return
+if ($user!="guestguest") then
 <table>
     <thead>
         <tr>
@@ -120,7 +122,7 @@ for $network in collection($stationutil:station_collection)//Network
 }
 </tbody>
 </table>
-
+else ()
 }
 catch err:* {
 
@@ -219,28 +221,39 @@ declare function app:touch($node as node(), $model as map(*)) {
     </div>
 };
 
+declare function app:fix_tz($node as node(), $model as map(*)) {
+    <div>
+    <h2>Change date format in database</h2>
+    <h3>Fix dates format according to TZ settings</h3>
+        <form class="form" id="cache" method="GET" action="/exist/apps/fdsn-station/modules/fix_tz.xql">
+            <input type="submit" value="Change"/>
+        </form>
+    </div>
+};
+
+
 
 declare function app:settings($node as node(), $model as map(*)) {
     <div>
     <h2>Configure</h2>
     <h3>Modify configuration</h3>
-    <div class="col-md-6">   
+    <div class="col-md-6">
         <form class="form" id="cache" method="GET" action="/exist/apps/fdsn-station/modules/settings.xql">
-                <div class="form-check">  
+                <div class="form-check">
                 {
                 if ($stationutil:settings("enable_log")) then
                   <input class="form-check-input" type="checkbox" name="enable_log" id="enable_log" checked="checked">
                   <label class="form-check-label" for="enable_log">
                     Enable log
                   </label>
-                 </input> 
+                 </input>
                  else
                   <input class="form-check-input" type="checkbox" name="enable_log" id="enable_log">
                   <label class="form-check-label" for="enable_log">
                     Enable log
                   </label>
-                 </input> 
-                } 
+                 </input>
+                }
                 </div>
                 <div class="form-check">
                 {
@@ -249,13 +262,13 @@ declare function app:settings($node as node(), $model as map(*)) {
                   <label class="form-check-label" for="enable_debug">
                     Enable debug
                   </label>
-                 </input> 
+                 </input>
                  else
                      <input class="form-check-input" type="checkbox" name="enable_debug" id="enable_debug">
                   <label class="form-check-label" for="enable_debug">
                     Enable debug
                   </label>
-                 </input>   
+                 </input>
                 }
                 </div>
                 <div class="form-check">
@@ -265,13 +278,45 @@ declare function app:settings($node as node(), $model as map(*)) {
                   <label class="form-check-label" for="enable_query_log">
                     Enable query log
                   </label>
-                 </input> 
+                 </input>
                  else
                     <input class="form-check-input" type="checkbox" name="enable_query_log" id="enable_query_log"  >
                   <label class="form-check-label" for="enable_query_log">
                     Enable query log
                   </label>
-                 </input> 
+                 </input>
+                }
+             </div>
+             <div class="form-check">
+                {
+                 if ($stationutil:settings("remove_tz")) then
+                  <input class="form-check-input" type="checkbox" name="remove_tz" id="remove_tz" checked="checked"  >
+                  <label class="form-check-label" for="remove_tz">
+                    Remove Z in dates
+                  </label>
+                 </input>
+                 else
+                    <input class="form-check-input" type="checkbox" name="remove_tz" id="remove_tz"  >
+                  <label class="form-check-label" for="remove_tz">
+                    Remove Z in dates
+                  </label>
+                 </input>
+                }
+             </div>
+             <div class="form-check">
+                {
+                 if ($stationutil:settings("strip_zero")) then
+                  <input class="form-check-input" type="checkbox" name="strip_zero" id="strip_zero" checked="checked"  >
+                  <label class="form-check-label" for="strip_zero">
+                    Strip trailing zeroes
+                  </label>
+                 </input>
+                 else
+                    <input class="form-check-input" type="checkbox" name="strip_zero" id="strip_zero"  >
+                  <label class="form-check-label" for="strip_zero">
+                    Strip trailing zeroes
+                  </label>
+                 </input>
                 }
              </div>
                  <input type="submit" value="Apply changes"/>
